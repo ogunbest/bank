@@ -20,14 +20,23 @@ const PlaidLink = ({ user, variant }: PlaidLinkProps) => {
     getLinkToken();
   }, [user]);
 
-  const onSuccess = useCallback<PlaidLinkOnSuccess>(async (public_token: string) => {
-    await exchangePublicToken({
-      publicToken: public_token,
-      user,
-    })
+ const onSuccess = useCallback<PlaidLinkOnSuccess>(async (public_token: string) => {
+  console.log("PLAID SUCCESS - PUBLIC TOKEN RECEIVED");
 
-    router.push('/');
-  }, [user])
+  const result = await exchangePublicToken({
+    publicToken: public_token,
+    user,
+  });
+
+  console.log("EXCHANGE RESULT:", result);
+
+  if (!result) {
+    alert("Bank connection failed. Check the terminal.");
+    return;
+  }
+
+  router.push('/');
+}, [user, router]);
   
   const config: PlaidLinkOptions = {
     token,
