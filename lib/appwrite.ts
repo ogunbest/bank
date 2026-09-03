@@ -8,18 +8,27 @@ export async function createSessionClient() {
     .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
     .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT!);
 
-  const session = cookies().get("appwrite-session");
+  const cookieStore = cookies();
+  const session = cookieStore.get("appwrite-session");
 
-  if (!session || !session.value) {
-    throw new Error("No session");
+  if (!session?.value) {
+    return null;
   }
 
   client.setSession(session.value);
 
   return {
-    get account() {
-      return new Account(client);
-    },
+    account: new Account(client),
+  };
+}
+
+export async function createClient() {
+  const client = new Client()
+    .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
+    .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT!);
+
+  return {
+    account: new Account(client),
   };
 }
 
@@ -29,16 +38,16 @@ export async function createAdminClient() {
     .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT!)
     .setKey(process.env.NEXT_APPWRITE_KEY!);
 
+  console.log("APPWRITE ENDPOINT:", process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT);
+  console.log("APPWRITE PROJECT:", process.env.NEXT_PUBLIC_APPWRITE_PROJECT);
+  console.log(
+    "APPWRITE KEY LENGTH:",
+    process.env.NEXT_APPWRITE_KEY?.length
+  );
+
   return {
-    get account() {
-      return new Account(client);
-    },
-    get database() {
-      return new Databases(client);
-    },
-    get user() {
-      return new Users(client);
-    }
+    account: new Account(client),
+    database: new Databases(client),
+    user: new Users(client),
   };
 }
-

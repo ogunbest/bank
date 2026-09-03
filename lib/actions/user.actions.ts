@@ -1,14 +1,18 @@
 'use server';
 
 import { ID, Query } from "node-appwrite";
-import { createAdminClient, createSessionClient } from "../appwrite";
+import {
+  createAdminClient,
+  createSessionClient,
+  createClient,
+} from "../appwrite";
 import { cookies } from "next/headers";
 import { encryptId, extractCustomerIdFromUrl, parseStringify } from "../utils";
 import { CountryCode, ProcessorTokenCreateRequest, ProcessorTokenCreateRequestProcessorEnum, Products } from "plaid";
 
 import { plaidClient } from '@/lib/plaid';
 import { revalidatePath } from "next/cache";
-import { addFundingSource, createDwollaCustomer } from "./dwolla.actions";
+import { addFundingSource } from "./dwolla.actions";
 
 const {
   APPWRITE_DATABASE_ID: DATABASE_ID,
@@ -20,63 +24,82 @@ export const getUserInfo = async ({ userId }: getUserInfoProps) => {
   try {
     const { database } = await createAdminClient();
 
+    console.log("DATABASE_ID:", DATABASE_ID);
+    console.log("USER_COLLECTION_ID:", USER_COLLECTION_ID);
+    console.log("USER_ID:", userId);
+    console.log("APPWRITE_KEY_EXISTS:", !!process.env.NEXT_APPWRITE_KEY);
+
     const user = await database.listDocuments(
       DATABASE_ID!,
       USER_COLLECTION_ID!,
-      [Query.equal('userId', [userId])]
-    )
+      [Query.equal("userId", [userId])]
+    );
+
+    console.log("USER DOCUMENTS:", user.documents);
 
     return parseStringify(user.documents[0]);
   } catch (error) {
-    console.log(error)
+    console.error("GET USER INFO ERROR:", error);
+    return null;
   }
-}
+};
 
 export const signIn = async ({ email, password }: signInProps) => {
   try {
-    const { account } = await createAdminClient();
-    const session = await account.createEmailPasswordSession(email, password);
+    const { account } = await createClient();
+
+    const session = await account.createEmailPasswordSession(
+      email,
+      password
+    );
 
     cookies().set("appwrite-session", session.secret, {
       path: "/",
       httpOnly: true,
       sameSite: "strict",
-      secure: true,
+      secure: false,
     });
 
-    const user = await getUserInfo({ userId: session.userId }) 
+    const user = await getUserInfo({
+      userId: session.userId,
+    });
+
+    if (!user) {
+      throw new Error("User profile not found");
+    }
 
     return parseStringify(user);
   } catch (error) {
-    console.error('Error', error);
+    console.error("Error signing in:", error);
+    return null;
   }
 }
 
+
 export const signUp = async ({ password, ...userData }: SignUpParams) => {
   const { email, firstName, lastName } = userData;
-  
-  let newUserAccount;
 
   try {
-    const { account, database } = await createAdminClient();
+    console.log("=== SIGN UP START ===");
+    console.log("Email:", email);
+    console.log("Database ID:", DATABASE_ID);
+    console.log("Collection ID:", USER_COLLECTION_ID);
+    console.log("API key exists:", !!process.env.NEXT_APPWRITE_KEY);
 
-    newUserAccount = await account.create(
-      ID.unique(), 
-      email, 
-      password, 
+    // 1. Create Appwrite account
+    const { account } = await createClient();
+
+    const newUserAccount = await account.create(
+      ID.unique(),
+      email,
+      password,
       `${firstName} ${lastName}`
     );
 
-    if(!newUserAccount) throw new Error('Error creating user')
+    console.log("APPWRITE ACCOUNT CREATED:", newUserAccount.$id);
 
-    const dwollaCustomerUrl = await createDwollaCustomer({
-      ...userData,
-      type: 'personal'
-    })
-
-    if(!dwollaCustomerUrl) throw new Error('Error creating Dwolla customer')
-
-    const dwollaCustomerId = extractCustomerIdFromUrl(dwollaCustomerUrl);
+    // 2. Create user profile document
+    const { database } = await createAdminClient();
 
     const newUser = await database.createDocument(
       DATABASE_ID!,
@@ -85,71 +108,39 @@ export const signUp = async ({ password, ...userData }: SignUpParams) => {
       {
         ...userData,
         userId: newUserAccount.$id,
-        dwollaCustomerId,
-        dwollaCustomerUrl
       }
-    )
+    );
 
-    const session = await account.createEmailPasswordSession(email, password);
+    console.log("USER PROFILE CREATED:", newUser.$id);
+
+    // 3. Create login session
+    const session = await account.createEmailPasswordSession(
+      email,
+      password
+    );
+
+    console.log("SESSION CREATED:", session.$id);
 
     cookies().set("appwrite-session", session.secret, {
       path: "/",
       httpOnly: true,
-      sameSite: "strict",
-      secure: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
     });
 
+    console.log("=== SIGN UP SUCCESS ===");
+
     return parseStringify(newUser);
+
   } catch (error) {
-    console.error('Error', error);
-  }
-}
+    console.error("=== SIGN UP ERROR ===");
+    console.error(error);
 
-export async function getLoggedInUser() {
-  try {
-    const { account } = await createSessionClient();
-    const result = await account.get();
-
-    const user = await getUserInfo({ userId: result.$id})
-
-    return parseStringify(user);
-  } catch (error) {
-    console.log(error)
     return null;
   }
-}
+};
 
-export const logoutAccount = async () => {
-  try {
-    const { account } = await createSessionClient();
 
-    cookies().delete('appwrite-session');
-
-    await account.deleteSession('current');
-  } catch (error) {
-    return null;
-  }
-}
-
-export const createLinkToken = async (user: User) => {
-  try {
-    const tokenParams = {
-      user: {
-        client_user_id: user.$id
-      },
-      client_name: `${user.firstName} ${user.lastName}`,
-      products: ['auth'] as Products[],
-      language: 'en',
-      country_codes: ['US'] as CountryCode[],
-    }
-
-    const response = await plaidClient.linkTokenCreate(tokenParams);
-
-    return parseStringify({ linkToken: response.data.link_token })
-  } catch (error) {
-    console.log(error);
-  }
-}
 
 export const createBankAccount = async ({
   userId,
@@ -293,3 +284,39 @@ export const getBankByAccountId = async ({ accountId }: getBankByAccountIdProps)
     console.log(error)
   }
 }
+export const getLoggedInUser = async () => {
+  try {
+    const sessionClient = await createSessionClient();
+
+    if (!sessionClient) {
+      return null;
+    }
+
+    const { account } = sessionClient;
+
+    const currentUser = await account.get();
+
+    const user = await getUserInfo({
+      userId: currentUser.$id,
+    });
+
+    return parseStringify(user);
+  } catch (error) {
+    console.log("Error getting logged in user:", error);
+    return null;
+  }
+}
+export const logoutAccount = async () => {
+  try {
+    const { account } = await createSessionClient();
+
+    await account.deleteSession("current");
+
+    cookies().delete("appwrite-session");
+
+    return true;
+  } catch (error) {
+    console.log("Error logging out:", error);
+    return false;
+  }
+};
