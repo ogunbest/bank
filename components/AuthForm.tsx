@@ -8,26 +8,17 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+import {Form,} from "@/components/ui/form"
 import CustomInput from './CustomInput';
 import { authFormSchema } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { getLoggedInUser, signIn, signUp } from '@/lib/actions/user.actions';
-import PlaidLink from './PlaidLink';
+import { signIn, signUp } from '@/lib/actions/user.actions';
+
 
 const AuthForm = ({ type }: { type: string }) => {
   const router = useRouter();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const formSchema = authFormSchema(type);
@@ -64,14 +55,15 @@ const AuthForm = ({ type }: { type: string }) => {
           setUser(newUser);
         }
 
-       if(type === 'sign-in') {
+      if(type === 'sign-in') {
   const response = await signIn({
     email: data.email,
     password: data.password,
-  })
+  });
 
   if(response) {
-    setUser(response);
+    router.push('/dashboard');
+    router.refresh();
   }
 }
       } catch (error) {
@@ -111,11 +103,11 @@ const AuthForm = ({ type }: { type: string }) => {
             </h1>
           </div>
       </header>
-      {user ? (
-        <div className="flex flex-col gap-4">
-          <PlaidLink user={user} variant="primary" />
-        </div>
-      ): (
+     {user ? (
+  <div className="flex flex-col gap-4">
+    <p>Account created successfully.</p>
+  </div>
+) : (
         <>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">

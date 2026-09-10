@@ -75,8 +75,8 @@ export function formatAmount(amount: number): string {
 
   return formatter.format(amount);
 }
-
-export const parseStringify = (value: any) => JSON.parse(JSON.stringify(value));
+export const parseStringify = <T>(value: T): T =>
+  JSON.parse(JSON.stringify(value));
 
 export const removeSpecialCharacters = (value: string) => {
   return value.replace(/[^\w\s]/gi, "");
@@ -137,8 +137,7 @@ export function countTransactionCategories(
   let totalCount = 0;
 
   // Iterate over each transaction
-  transactions &&
-    transactions.forEach((transaction) => {
+  transactions?.forEach((transaction) => {
       // Extract the category from the transaction
       const category = transaction.category;
 
@@ -201,7 +200,9 @@ export const authFormSchema = (type: string) => z.object({
   lastName: type === 'sign-in' ? z.string().optional() : z.string().min(3),
   address1: type === 'sign-in' ? z.string().optional() : z.string().max(50),
   city: type === 'sign-in' ? z.string().optional() : z.string().max(50),
-  state: type === 'sign-in' ? z.string().optional() : z.string().min(2).max(2),
+  state: type === 'sign-in'
+  ? z.string().optional()
+  : z.string().min(2).max(30),
   dateOfBirth: type === 'sign-in' ? z.string().optional() : z.string().min(3),
 
   // both

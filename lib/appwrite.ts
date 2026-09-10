@@ -31,7 +31,6 @@ export async function createClient() {
     account: new Account(client),
   };
 }
-
 export async function createAdminClient() {
   const client = new Client()
     .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
