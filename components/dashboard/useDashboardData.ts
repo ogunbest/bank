@@ -1,11 +1,17 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { getDashboardData } from "@/lib/actions/dashboard.actions";
 
-export type DashboardData = Awaited<ReturnType<typeof getDashboardData>>;
+export type DashboardData = Awaited<
+  ReturnType<typeof getDashboardData>
+>;
 
 export function useDashboardData() {
+  const router = useRouter();
+
   const [data, setData] = useState<DashboardData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -17,6 +23,11 @@ export function useDashboardData() {
       try {
         const dashboardData = await getDashboardData();
 
+        if (!dashboardData) {
+          router.replace("/sign-in");
+          return;
+        }
+
         if (isMounted) {
           setData(dashboardData);
           setError(null);
@@ -25,7 +36,9 @@ export function useDashboardData() {
         console.error("DASHBOARD DATA ERROR:", loadError);
 
         if (isMounted) {
-          setError("We could not load your account data. Please refresh and try again.");
+          setError(
+            "We could not load your account data. Please refresh and try again."
+          );
         }
       } finally {
         if (isMounted) {
@@ -39,7 +52,8 @@ export function useDashboardData() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [router]);
 
   return { data, error, loading };
 }
+

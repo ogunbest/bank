@@ -245,20 +245,101 @@ export async function verifyPaystackTransaction(
       }
     );
 
-    await database.createDocument(
+    const customerEmail =
+  transaction.customer?.email || "";
+
+const customerName = [
+  transaction.customer?.first_name,
+  transaction.customer?.last_name,
+]
+  .filter(Boolean)
+  .join(" ");
+
+const receiverName = [
+  userDocument.firstName,
+  userDocument.lastName,
+]
+  .filter(Boolean)
+  .join(" ");
+
+const receiverEmail =
+  userDocument.email || "";
+
+await database.createDocument(
   process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!,
   process.env.NEXT_PUBLIC_APPWRITE_TRANSACTION_COLLECTION_ID!,
   ID.unique(),
   {
     userId,
+
     type: "deposit",
+
     title: "Paystack Deposit",
+
     amount: paidAmount,
-    status: "success",
-    reference,
+
+    status: transaction.status,
+
+    reference: transaction.reference,
+
     date: new Date().toISOString(),
+
+    senderId:
+      transaction.customer?.id
+        ? String(transaction.customer.id)
+        : "",
+
+    receiverId:
+      userId,
+
+    senderName:
+      customerName || "Paystack Customer",
+
+    receiverName:
+      receiverName || "Horizon User",
+
+    senderEmail:
+      customerEmail,
+
+    receiverEmail:
+      receiverEmail,
+
+    paystackTransactionId:
+      transaction.id,
+
+    channel:
+      transaction.channel || "",
+
+    currency:
+      transaction.currency || "NGN",
+
+    fees:
+      Number(transaction.fees || 0) / 100,
+
+    paidAt:
+      transaction.paid_at ||
+      transaction.paidAt ||
+      new Date().toISOString(),
   }
 );
+
+console.log(
+  "STEP 8B: FULL TRANSACTION CREATED"
+);
+
+console.log({
+  senderId: transaction.customer?.id,
+  senderName: customerName,
+  senderEmail: customerEmail,
+  receiverId: userId,
+  receiverName,
+  receiverEmail,
+  paystackTransactionId: transaction.id,
+  channel: transaction.channel,
+  currency: transaction.currency,
+  fees: Number(transaction.fees || 0) / 100,
+  paidAt: transaction.paid_at,
+});
 
 console.log("STEP 8B: TRANSACTION CREATED");
  

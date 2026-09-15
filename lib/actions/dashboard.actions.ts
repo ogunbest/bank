@@ -45,14 +45,23 @@ const getDirection = (
   return asText(transaction.senderBankId) ? "out" : "in";
 };
 
-export async function getDashboardData() {
+
+  export async function getDashboardData() {
   const sessionClient = await createSessionClient();
 
-  if (!sessionClient) {
-    throw new Error("No active session");
-  }
+if (!sessionClient) {
+  return null;
+}
 
-  const currentUser = await sessionClient.account.get();
+let currentUser;
+
+try {
+  currentUser = await sessionClient.account.get();
+} catch (error) {
+  console.error("NO ACTIVE APPWRITE SESSION:", error);
+  return null;
+}
+
   const { database } = await createAdminClient();
 
   const databaseId = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!;

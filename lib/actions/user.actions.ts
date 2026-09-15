@@ -46,6 +46,7 @@ return parseStringify(user.documents[0]) as unknown as User;
 };
 
 
+
 export const signIn = async ({ email, password }: signInProps) => {
   try {
     console.log("=== SIGN IN START ===");
@@ -110,7 +111,6 @@ export const signIn = async ({ email, password }: signInProps) => {
       throw new Error("Appwrite did not return a session cookie.");
     }
 
-    // Extract only the cookie value
     const appwriteCookie = setCookie
       .split(";")[0]
       .split("=")
@@ -148,6 +148,15 @@ export const signIn = async ({ email, password }: signInProps) => {
       throw new Error("User profile not found");
     }
 
+    // Check whether the admin has disabled this account
+    if (user.status?.trim().toLowerCase() === "disabled") {
+      cookies().delete("appwrite-session");
+
+      throw new Error(
+        "Your account has been disabled. Please contact support."
+      );
+    }
+
     console.log("=== SIGN IN SUCCESS ===");
 
     return parseStringify(user);
@@ -158,6 +167,7 @@ export const signIn = async ({ email, password }: signInProps) => {
     return null;
   }
 };
+
 
 
 
@@ -353,17 +363,134 @@ export const getLoggedInUser = async () => {
 }
 export const logoutAccount = async () => {
   try {
+    console.log("=== LOGOUT START ===");
+
     const sessionClient = await createSessionClient();
 
-   if (!sessionClient) {
-  return false;
-}
+    if (!sessionClient) {
+      console.log("NO SESSION CLIENT");
+      return false;
+    }
+
     const { account } = sessionClient;
 
     await account.deleteSession("current");
+
     cookies().delete("appwrite-session");
+
+    console.log("=== LOGOUT SUCCESS ===");
+
     return true;
   } catch (error) {
-    console.error("LOGOUT ERROR:", error);
+    console.error("=== LOGOUT ERROR ===");
+    console.error(error);
+    return false;
   }
+};
+
+export const getAllUsers = async () => {
+  try {
+    const { database } = await createAdminClient();
+
+    const users = await database.listDocuments(
+      DATABASE_ID,
+      USER_COLLECTION_ID,
+      []
+    );
+
+    return parseStringify(users.documents);
+  } catch (error) {
+    console.error("GET ALL USERS ERROR:", error);
+    return [];
+  }
+};
+
+export const getAllBankAccounts = async () => {
+  try {
+    const { database } = await createAdminClient();
+
+    const banks = await database.listDocuments(
+      DATABASE_ID,
+      BANK_COLLECTION_ID,
+      []
+    );
+
+    return parseStringify(banks.documents);
+  } catch (error) {
+    console.error("GET ALL BANK ACCOUNTS ERROR:", error);
+    return [];
+  }
+};
+
+export const getAllTransactions = async () => {
+  try {
+    const { database } = await createAdminClient();
+
+    const transactions = await database.listDocuments(
+      DATABASE_ID,
+      process.env.NEXT_PUBLIC_APPWRITE_TRANSACTION_COLLECTION_ID!,
+      []
+    );
+
+    return parseStringify(transactions.documents);
+  } catch (error) {
+    console.error("GET ALL TRANSACTIONS ERROR:", error);
+    return [];
+  }
+};
+
+export const updateUserStatus = async ({
+  userId,
+  status,
+}: {
+  userId: string;
+  status: "active" | "disabled";
+}) => {
+  try {
+    const admin = await getLoggedInUser();
+
+    if (!admin || admin.role?.trim().toLowerCase() !== "admin") {
+      throw new Error("Unauthorized");
+    }
+
+    const { database } = await createAdminClient();
+
+    const updatedUser = await database.updateDocument(
+      DATABASE_ID,
+      USER_COLLECTION_ID,
+      userId,
+      {
+        status,
+      }
+    );
+
+    return parseStringify(updatedUser);
+  } catch (error) {
+    console.error("UPDATE USER STATUS ERROR:", error);
+    throw error;
+  }
+};
+
+export const getTransaction = async ({
+transactionId,
+}: {
+transactionId: string;
+}) => {
+try {
+const { database } = await createAdminClient();
+
+
+const transaction = await database.getDocument(
+  DATABASE_ID,
+  process.env.NEXT_PUBLIC_APPWRITE_TRANSACTION_COLLECTION_ID!,
+  transactionId
+);
+
+return parseStringify(transaction);
+
+
+} catch (error) {
+console.error("GET TRANSACTION ERROR:", error);
+return null;
+}
 };
