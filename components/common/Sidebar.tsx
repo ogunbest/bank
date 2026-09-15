@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   LogOut,
   Menu,
-  Settings,
   ArrowLeftRight,
   Receipt,
   Wallet,
@@ -17,6 +16,8 @@ import {
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { logoutAccount } from "@/lib/actions/user.actions";
 
 type SidebarItem = {
   name: string;
@@ -68,16 +69,24 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     color: "#3B82F6",
     href: "/dashboard/analytics",
   },
-  {
-    name: "Settings",
-    icon: Settings,
-    color: "#6EE7B7",
-    href: "/dashboard/settings",
-  },
 ];
 
 const Sidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+
+    try {
+      await logoutAccount();
+      router.replace("/sign-in");
+      router.refresh();
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   return (
     <motion.aside
@@ -142,12 +151,16 @@ const Sidebar = () => {
         </nav>
 
         {/* LOGOUT */}
-        <button className="flex items-center p-4 text-sm font-medium rounded-lg hover:bg-red-500/10 text-gray-300 hover:text-red-400 transition-colors">
+        <button
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+          className="flex items-center p-4 text-sm font-medium rounded-lg hover:bg-red-500/10 text-gray-300 hover:text-red-400 transition-colors disabled:opacity-50"
+        >
           <LogOut size={20} />
 
           {isSidebarOpen && (
             <span className="ml-4 whitespace-nowrap">
-              Logout
+              {isLoggingOut ? "Signing out..." : "Logout"}
             </span>
           )}
         </button>

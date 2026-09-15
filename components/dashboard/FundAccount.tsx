@@ -26,7 +26,6 @@ export default function FundAccount() {
           },
           body: JSON.stringify({
             amount: numericAmount,
-            email: "ogunbestjos@gmail.com",
           }),
         }
       );

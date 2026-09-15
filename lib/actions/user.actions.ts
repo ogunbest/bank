@@ -9,13 +9,13 @@ import {
 import { cookies } from "next/headers";
 import { parseStringify } from "../utils";
 
-const {
-  APPWRITE_DATABASE_ID: DATABASE_ID,
-  APPWRITE_USER_COLLECTION_ID: USER_COLLECTION_ID,
-  APPWRITE_BANK_COLLECTION_ID: BANK_COLLECTION_ID,
-} = process.env;
+const DATABASE_ID = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!;
+const USER_COLLECTION_ID =
+  process.env.NEXT_PUBLIC_APPWRITE_USER_COLLECTION_ID!;
+const BANK_COLLECTION_ID =
+  process.env.NEXT_PUBLIC_APPWRITE_BANK_COLLECTION_ID!;
 
-export const getUserInfo = async ({
+  export const getUserInfo = async ({
   userId,
 }: getUserInfoProps): Promise<User | null> => {
   try {
@@ -361,6 +361,7 @@ export const logoutAccount = async () => {
     const { account } = sessionClient;
 
     await account.deleteSession("current");
+    cookies().delete("appwrite-session");
     return true;
   } catch (error) {
     console.error("LOGOUT ERROR:", error);

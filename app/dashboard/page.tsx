@@ -1,7 +1,9 @@
-
 "use client";
 
 import FundAccount from "@/components/dashboard/FundAccount";
+import { useDashboardData } from "@/components/dashboard/useDashboardData";
+import Link from "next/link";
+
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -12,7 +14,28 @@ import {
 
 import Header from "@/components/common/Header";
 
+interface DashboardTransaction {
+  id: string;
+  title: string;
+  type: string;
+  direction: "in" | "out";
+  amount: number;
+  status: string;
+  reference: string;
+  date: string;
+}
+
 export default function DashboardPage() {
+  const { data, error, loading } = useDashboardData();
+  const balance = data?.balance ?? 0;
+  const transactions: DashboardTransaction[] = data?.transactions ?? [];
+
+  const formatMoney = (amount: number) =>
+    amount.toLocaleString("en-NG", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+
   return (
     <div className="flex-1 overflow-auto relative z-10">
       <Header title="Overview" />
@@ -22,12 +45,16 @@ export default function DashboardPage() {
         {/* WELCOME */}
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-white">
-            Welcome back
+            Welcome back{data?.user.name ? `, ${data.user.name.split(" ")[0]}` : ""}
           </h1>
 
           <p className="text-gray-400 mt-1">
-            Here&apos;s what&apos;s happening with your accounts today.
+            Here's what's happening with your accounts today.
           </p>
+
+          {error && (
+            <p className="mt-3 text-sm text-red-300">{error}</p>
+          )}
         </div>
 
         {/* BALANCE + QUICK ACTIONS */}
@@ -35,6 +62,7 @@ export default function DashboardPage() {
 
           {/* TOTAL BALANCE */}
           <div className="lg:col-span-2 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-700 p-6 shadow-xl">
+
             <div className="flex items-center justify-between">
 
               <div>
@@ -43,7 +71,9 @@ export default function DashboardPage() {
                 </p>
 
                 <h2 className="text-4xl font-bold text-white mt-2">
-                  ₦1,250,450.00
+                  {loading
+                    ? "Loading..."
+                    : `₦${formatMoney(balance)}`}
                 </h2>
 
                 <p className="text-indigo-200 text-sm mt-3">
@@ -70,7 +100,10 @@ export default function DashboardPage() {
 
             <div className="grid grid-cols-2 gap-3">
 
-              <button className="flex flex-col items-center justify-center gap-2 rounded-xl bg-gray-700/70 p-4 hover:bg-gray-700 transition">
+              <Link
+                href="/dashboard/transfers"
+                className="flex flex-col items-center justify-center gap-2 rounded-xl bg-gray-700/70 p-4 hover:bg-gray-700 transition"
+              >
                 <Send
                   size={20}
                   className="text-indigo-400"
@@ -79,47 +112,56 @@ export default function DashboardPage() {
                 <span className="text-sm text-gray-200">
                   Transfer
                 </span>
-              </button>
+              </Link>
 
-              <button className="flex flex-col items-center justify-center gap-2 rounded-xl bg-gray-700/70 p-4 hover:bg-gray-700 transition">
+              <Link
+                href="/dashboard/accounts"
+                className="flex flex-col items-center justify-center gap-2 rounded-xl bg-gray-700/70 p-4 hover:bg-gray-700 transition"
+              >
                 <CreditCard
                   size={20}
                   className="text-purple-400"
                 />
 
                 <span className="text-sm text-gray-200">
-                  Pay Bills
+                  Accounts
                 </span>
-              </button>
+              </Link>
 
-              <button className="flex flex-col items-center justify-center gap-2 rounded-xl bg-gray-700/70 p-4 hover:bg-gray-700 transition">
+              <a
+                href="#fund-account"
+                className="flex flex-col items-center justify-center gap-2 rounded-xl bg-gray-700/70 p-4 hover:bg-gray-700 transition"
+              >
                 <ArrowDownLeft
                   size={20}
                   className="text-green-400"
                 />
 
                 <span className="text-sm text-gray-200">
-                  Receive
+                  Fund account
                 </span>
-              </button>
+              </a>
 
-              <button className="flex flex-col items-center justify-center gap-2 rounded-xl bg-gray-700/70 p-4 hover:bg-gray-700 transition">
+              <Link
+                href="/dashboard/transactions"
+                className="flex flex-col items-center justify-center gap-2 rounded-xl bg-gray-700/70 p-4 hover:bg-gray-700 transition"
+              >
                 <ArrowUpRight
                   size={20}
                   className="text-red-400"
                 />
 
                 <span className="text-sm text-gray-200">
-                  Send
+                  Transactions
                 </span>
-              </button>
+              </Link>
 
             </div>
           </div>
         </div>
 
         {/* FUND ACCOUNT */}
-        <div className="mb-8">
+        <div id="fund-account" className="mb-8">
           <FundAccount />
         </div>
 
@@ -132,11 +174,23 @@ export default function DashboardPage() {
             </p>
 
             <p className="text-2xl font-semibold text-green-400 mt-2">
-              +₦450,000
+              ₦
+              {formatMoney(
+                transactions
+                  .filter(
+                    (transaction) =>
+                      transaction.direction === "in"
+                  )
+                  .reduce(
+                    (total, transaction) =>
+                      total + transaction.amount,
+                    0
+                  )
+              )}
             </p>
 
             <p className="text-gray-500 text-xs mt-2">
-              This month
+              Total deposits
             </p>
           </div>
 
@@ -146,11 +200,23 @@ export default function DashboardPage() {
             </p>
 
             <p className="text-2xl font-semibold text-red-400 mt-2">
-              -₦125,500
+              ₦
+              {formatMoney(
+                transactions
+                  .filter(
+                    (transaction) =>
+                      transaction.direction === "out"
+                  )
+                  .reduce(
+                    (total, transaction) =>
+                      total + transaction.amount,
+                    0
+                  )
+              )}
             </p>
 
             <p className="text-gray-500 text-xs mt-2">
-              This month
+              Total withdrawals
             </p>
           </div>
 
@@ -160,11 +226,12 @@ export default function DashboardPage() {
             </p>
 
             <p className="text-2xl font-semibold text-indigo-400 mt-2">
-              ₦875,000
+              ₦
+              {formatMoney(balance)}
             </p>
 
             <p className="text-gray-500 text-xs mt-2">
-              Current savings
+              Current balance
             </p>
           </div>
 
@@ -185,39 +252,50 @@ export default function DashboardPage() {
               </p>
             </div>
 
-            <button className="text-sm text-indigo-400 hover:text-indigo-300">
+            <Link
+              href="/dashboard/transactions"
+              className="text-sm text-indigo-400 hover:text-indigo-300"
+            >
               View all
-            </button>
+            </Link>
 
           </div>
 
           <div className="divide-y divide-gray-700">
 
-            <Transaction
-              title="Salary"
-              date="Today, 09:42 AM"
-              amount="+₦300,000"
-              positive
-            />
-
-            <Transaction
-              title="Electricity Bill"
-              date="Yesterday, 04:15 PM"
-              amount="-₦35,000"
-            />
-
-            <Transaction
-              title="Transfer to John"
-              date="Yesterday, 12:30 PM"
-              amount="-₦50,000"
-            />
-
-            <Transaction
-              title="Account Deposit"
-              date="Sep 6, 2026"
-              amount="+₦150,000"
-              positive
-            />
+            {loading ? (
+              <div className="px-6 py-8 text-center text-gray-400">
+                Loading transactions...
+              </div>
+            ) : transactions.length === 0 ? (
+              <div className="px-6 py-8 text-center text-gray-400">
+                No transactions yet.
+              </div>
+            ) : (
+              transactions
+                .sort(
+                  (a, b) =>
+                    new Date(b.date).getTime() -
+                    new Date(a.date).getTime()
+                )
+                .slice(0, 5)
+                .map((transaction) => (
+                  <Transaction
+                    key={transaction.id}
+                    title={transaction.title}
+                    date={new Date(
+                      transaction.date
+                    ).toLocaleString("en-NG", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
+                    amount={transaction.amount}
+                    positive={
+                      transaction.direction === "in"
+                    }
+                  />
+                ))
+            )}
 
           </div>
         </div>
@@ -230,7 +308,7 @@ export default function DashboardPage() {
 interface TransactionProps {
   title: string;
   date: string;
-  amount: string;
+  amount: number;
   positive?: boolean;
 }
 
@@ -284,9 +362,19 @@ function Transaction({
             : "text-red-400"
         }`}
       >
-        {amount}
+        {positive ? "+" : "-"}₦
+        {formatTransactionAmount(amount)}
       </p>
 
     </div>
   );
+}
+
+function formatTransactionAmount(
+  amount: number
+) {
+  return amount.toLocaleString("en-NG", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 }
