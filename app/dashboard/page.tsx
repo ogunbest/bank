@@ -1,5 +1,7 @@
 "use client";
-
+import { motion } from "framer-motion";
+import SavingsGoals from "@/components/dashboard/SavingsGoals";
+import FinancialInsights from "@/components/dashboard/FinancialInsights";
 import FundAccount from "@/components/dashboard/FundAccount";
 import { useDashboardData } from "@/components/dashboard/useDashboardData";
 import Link from "next/link";
@@ -23,10 +25,16 @@ interface DashboardTransaction {
   status: string;
   reference: string;
   date: string;
+  category?: string;
 }
 
 export default function DashboardPage() {
-  const { data, error, loading } = useDashboardData();
+  const {
+  data,
+  error,
+  loading,
+  refreshDashboard,
+} = useDashboardData();
   const balance = data?.balance ?? 0;
   const transactions: DashboardTransaction[] = data?.transactions ?? [];
 
@@ -65,7 +73,10 @@ export default function DashboardPage() {
 
             <div className="flex items-center justify-between">
 
-              <div>
+              <motion.div
+  initial={{ opacity: 0, y: 15 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.4 }}>
                 <p className="text-indigo-100 text-sm">
                   Total Balance
                 </p>
@@ -79,7 +90,7 @@ export default function DashboardPage() {
                 <p className="text-indigo-200 text-sm mt-3">
                   Available balance
                 </p>
-              </div>
+              </motion.div>
 
               <div className="h-14 w-14 rounded-full bg-white/10 flex items-center justify-center">
                 <Wallet
@@ -161,11 +172,20 @@ export default function DashboardPage() {
         </div>
 
         {/* FUND ACCOUNT */}
-        <div id="fund-account" className="mb-8">
-          <FundAccount />
-        </div>
+<div id="fund-account" className="mb-8">
+  <FundAccount />
+</div>
 
-        {/* ACCOUNT SUMMARY */}
+{/* FINANCIAL INSIGHTS */}
+<FinancialInsights
+  transactions={transactions}
+  balance={balance}
+/>
+
+{/* SAVINGS GOALS */}
+<div className="mt-8">
+  <SavingsGoals onBalanceChange={refreshDashboard} />
+</div>  {/* ACCOUNT SUMMARY */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
 
           <div className="rounded-2xl bg-gray-800/70 border border-gray-700 p-5">

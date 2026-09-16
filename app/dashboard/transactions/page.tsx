@@ -1,5 +1,5 @@
 "use client";
-
+import { useRouter } from "next/navigation";
 import { ArrowDownLeft, ArrowUpRight, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useDashboardData } from "@/components/dashboard/useDashboardData";
@@ -21,6 +21,7 @@ export default function TransactionsPage() {
   const { data, error, loading } = useDashboardData();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
+  const router = useRouter();
 
   const transactions = useMemo(
     () =>
@@ -68,7 +69,7 @@ export default function TransactionsPage() {
           </select>
         </div>
 
-        <section className="bg-gray-800/60 border border-gray-700 rounded-2xl overflow-hidden">
+        <section className="bg-gray-900 border border-gray-700 rounded-2xl overflow-hidden shadow-xl">
           <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4 border-b border-gray-700 text-xs uppercase text-gray-500">
             <div className="col-span-4">Transaction</div>
             <div className="col-span-2">Type</div>
@@ -90,8 +91,9 @@ export default function TransactionsPage() {
 
               return (
                 <article
-                  key={transaction.id}
-                  className="grid grid-cols-1 md:grid-cols-12 gap-4 px-6 py-5 border-b border-gray-700 last:border-b-0 hover:bg-gray-700/30"
+  key={transaction.id}
+  onClick={() => router.push(`/dashboard/transactions/${transaction.id}`)}
+  className="cursor-pointer grid grid-cols-1 md:grid-cols-12 gap-4 px-6 py-5 border-b border-gray-700 last:border-b-0 hover:bg-gray-700/30"
                 >
                   <div className="md:col-span-4 flex items-center gap-3">
                     <div className={`p-2 rounded-full ${incoming ? "bg-emerald-500/10" : "bg-red-500/10"}`}>

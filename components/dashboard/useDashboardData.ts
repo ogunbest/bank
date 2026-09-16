@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { getDashboardData } from "@/lib/actions/dashboard.actions";
 
@@ -16,10 +15,30 @@ export function useDashboardData() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const refreshDashboard = useCallback(async () => {
+    try {
+      const dashboardData = await getDashboardData();
+
+      if (!dashboardData) {
+        router.replace("/sign-in");
+        return;
+      }
+
+      setData(dashboardData);
+      setError(null);
+    } catch (loadError) {
+      console.error("DASHBOARD DATA ERROR:", loadError);
+
+      setError(
+        "We could not load your account data. Please refresh and try again."
+      );
+    }
+  }, [router]);
+
   useEffect(() => {
     let isMounted = true;
 
-    const loadDashboardData = async () => {
+    const load = async () => {
       try {
         const dashboardData = await getDashboardData();
 
@@ -47,13 +66,17 @@ export function useDashboardData() {
       }
     };
 
-    loadDashboardData();
+    load();
 
     return () => {
       isMounted = false;
     };
   }, [router]);
 
-  return { data, error, loading };
+  return {
+    data,
+    error,
+    loading,
+    refreshDashboard,
+  };
 }
-

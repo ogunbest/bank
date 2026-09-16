@@ -1,6 +1,7 @@
 "use server";
 
 import { Query } from "node-appwrite";
+import { unstable_noStore } from "next/cache";
 import {
   createAdminClient,
   createSessionClient,
@@ -46,7 +47,7 @@ const getDirection = (
 };
 
 
-  export async function getDashboardData() {
+  export async function getDashboardData() { unstable_noStore();
   const sessionClient = await createSessionClient();
 
 if (!sessionClient) {
@@ -68,7 +69,7 @@ try {
   const userCollectionId = process.env.NEXT_PUBLIC_APPWRITE_USER_COLLECTION_ID!;
   const transactionCollectionId =
     process.env.NEXT_PUBLIC_APPWRITE_TRANSACTION_COLLECTION_ID!;
-  const bankCollectionId = process.env.NEXT_APPWRITE_BANK_COLLECTION_ID;
+  const bankCollectionId = process.env.NEXT_PUBLIC_APPWRITE_BANK_COLLECTION_ID;
 
   const users = await database.listDocuments(
     databaseId,
@@ -77,36 +78,28 @@ try {
   );
 
   if (users.documents.length === 0) {
+    console.log("DASHBOARD PROFILE:", {
+  authUserId: currentUser.$id,
+  profileId: users.documents[0].$id,
+  email: users.documents[0].email,
+  balance: users.documents[0].balance,
+});
     throw new Error("User profile not found");
   }
 
   const user = users.documents[0] as AppwriteDocument;
 
-  const transactionResults = await Promise.allSettled([
-    database.listDocuments(databaseId, transactionCollectionId, [
-      Query.equal("userId", currentUser.$id),
-    ]),
-    database.listDocuments(databaseId, transactionCollectionId, [
-      Query.equal("senderId", currentUser.$id),
-    ]),
-    database.listDocuments(databaseId, transactionCollectionId, [
-      Query.equal("receiverId", currentUser.$id),
-    ]),
-  ]);
+  const transactionResult = await database.listDocuments(
+  databaseId,
+  transactionCollectionId,
+  [Query.equal("userId", currentUser.$id)],
+);
 
-  const transactionDocuments = new Map<string, AppwriteDocument>();
+const transactionDocuments = new Map<string, AppwriteDocument>();
 
-  for (const result of transactionResults) {
-    if (result.status !== "fulfilled") continue;
-
-    for (const document of result.value.documents as AppwriteDocument[]) {
-      transactionDocuments.set(document.$id, document);
-    }
-  }
-
-  if (transactionResults.every((result) => result.status === "rejected")) {
-    throw new Error("Unable to load transactions");
-  }
+for (const document of transactionResult.documents as AppwriteDocument[]) {
+  transactionDocuments.set(document.$id, document);
+}
 
   let bankDocuments: AppwriteDocument[] = [];
 
