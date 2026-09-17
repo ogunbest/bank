@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import {
   getAllBankAccounts,
   getAllTransactions,
@@ -143,27 +144,33 @@ const totalTransfers = transactions
                   className="flex justify-between items-center border-b border-gray-700 pb-3"
                 >
                   <div>
-                    <p className="font-medium">
-                      {user.firstName} {user.lastName}
-                    </p>
+                    <Link
+  href={`/admin/users/${user.$id}`}
+  className="font-medium text-blue-400 hover:text-blue-300 hover:underline"
+>
+  {user.firstName} {user.lastName}
+</Link>
 
                     <p className="text-sm text-gray-400">
                       {user.email}
                     </p>
                   </div>
+<div className="text-right">
+  <p className="text-sm">
+    {user.role || "user"}
+  </p>
 
-                  <div className="text-right">
-                    <p className="text-sm">
-                      {user.role}
-                    </p>
+  <p className="text-sm">
+    {user.status || "active"}
+  </p>
 
-                    <p className="text-sm text-gray-400">
-                      ₦
-                      {Number(
-                        user.balance || 0
-                      ).toLocaleString()}
-                    </p>
-                  </div>
+  <p className="text-sm text-gray-400">
+    ₦
+    {Number(
+      user.balance || 0
+    ).toLocaleString("en-NG")}
+  </p>
+</div>
                 </div>
               ))}
           </div>
@@ -195,9 +202,14 @@ const totalTransfers = transactions
                       key={transaction.$id}
                       className="border-b border-gray-700"
                     >
-                      <td className="p-3 text-sm text-gray-400">
-                        {transaction.$id}
-                      </td>
+                      <td className="p-3 text-sm">
+  <Link
+    href={`/admin/transactions/${transaction.$id}`}
+    className="text-blue-400 hover:text-blue-300 hover:underline"
+  >
+    {transaction.$id}
+  </Link>
+</td>
 
                       <td className="p-3">
                         ₦
