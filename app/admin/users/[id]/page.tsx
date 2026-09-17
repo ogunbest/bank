@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import UserStatusButton from "@/components/admin/UserStatusButton";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
