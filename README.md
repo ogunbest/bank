@@ -1,5 +1,7 @@
 # Horizon Banking App
 
+🚀 **Live Demo:** https://horizonbank.vercel.app
+
 A modern Nigerian banking web application built with **Next.js, TypeScript, Tailwind CSS, Appwrite, and Paystack**.
 
 The application provides a digital banking experience with deposits, transfers, withdrawals, transaction history, bank account management, notifications, and an administrative dashboard.
