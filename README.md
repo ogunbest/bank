@@ -1,6 +1,6 @@
 # Horizon Banking App
 
-🚀 **Live Demo:** https://horizonbank.vercel.app
+🚀 **Live Demo:** https://bank-six-tawny.vercel.app
 
 A modern Nigerian banking web application built with **Next.js, TypeScript, Tailwind CSS, Appwrite, and Paystack**.
 
