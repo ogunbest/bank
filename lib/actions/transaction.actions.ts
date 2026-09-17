@@ -1,61 +1,70 @@
 "use server";
 
 import { ID, Query } from "node-appwrite";
-import { createAdminClient } from "../appwrite";
+import { createAdminClient } from "@/lib/appwrite";
 import { parseStringify } from "../utils";
 
-const {
-  APPWRITE_DATABASE_ID: DATABASE_ID,
-  APPWRITE_TRANSACTION_COLLECTION_ID: TRANSACTION_COLLECTION_ID,
-} = process.env;
+const DATABASE_ID =
+  process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!;
 
-export const createTransaction = async (transaction: CreateTransactionProps) => {
+const TRANSACTION_COLLECTION_ID =
+  process.env.NEXT_PUBLIC_APPWRITE_TRANSACTION_COLLECTION_ID!;
+
+export const createTransaction = async (
+  transaction: CreateTransactionProps,
+) => {
   try {
     const { database } = await createAdminClient();
 
     const newTransaction = await database.createDocument(
-      DATABASE_ID!,
-      TRANSACTION_COLLECTION_ID!,
+      DATABASE_ID,
+      TRANSACTION_COLLECTION_ID,
       ID.unique(),
       {
-        channel: 'online',
-        category: 'Transfer',
-        ...transaction
-      }
-    )
+        channel: "online",
+        category: "Transfer",
+        ...transaction,
+      },
+    );
 
     return parseStringify(newTransaction);
   } catch (error) {
-    console.log(error);
+    console.error("CREATE TRANSACTION ERROR:", error);
+    throw error;
   }
-}
+};
 
-export const getTransactionsByBankId = async ({bankId}: getTransactionsByBankIdProps) => {
+export const getTransactionsByBankId = async ({
+  bankId,
+}: getTransactionsByBankIdProps) => {
   try {
     const { database } = await createAdminClient();
 
     const senderTransactions = await database.listDocuments(
-      DATABASE_ID!,
-      TRANSACTION_COLLECTION_ID!,
-      [Query.equal('senderBankId', bankId)],
-    )
+      DATABASE_ID,
+      TRANSACTION_COLLECTION_ID,
+      [Query.equal("senderBankId", bankId)],
+    );
 
     const receiverTransactions = await database.listDocuments(
-      DATABASE_ID!,
-      TRANSACTION_COLLECTION_ID!,
-      [Query.equal('receiverBankId', bankId)],
+      DATABASE_ID,
+      TRANSACTION_COLLECTION_ID,
+      [Query.equal("receiverBankId", bankId)],
     );
 
     const transactions = {
-      total: senderTransactions.total + receiverTransactions.total,
+      total:
+        senderTransactions.total +
+        receiverTransactions.total,
       documents: [
-        ...senderTransactions.documents, 
+        ...senderTransactions.documents,
         ...receiverTransactions.documents,
-      ]
-    }
+      ],
+    };
 
     return parseStringify(transactions);
   } catch (error) {
-    console.log(error);
+    console.error("GET TRANSACTIONS BY BANK ERROR:", error);
+    throw error;
   }
-}
+};
