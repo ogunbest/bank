@@ -57,7 +57,7 @@ export default function DashboardPage() {
           </h1>
 
           <p className="text-gray-400 mt-1">
-            Here's what's happening with your accounts today.
+            Here&apos;s what&apos;s happening with your accounts today.
           </p>
 
           {error && (

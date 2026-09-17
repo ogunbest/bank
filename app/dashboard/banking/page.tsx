@@ -99,8 +99,36 @@ export default function BankingPage() {
   }, []);
 
     const handleVerifyAccount = async () => {
-    // your existing verification code
-  };
+  try {
+    setVerifying(true);
+    setBankMessage("");
+    setBankMessageType("");
+    setVerifiedAccount(null);
+
+    const result = await resolvePaystackAccount({
+      accountNumber,
+      bankCode: selectedBankCode,
+    });
+
+    setVerifiedAccount(result);
+
+    setBankMessage(
+      `Account verified: ${result.accountName}`
+    );
+    setBankMessageType("success");
+  } catch (error) {
+    console.error("VERIFY ACCOUNT ERROR:", error);
+
+    setBankMessage(
+      error instanceof Error
+        ? error.message
+        : "Could not verify bank account."
+    );
+    setBankMessageType("error");
+  } finally {
+    setVerifying(false);
+  }
+};
 
   const handleDeleteBankAccount = async (bankId: string) => {
     const confirmed = window.confirm(
