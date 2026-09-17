@@ -20,8 +20,9 @@ const formatDate = (value: string) => {
 export default function TransactionsPage() {
   const { data, error, loading } = useDashboardData();
   const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all");
-  const router = useRouter();
+const [filter, setFilter] = useState("all");
+const [statusFilter, setStatusFilter] = useState("all");
+const router = useRouter();
 
   const transactions = useMemo(
     () =>
@@ -30,13 +31,17 @@ export default function TransactionsPage() {
           .toLowerCase()
           .includes(search.trim().toLowerCase());
         const matchesFilter =
-          filter === "all" ||
-          (filter === "incoming" && transaction.direction === "in") ||
-          (filter === "outgoing" && transaction.direction === "out");
+  filter === "all" ||
+  (filter === "incoming" && transaction.direction === "in") ||
+  (filter === "outgoing" && transaction.direction === "out");
 
-        return searchable && matchesFilter;
+const matchesStatus =
+  statusFilter === "all" ||
+  transaction.status.toLowerCase() === statusFilter;
+
+return searchable && matchesFilter && matchesStatus;
       }),
-    [data?.transactions, filter, search],
+    [data?.transactions, filter, search, statusFilter],
   );
 
   return (
@@ -67,6 +72,17 @@ export default function TransactionsPage() {
             <option value="incoming">Money in</option>
             <option value="outgoing">Money out</option>
           </select>
+          <select
+  value={statusFilter}
+  onChange={(event) => setStatusFilter(event.target.value)}
+  className="bg-gray-800/60 border border-gray-700 rounded-lg px-4 py-3 text-gray-300 outline-none"
+>
+  <option value="all">All statuses</option>
+  <option value="success">Success</option>
+  <option value="pending">Pending</option>
+  <option value="failed">Failed</option>
+</select>
+          
         </div>
 
         <section className="bg-gray-900 border border-gray-700 rounded-2xl overflow-hidden shadow-xl">

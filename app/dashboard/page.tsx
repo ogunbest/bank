@@ -1,7 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
-import SavingsGoals from "@/components/dashboard/SavingsGoals";
-import FinancialInsights from "@/components/dashboard/FinancialInsights";
+import SavingsGoals from "@/components/dashboard/savingsGoals";
+import FinancialInsights from "@/components/dashboard/financialInsights";
 import FundAccount from "@/components/dashboard/FundAccount";
 import { useDashboardData } from "@/components/dashboard/useDashboardData";
 import Link from "next/link";

@@ -100,7 +100,7 @@ export default function TransactionDetailsPage({
               incoming ? "text-emerald-400" : "text-red-400"
             }`}
           >
-           {incoming ? "+" : "-"}NGN {formatMoney(transaction.amount)}
+            {incoming ? "+" : "-"}₦{formatMoney(transaction.amount)}
           </h1>
 
           <span
@@ -115,32 +115,62 @@ export default function TransactionDetailsPage({
         </div>
 
         <div className="p-8 space-y-6">
-          <div>
-            <p className="text-sm text-gray-500">Description</p>
-            <p className="text-white mt-1">{transaction.title}</p>
-          </div>
+  <div>
+    <p className="text-sm text-gray-500">Description</p>
+    <p className="text-white mt-1">{transaction.title}</p>
+  </div>
 
-          <div>
-            <p className="text-sm text-gray-500">Transaction type</p>
-            <p className="text-white mt-1 capitalize">
-              {transaction.type}
-            </p>
-          </div>
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <div>
+      <p className="text-sm text-gray-500">Transaction type</p>
+      <p className="text-white mt-1 capitalize">
+        {transaction.type}
+      </p>
+    </div>
 
-          <div>
-            <p className="text-sm text-gray-500">Reference</p>
-            <p className="text-white mt-1 break-all">
-              {transaction.reference}
-            </p>
-          </div>
+    <div>
+      <p className="text-sm text-gray-500">Category</p>
+      <p className="text-white mt-1 capitalize">
+        {transaction.category}
+      </p>
+    </div>
 
-          <div>
-            <p className="text-sm text-gray-500">Date</p>
-            <p className="text-white mt-1">
-              {formatDate(transaction.date)}
-            </p>
-          </div>
-        </div>
+    <div>
+      <p className="text-sm text-gray-500">Channel</p>
+      <p className="text-white mt-1 capitalize">
+        {transaction.channel}
+      </p>
+    </div>
+
+    <div>
+      <p className="text-sm text-gray-500">Currency</p>
+      <p className="text-white mt-1">
+        {transaction.currency}
+      </p>
+    </div>
+
+    <div>
+      <p className="text-sm text-gray-500">Fees</p>
+      <p className="text-white mt-1">
+        ₦{formatMoney(transaction.fees)}
+      </p>
+    </div>
+
+    <div>
+      <p className="text-sm text-gray-500">Date</p>
+      <p className="text-white mt-1">
+        {formatDate(transaction.date)}
+      </p>
+    </div>
+  </div>
+
+  <div>
+    <p className="text-sm text-gray-500">Reference</p>
+    <p className="text-white mt-1 break-all">
+      {transaction.reference}
+    </p>
+  </div>
+</div>
       </section>
     </main>
   );

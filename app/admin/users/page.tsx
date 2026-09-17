@@ -6,11 +6,19 @@ import {
 import Link from "next/link";
 
 export default async function AdminUsersPage() {
-  const user = await getLoggedInUser();
+ const user = await getLoggedInUser();
 
-  if (!user || user.role?.trim().toLowerCase() !== "admin") {
-    redirect("/dashboard");
-  }
+const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+const userEmail = user?.email?.trim().toLowerCase();
+
+if (
+  !user ||
+  !adminEmail ||
+  userEmail !== adminEmail ||
+  user.role?.trim().toLowerCase() !== "admin"
+) {
+  redirect("/dashboard");
+}
 
   const users = await getAllUsers();
 
@@ -27,11 +35,14 @@ export default async function AdminUsersPage() {
           <table className="w-full text-left">
             <thead className="bg-gray-800">
               <tr>
-                <th className="p-4">Name</th>
-                <th className="p-4">Email</th>
-                <th className="p-4">Role</th>
-                <th className="p-4">City</th>
-              </tr>
+  <th className="p-4">Name</th>
+  <th className="p-4">Email</th>
+  <th className="p-4">Balance</th>
+  <th className="p-4">Role</th>
+  <th className="p-4">Status</th>
+  <th className="p-4">City</th>
+  <th className="p-4">Activity</th>
+</tr>
             </thead>
 
             <tbody>
@@ -52,14 +63,28 @@ export default async function AdminUsersPage() {
                   <td className="p-4 text-gray-300">
                     {user.email}
                   </td>
+                  <td className="p-4 font-medium">
+  ₦{Number(user.balance || 0).toLocaleString("en-NG")}
+</td>
 
                   <td className="p-4">
                     {user.role}
                   </td>
+                  <td className="p-4">
+  {user.status || "active"}
+</td>
 
                   <td className="p-4 text-gray-300">
                     {user.city || "—"}
                   </td>
+                  <td className="p-4">
+  <Link
+    href={`/admin/users/${user.$id}`}
+    className="text-blue-400 hover:text-blue-300"
+  >
+    View activity
+  </Link>
+</td>
                 </tr>
               ))}
             </tbody>

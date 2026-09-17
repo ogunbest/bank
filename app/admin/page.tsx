@@ -9,17 +9,58 @@ import {
 export default async function AdminPage() {
   const user = await getLoggedInUser();
 
-  if (!user || user.role?.trim().toLowerCase() !== "admin") {
-    redirect("/dashboard");
-  }
+const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+const userEmail = user?.email?.trim().toLowerCase();
+
+if (
+  !user ||
+  !adminEmail ||
+  userEmail !== adminEmail ||
+  user.role?.trim().toLowerCase() !== "admin"
+) {
+  redirect("/dashboard");
+}
 
   const users = await getAllUsers();
   const bankAccounts = await getAllBankAccounts();
   const transactions = await getAllTransactions();
 
   const totalBalance = users.reduce(
-    (total: number, user: any) =>
-      total + Number(user.balance || 0),
+  (total: number, user: any) =>
+    total + Number(user.balance || 0),
+  0
+);
+
+const totalDeposits = transactions
+  .filter(
+    (transaction: any) =>
+      transaction.type?.toLowerCase() === "deposit"
+  )
+  .reduce(
+    (total: number, transaction: any) =>
+      total + Number(transaction.amount || 0),
+    0
+  );
+
+const totalWithdrawals = transactions
+  .filter(
+    (transaction: any) =>
+      transaction.type?.toLowerCase() === "withdrawal"
+  )
+  .reduce(
+    (total: number, transaction: any) =>
+      total + Number(transaction.amount || 0),
+    0
+  );
+
+const totalTransfers = transactions
+  .filter(
+    (transaction: any) =>
+      transaction.type?.toLowerCase() === "transfer"
+  )
+  .reduce(
+    (total: number, transaction: any) =>
+      total + Number(transaction.amount || 0),
     0
   );
 
@@ -35,41 +76,56 @@ export default async function AdminPage() {
         </p>
 
         {/* Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
-          <div className="bg-gray-800 rounded-xl p-6">
-            <p className="text-gray-400">Total Users</p>
-            <p className="text-3xl font-bold mt-2">
-              {users.length}
-            </p>
-          </div>
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+  <div className="bg-gray-800 rounded-xl p-6">
+    <p className="text-gray-400">Total Users</p>
+    <p className="text-3xl font-bold mt-2">
+      {users.length}
+    </p>
+  </div>
 
-          <div className="bg-gray-800 rounded-xl p-6">
-            <p className="text-gray-400">
-              Bank Accounts
-            </p>
-            <p className="text-3xl font-bold mt-2">
-              {bankAccounts.length}
-            </p>
-          </div>
+  <div className="bg-gray-800 rounded-xl p-6">
+    <p className="text-gray-400">Bank Accounts</p>
+    <p className="text-3xl font-bold mt-2">
+      {bankAccounts.length}
+    </p>
+  </div>
 
-          <div className="bg-gray-800 rounded-xl p-6">
-            <p className="text-gray-400">
-              Transactions
-            </p>
-            <p className="text-3xl font-bold mt-2">
-              {transactions.length}
-            </p>
-          </div>
+  <div className="bg-gray-800 rounded-xl p-6">
+    <p className="text-gray-400">Transactions</p>
+    <p className="text-3xl font-bold mt-2">
+      {transactions.length}
+    </p>
+  </div>
 
-          <div className="bg-gray-800 rounded-xl p-6">
-            <p className="text-gray-400">
-              Total Balance
-            </p>
-            <p className="text-2xl font-bold mt-2">
-              ₦{totalBalance.toLocaleString()}
-            </p>
-          </div>
-        </div>
+  <div className="bg-gray-800 rounded-xl p-6">
+    <p className="text-gray-400">Total Customer Funds</p>
+    <p className="text-2xl font-bold mt-2">
+      ₦{totalBalance.toLocaleString("en-NG")}
+    </p>
+  </div>
+
+  <div className="bg-gray-800 rounded-xl p-6">
+    <p className="text-gray-400">Total Deposits</p>
+    <p className="text-2xl font-bold mt-2 text-green-400">
+      ₦{totalDeposits.toLocaleString("en-NG")}
+    </p>
+  </div>
+
+  <div className="bg-gray-800 rounded-xl p-6">
+    <p className="text-gray-400">Total Withdrawals</p>
+    <p className="text-2xl font-bold mt-2 text-red-400">
+      ₦{totalWithdrawals.toLocaleString("en-NG")}
+    </p>
+  </div>
+
+  <div className="bg-gray-800 rounded-xl p-6">
+    <p className="text-gray-400">Total Transfers</p>
+    <p className="text-2xl font-bold mt-2">
+      ₦{totalTransfers.toLocaleString("en-NG")}
+    </p>
+  </div>
+</div>
 
         {/* Recent Users */}
         <div className="mt-8 bg-gray-800 rounded-xl p-6">

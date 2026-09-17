@@ -149,7 +149,7 @@ export const signIn = async ({ email, password }: signInProps) => {
     }
 
     // Check whether the admin has disabled this account
-    if (user.status?.trim().toLowerCase() === "disabled") {
+    if ((user as { status?: string }).status?.trim().toLowerCase() === "disabled") {
       cookies().delete("appwrite-session");
 
       throw new Error(
@@ -256,19 +256,38 @@ export const createBankAccount = async ({
     console.log("ACCOUNT NUMBER:", accountNumber);
 
     const { database } = await createAdminClient();
+    const existingBanks = await database.listDocuments(
+  DATABASE_ID,
+  BANK_COLLECTION_ID,
+  [
+    Query.equal("userId", [userId]),
+    Query.equal("accountNumber", [accountNumber]),
+  ],
+);
 
-    const bankAccount = await database.createDocument(
-      DATABASE_ID!,
-      BANK_COLLECTION_ID!,
-      ID.unique(),
-      {
-        userId,
-        bankCode,
-        bankName,
-        accountNumber,
-        accountName,
-      }
-    );
+if (existingBanks.documents.length > 0) {
+  throw new Error(
+    "This bank account is already linked to your account.",
+  );
+}
+
+  const bankAccount = await database.createDocument(
+  DATABASE_ID!,
+  BANK_COLLECTION_ID!,
+  ID.unique(),
+  {
+  userId,
+  bankId: bankCode,
+  shareableId: ID.unique(),
+  accessToken: "",
+  accountId: accountNumber,
+  bankName,
+  bankCode,
+  accountNumber,
+  accountName,
+}
+);
+
 
     console.log("=== BANK ACCOUNT CREATED ===");
     console.log("BANK DOCUMENT ID:", bankAccount.$id);
@@ -276,6 +295,34 @@ export const createBankAccount = async ({
     return parseStringify(bankAccount);
   } catch (error) {
     console.error("=== CREATE BANK ACCOUNT ERROR ===");
+    console.error(error);
+    throw error;
+  }
+};
+export const createBankAccountForCurrentUser = async ({
+  bankCode,
+  bankName,
+  accountNumber,
+  accountName,
+}: Omit<CreateBankAccountParams, "userId">) => {
+  try {
+    const sessionClient = await createSessionClient();
+
+    if (!sessionClient) {
+      throw new Error("You must be logged in.");
+    }
+
+    const currentUser = await sessionClient.account.get();
+
+    return await createBankAccount({
+      userId: currentUser.$id,
+      bankCode,
+      bankName,
+      accountNumber,
+      accountName,
+    });
+  } catch (error) {
+    console.error("=== CREATE CURRENT USER BANK ERROR ===");
     console.error(error);
     throw error;
   }
@@ -493,4 +540,178 @@ return parseStringify(transaction);
 console.error("GET TRANSACTION ERROR:", error);
 return null;
 }
+};
+
+export const updateCurrentUserProfile = async ({
+  firstName,
+  lastName,
+  phone,
+  address,
+  city,
+  state,
+}: {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+}) => {
+  try {
+    const sessionClient = await createSessionClient();
+
+    if (!sessionClient) {
+      throw new Error("You must be logged in.");
+    }
+
+    const currentUser = await sessionClient.account.get();
+
+    const { database } = await createAdminClient();
+
+    const users = await database.listDocuments(
+      DATABASE_ID,
+      USER_COLLECTION_ID,
+      [Query.equal("userId", [currentUser.$id])]
+    );
+
+    if (users.total !== 1) {
+      throw new Error("User profile not found.");
+    }
+
+    const userProfile = users.documents[0];
+
+    const updatedUser = await database.updateDocument(
+      DATABASE_ID,
+      USER_COLLECTION_ID,
+      userProfile.$id,
+      {
+  firstName: firstName.trim(),
+  lastName: lastName.trim(),
+  phone: phone.trim(),
+  address1: address.trim(),
+  city: city.trim(),
+  state: state.trim(),
+}
+    );
+
+    return parseStringify(updatedUser);
+  } catch (error) {
+    console.error("UPDATE CURRENT USER PROFILE ERROR:", error);
+    throw error;
+  }
+};
+
+export const updateCurrentUserPassword = async ({
+  currentPassword,
+  newPassword,
+}: {
+  currentPassword: string;
+  newPassword: string;
+}) => {
+  try {
+    const sessionClient = await createSessionClient();
+
+    if (!sessionClient) {
+      throw new Error("You must be logged in.");
+    }
+
+    if (!currentPassword || !newPassword) {
+      throw new Error("Both password fields are required.");
+    }
+
+    if (newPassword.length < 8) {
+      throw new Error("New password must be at least 8 characters.");
+    }
+
+    if (currentPassword === newPassword) {
+      throw new Error(
+        "New password must be different from your current password."
+      );
+    }
+
+    await sessionClient.account.updatePassword(
+      newPassword,
+      currentPassword
+    );
+
+    return {
+      success: true,
+      message: "Password updated successfully.",
+    };
+  } catch (error) {
+    console.error("UPDATE PASSWORD ERROR:", error);
+
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+
+    throw new Error("Could not update your password.");
+  }
+};
+
+export const deleteBankAccountForCurrentUser = async (
+  bankId: string
+) => {
+  try {
+    const sessionClient = await createSessionClient();
+
+    if (!sessionClient) {
+      throw new Error("You must be logged in.");
+    }
+
+    const currentUser = await sessionClient.account.get();
+
+    const { database } = await createAdminClient();
+
+    const TRANSACTION_COLLECTION_ID =
+      process.env.NEXT_PUBLIC_APPWRITE_TRANSACTION_COLLECTION_ID!;
+
+    // Make sure the bank account belongs to the logged-in user.
+    const banks = await database.listDocuments(
+      DATABASE_ID,
+      BANK_COLLECTION_ID,
+      [
+        Query.equal("$id", [bankId]),
+        Query.equal("userId", [currentUser.$id]),
+      ]
+    );
+
+    if (banks.total !== 1) {
+      throw new Error("Bank account not found.");
+    }
+
+    // Prevent deletion if the account has withdrawal records.
+    const transactions = await database.listDocuments(
+      DATABASE_ID,
+      TRANSACTION_COLLECTION_ID,
+      [
+        Query.equal("receiverId", [bankId]),
+      ]
+    );
+
+    if (transactions.documents.length > 0) {
+      throw new Error(
+        "This bank account has transaction records and cannot be removed."
+      );
+    }
+
+    await database.deleteDocument(
+      DATABASE_ID,
+      BANK_COLLECTION_ID,
+      bankId
+    );
+
+    return {
+      success: true,
+      message: "Bank account removed successfully.",
+    };
+  } catch (error) {
+    console.error("DELETE BANK ACCOUNT ERROR:", error);
+
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+
+    throw new Error("Could not remove bank account.");
+  }
 };

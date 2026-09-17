@@ -121,19 +121,22 @@ for (const document of transactionResult.documents as AppwriteDocument[]) {
       const direction = getDirection(transaction, currentUser.$id);
 
       return {
-        id: transaction.$id,
-        title:
-          asText(transaction.title) ||
-          asText(transaction.name) ||
-          "Account transaction",
-        type: rawType || (direction === "in" ? "deposit" : "transfer"),
-        direction,
-        amount: asNumber(transaction.amount),
-        status: asText(transaction.status) || "success",
-        reference: asText(transaction.reference) || transaction.$id,
-        date: asText(transaction.date) || transaction.$createdAt || "",
-        category: asText(transaction.category) || "Uncategorised",
-      };
+  id: transaction.$id,
+  title:
+    asText(transaction.title) ||
+    asText(transaction.name) ||
+    "Account transaction",
+  type: rawType || (direction === "in" ? "deposit" : "transfer"),
+  direction,
+  amount: asNumber(transaction.amount),
+  status: asText(transaction.status) || "success",
+  reference: asText(transaction.reference) || transaction.$id,
+  date: asText(transaction.date) || transaction.$createdAt || "",
+  category: asText(transaction.category) || "Uncategorised",
+  channel: asText(transaction.channel) || "online",
+  currency: asText(transaction.currency) || "NGN",
+  fees: asNumber(transaction.fees),
+};
     })
     .sort(
       (first, second) =>

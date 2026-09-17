@@ -11,8 +11,13 @@ import {
   Receipt,
   Wallet,
   Users,
+  Banknote,
+  Landmark,
+  Settings,
+  ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
+
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
@@ -34,11 +39,11 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     href: "/dashboard",
   },
   {
-    name: "Accounts",
-    icon: Wallet,
-    color: "#8B5CF6",
-    href: "/dashboard/accounts",
-  },
+  name: "Banking",
+  icon: Landmark,
+  color: "#6366F1",
+  href: "/dashboard/banking",
+},
   {
     name: "Transactions",
     icon: Receipt,
@@ -69,6 +74,18 @@ const SIDEBAR_ITEMS: SidebarItem[] = [
     color: "#3B82F6",
     href: "/dashboard/analytics",
   },
+    {
+    name: "Settings",
+    icon: Settings,
+    color: "#A78BFA",
+    href: "/dashboard/settings",
+  },
+  {
+    name: "Admin",
+    icon: ShieldCheck,
+    color: "#F97316",
+    href: "/admin",
+  },
 ];
 
 const Sidebar = () => {
@@ -97,7 +114,6 @@ const Sidebar = () => {
       transition={{ duration: 0.3 }}
     >
       <div className="h-full bg-gray-800/50 backdrop-blur-md p-4 flex flex-col border-r border-gray-700">
-        {/* MENU BUTTON */}
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
@@ -108,7 +124,6 @@ const Sidebar = () => {
           <Menu size={24} />
         </motion.button>
 
-        {/* NAVIGATION */}
         <nav className="mt-8 flex-grow">
           {SIDEBAR_ITEMS.map((item) => (
             <Link key={item.href} href={item.href}>
@@ -150,7 +165,6 @@ const Sidebar = () => {
           ))}
         </nav>
 
-        {/* LOGOUT */}
         <button
           onClick={handleLogout}
           disabled={isLoggingOut}

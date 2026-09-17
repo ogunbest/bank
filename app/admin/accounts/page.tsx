@@ -5,11 +5,19 @@ import {
 } from "@/lib/actions/user.actions";
 
 export default async function AdminAccountsPage() {
-  const user = await getLoggedInUser();
+ const user = await getLoggedInUser();
 
-  if (!user || user.role?.trim().toLowerCase() !== "admin") {
-    redirect("/dashboard");
-  }
+const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+const userEmail = user?.email?.trim().toLowerCase();
+
+if (
+  !user ||
+  !adminEmail ||
+  userEmail !== adminEmail ||
+  user.role?.trim().toLowerCase() !== "admin"
+) {
+  redirect("/dashboard");
+}
 
   const accounts = await getAllBankAccounts();
 

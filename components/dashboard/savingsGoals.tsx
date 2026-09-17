@@ -34,7 +34,7 @@ const [addAmount, setAddAmount] = useState("");
   async function loadGoals() {
     try {
       const data = await getSavingsGoals();
-      setGoals(data as SavingsGoal[]);
+      setGoals(data as unknown as SavingsGoal[]);
     } catch (error) {
       console.error("LOAD SAVINGS GOALS ERROR:", error);
     } finally {
@@ -64,7 +64,7 @@ const [addAmount, setAddAmount] = useState("");
 
       setGoals((current) => [
         ...current,
-        newGoal as SavingsGoal,
+        newGoal as unknown as SavingsGoal,
       ]);
 
       setGoal("");

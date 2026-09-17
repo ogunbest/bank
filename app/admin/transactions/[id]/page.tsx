@@ -12,12 +12,19 @@ export default async function TransactionDetailsPage({
 }: {
   params: { id: string };
 }) {
-  const user = await getLoggedInUser();
+  const admin = await getLoggedInUser();
 
-  if (!user || user.role?.trim().toLowerCase() !== "admin") {
-    redirect("/dashboard");
-  }
+const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+const adminUserEmail = admin?.email?.trim().toLowerCase();
 
+if (
+  !admin ||
+  !adminEmail ||
+  adminUserEmail !== adminEmail ||
+  admin.role?.trim().toLowerCase() !== "admin"
+) {
+  redirect("/dashboard");
+}
   const transaction = await getTransaction({
     transactionId: params.id,
   });

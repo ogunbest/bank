@@ -2,7 +2,7 @@
 
 import { ID, Query } from "node-appwrite";
 import { createAdminClient, createSessionClient } from "@/lib/appwrite";
-
+import { createNotification } from "@/lib/actions/notification.actions";
 export async function transferMoney({
   recipientEmail,
   amount,
@@ -93,6 +93,18 @@ export async function transferMoney({
     Math.random() * 100000,
   )}`;
 
+  const existingTransactions = await database.listDocuments(
+  databaseId,
+  transactionCollectionId,
+  [Query.equal("reference", [reference])]
+);
+
+if (existingTransactions.documents.length > 0) {
+  throw new Error(
+    "This transfer has already been processed."
+  );
+}
+
   // Deduct sender balance
   await database.updateDocument(
     databaseId,
@@ -142,6 +154,29 @@ export async function transferMoney({
 
     },
   );
+    await createNotification({
+    userId: currentUser.$id,
+    title: "Transfer successful",
+    message: `₦${amount.toLocaleString("en-NG", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} was sent to ${recipientName || recipientEmail}.`,
+    type: "transfer_sent",
+    reference,
+  });
+
+  await createNotification({
+    userId: recipient.userId,
+    title: "Money received",
+    message: `₦${amount.toLocaleString("en-NG", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} was received from ${senderName || currentUser.email}.`,
+    type: "transfer_received",
+    reference,
+  });
+
+  console.log("=== TRANSFER NOTIFICATIONS CREATED ===");
 
   // Receiver transaction
   await database.createDocument(

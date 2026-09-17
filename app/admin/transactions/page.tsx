@@ -8,9 +8,17 @@ import TransactionsTable from "@/components/admin/TransactionsTable";
 export default async function AdminTransactionsPage() {
   const user = await getLoggedInUser();
 
-  if (!user || user.role?.trim().toLowerCase() !== "admin") {
-    redirect("/dashboard");
-  }
+const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+const userEmail = user?.email?.trim().toLowerCase();
+
+if (
+  !user ||
+  !adminEmail ||
+  userEmail !== adminEmail ||
+  user.role?.trim().toLowerCase() !== "admin"
+) {
+  redirect("/dashboard");
+}
 
   const transactions = await getAllTransactions();
 

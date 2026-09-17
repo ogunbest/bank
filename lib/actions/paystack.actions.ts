@@ -6,6 +6,7 @@ import {
   createSessionClient,
 } from "@/lib/appwrite";
 import { ID, Query } from "node-appwrite";
+import { createNotification } from "@/lib/actions/notification.actions";
 
 interface CreatePaystackCustomerParams {
   email: string;
@@ -341,6 +342,19 @@ console.log({
   paidAt: transaction.paid_at,
 });
 
+await createNotification({
+  userId,
+  title: "Deposit successful",
+  message: `₦${paidAmount.toLocaleString("en-NG", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })} has been added to your account.`,
+  type: "deposit",
+  reference: transaction.reference,
+});
+
+console.log("STEP 8C: DEPOSIT NOTIFICATION CREATED");
+
 console.log("STEP 8B: TRANSACTION CREATED");
  
     console.log(
@@ -366,7 +380,6 @@ console.log("STEP 8B: TRANSACTION CREATED");
       "PAYSTACK VERIFICATION ERROR:",
       error
     );
-
     throw new Error(
       error instanceof Error
         ? error.message
@@ -374,3 +387,82 @@ console.log("STEP 8B: TRANSACTION CREATED");
     );
   }
 }
+
+export async function getPaystackBanks() {
+  try {
+    const response = await paystack.get("/bank", {
+      params: {
+        country: "nigeria",
+        perPage: 100,
+      },
+    });
+
+    return response.data.data.map(
+      (bank: {
+        name: string;
+        code: string;
+      }) => ({
+        name: bank.name,
+        code: bank.code,
+      })
+    );
+  } catch (error: unknown) {
+    console.error("GET PAYSTACK BANKS ERROR:", error);
+
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "Failed to load Nigerian banks"
+    );
+  }
+}
+
+export async function resolvePaystackAccount({
+  accountNumber,
+  bankCode,
+}: {
+  accountNumber: string;
+  bankCode: string;
+}) {
+  try {
+    if (!/^\d{10}$/.test(accountNumber)) {
+      throw new Error(
+        "Enter a valid 10-digit Nigerian account number."
+      );
+    }
+
+    if (!bankCode) {
+      throw new Error("Please select a bank.");
+    }
+
+    const response = await paystack.get(
+      "/bank/resolve",
+      {
+        params: {
+          account_number: accountNumber,
+          bank_code: bankCode,
+        },
+      }
+    );
+
+    const account = response.data.data;
+
+    return {
+      accountNumber: account.account_number,
+      accountName: account.account_name,
+      bankId: account.bank_id,
+    };
+  } catch (error: unknown) {
+    console.error(
+      "RESOLVE PAYSTACK ACCOUNT ERROR:",
+      error
+    );
+
+    throw new Error(
+      error instanceof Error
+        ? error.message
+        : "Could not verify bank account."
+    );
+  }
+}
+
