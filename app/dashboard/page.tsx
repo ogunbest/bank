@@ -1,400 +1,379 @@
 "use client";
-import { motion } from "framer-motion";
-import SavingsGoals from "@/components/dashboard/savingsGoals";
-import FinancialInsights from "@/components/dashboard/financialInsights";
+
+import Link from "next/link";
+import {
+  ArrowDownToLine,
+  ArrowLeftRight,
+  Bell,
+  CreditCard,
+  Eye,
+  EyeOff,
+  Gift,
+  Landmark,
+  MoreHorizontal,
+  PiggyBank,
+  Settings,
+  Smartphone,
+  Users,
+  Wallet,
+  Wifi,
+  Zap,
+} from "lucide-react";
+import { useState } from "react";
+
 import FundAccount from "@/components/dashboard/FundAccount";
 import { useDashboardData } from "@/components/dashboard/useDashboardData";
-import Link from "next/link";
-
-import {
-  ArrowDownLeft,
-  ArrowUpRight,
-  CreditCard,
-  Send,
-  Wallet,
-} from "lucide-react";
-
-import Header from "@/components/common/Header";
-
-interface DashboardTransaction {
-  id: string;
-  title: string;
-  type: string;
-  direction: "in" | "out";
-  amount: number;
-  status: string;
-  reference: string;
-  date: string;
-  category?: string;
-}
 
 export default function DashboardPage() {
-  const {
-  data,
-  error,
-  loading,
-  refreshDashboard,
-} = useDashboardData();
+  const { data, loading } = useDashboardData();
+  const [showBalance, setShowBalance] = useState(true);
+
+  const user = data?.user;
   const balance = data?.balance ?? 0;
-  const transactions: DashboardTransaction[] = data?.transactions ?? [];
+ const firstName = user?.name?.split(" ")[0] || "Customer";
 
   const formatMoney = (amount: number) =>
-    amount.toLocaleString("en-NG", {
+    new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency: "NGN",
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
+    }).format(amount);
+
+  const services = [
+    {
+      name: "Airtime",
+      icon: Smartphone,
+    },
+    {
+      name: "Data",
+      icon: Wifi,
+    },
+    {
+      name: "Electricity",
+      icon: Zap,
+    },
+    {
+      name: "Gifts",
+      icon: Gift,
+    },
+    {
+      name: "Banking",
+      icon: Landmark,
+      href: "/dashboard/banking",
+    },
+    {
+      name: "More",
+      icon: MoreHorizontal,
+      href: "/dashboard/transactions",
+    },
+  ];
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC]">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#14B8A6] border-t-transparent" />
+      </div>
+    );
+  }
 
   return (
-    <div className="flex-1 overflow-auto relative z-10">
-      <Header title="Overview" />
+    <div className="relative min-h-screen overflow-hidden bg-[#F8FAFC]">
 
-      <main className="max-w-7xl mx-auto py-6 px-4 lg:px-8">
+      {/* BACKGROUND DESIGN */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -left-40 -top-40 h-[500px] w-[500px] rounded-full bg-[#14B8A6]/10 blur-3xl" />
 
-        {/* WELCOME */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-white">
-            Welcome back{data?.user.name ? `, ${data.user.name.split(" ")[0]}` : ""}
-          </h1>
+        <div className="absolute -right-40 top-0 h-[450px] w-[450px] rounded-full bg-[#0F172A]/10 blur-3xl" />
 
-          <p className="text-gray-400 mt-1">
-            Here&apos;s what&apos;s happening with your accounts today.
-          </p>
+        <div className="absolute bottom-[-200px] left-1/3 h-[500px] w-[500px] rounded-full bg-[#2DD4BF]/10 blur-3xl" />
 
-          {error && (
-            <p className="mt-3 text-sm text-red-300">{error}</p>
-          )}
-        </div>
+        <div
+          className="absolute inset-0 opacity-[0.035]"
+          style={{
+            backgroundImage:
+              "linear-gradient(#0F172A 1px, transparent 1px), linear-gradient(90deg, #0F172A 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
+      </div>
 
-        {/* BALANCE + QUICK ACTIONS */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      {/* MAIN CONTENT */}
+      <div className="relative mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 lg:px-8">
 
-          {/* TOTAL BALANCE */}
-          <div className="lg:col-span-2 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-700 p-6 shadow-xl">
+        {/* HEADER */}
+        <header className="mb-6 flex items-center justify-between">
+          <div>
+            <p className="text-sm text-gray-500">
+              Good morning
+            </p>
 
-            <div className="flex items-center justify-between">
+            <h1 className="mt-1 text-2xl font-bold text-[#0F172A]">
+              {firstName}
+            </h1>
+          </div>
 
-              <motion.div
-  initial={{ opacity: 0, y: 15 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.4 }}>
-                <p className="text-indigo-100 text-sm">
-                  Total Balance
+          <div className="flex items-center gap-2">
+            <Link
+              href="/dashboard/settings"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#0F172A] shadow-sm ring-1 ring-gray-200 transition hover:bg-[#CCFBF1]"
+              aria-label="Settings"
+            >
+              <Settings size={20} />
+            </Link>
+
+            <button
+              type="button"
+              className="relative flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#0F172A] shadow-sm ring-1 ring-gray-200 transition hover:bg-[#CCFBF1]"
+              aria-label="Notifications"
+            >
+              <Bell size={20} />
+
+              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#14B8A6]" />
+            </button>
+          </div>
+        </header>
+
+        {/* ACCOUNT OVERVIEW */}
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0F172A] via-[#122C3A] to-[#0F766E] p-6 text-white shadow-xl">
+
+          {/* CARD GLOW */}
+          <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#2DD4BF]/20 blur-3xl" />
+
+          <div className="pointer-events-none absolute -bottom-24 -left-20 h-56 w-56 rounded-full bg-[#14B8A6]/20 blur-3xl" />
+
+          <div className="relative">
+
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm text-gray-300">
+                  Account Overview
                 </p>
 
-                <h2 className="text-4xl font-bold text-white mt-2">
-                  {loading
-                    ? "Loading..."
-                    : `₦${formatMoney(balance)}`}
-                </h2>
+                <div className="mt-3 flex items-center gap-3">
+                  <h2 className="text-3xl font-bold">
+                    {showBalance
+                      ? formatMoney(balance)
+                      : "₦••••••"}
+                  </h2>
 
-                <p className="text-indigo-200 text-sm mt-3">
-                  Available balance
-                </p>
-              </motion.div>
-
-              <div className="h-14 w-14 rounded-full bg-white/10 flex items-center justify-center">
-                <Wallet
-                  className="text-white"
-                  size={28}
-                />
+                  <button
+                    type="button"
+                    onClick={() => setShowBalance(!showBalance)}
+                    className="text-gray-300 transition hover:text-[#2DD4BF]"
+                    aria-label="Toggle balance visibility"
+                  >
+                    {showBalance ? (
+                      <Eye size={20} />
+                    ) : (
+                      <EyeOff size={20} />
+                    )}
+                  </button>
+                </div>
               </div>
 
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#14B8A6] shadow-lg shadow-[#14B8A6]/20">
+                <Wallet size={22} />
+              </div>
             </div>
-          </div>
 
-          {/* QUICK ACTIONS */}
-          <div className="rounded-2xl bg-gray-800/70 border border-gray-700 p-6">
+            {/* MONEY STATS */}
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-sm">
+                <p className="text-xs text-gray-300">
+                  Money In
+                </p>
 
-            <h3 className="text-white font-semibold mb-5">
-              Quick Actions
-            </h3>
+                <p className="mt-1 text-lg font-semibold">
+  ₦
+  {data?.transactions
+    ?.filter(
+      (transaction) =>
+        transaction.type === "credit" ||
+        transaction.type === "deposit" ||
+        transaction.type === "funding"
+    )
+    .reduce(
+      (total, transaction) =>
+        total + Number(transaction.amount ?? 0),
+      0
+    )
+    .toLocaleString("en-NG", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}
+</p>
+              </div>
 
-            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-sm">
+                <p className="text-xs text-gray-300">
+                  Money Out
+                </p>
 
-              <Link
-                href="/dashboard/transfers"
-                className="flex flex-col items-center justify-center gap-2 rounded-xl bg-gray-700/70 p-4 hover:bg-gray-700 transition"
-              >
-                <Send
-                  size={20}
-                  className="text-indigo-400"
-                />
-
-                <span className="text-sm text-gray-200">
-                  Transfer
-                </span>
-              </Link>
-
-              <Link
-                href="/dashboard/accounts"
-                className="flex flex-col items-center justify-center gap-2 rounded-xl bg-gray-700/70 p-4 hover:bg-gray-700 transition"
-              >
-                <CreditCard
-                  size={20}
-                  className="text-purple-400"
-                />
-
-                <span className="text-sm text-gray-200">
-                  Accounts
-                </span>
-              </Link>
-
-              <a
-                href="#fund-account"
-                className="flex flex-col items-center justify-center gap-2 rounded-xl bg-gray-700/70 p-4 hover:bg-gray-700 transition"
-              >
-                <ArrowDownLeft
-                  size={20}
-                  className="text-green-400"
-                />
-
-                <span className="text-sm text-gray-200">
-                  Fund account
-                </span>
-              </a>
-
-              <Link
-                href="/dashboard/transactions"
-                className="flex flex-col items-center justify-center gap-2 rounded-xl bg-gray-700/70 p-4 hover:bg-gray-700 transition"
-              >
-                <ArrowUpRight
-                  size={20}
-                  className="text-red-400"
-                />
-
-                <span className="text-sm text-gray-200">
-                  Transactions
-                </span>
-              </Link>
-
+                <p className="mt-1 text-lg font-semibold">
+  ₦
+  {data?.transactions
+    ?.filter(
+      (transaction) =>
+        transaction.type === "debit" ||
+        transaction.type === "withdrawal" ||
+        transaction.type === "transfer"
+    )
+    .reduce(
+      (total, transaction) =>
+        total + Number(transaction.amount ?? 0),
+      0
+    )
+    .toLocaleString("en-NG", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}
+</p>
+              </div>
             </div>
+
           </div>
-        </div>
+        </section>
 
-        {/* FUND ACCOUNT */}
-<div id="fund-account" className="mb-8">
-  <FundAccount />
-</div>
+        {/* QUICK ACTIONS */}
+        <section className="mt-7">
+          <h2 className="mb-4 text-lg font-bold text-[#0F172A]">
+            Quick Actions
+          </h2>
 
-{/* FINANCIAL INSIGHTS */}
-<FinancialInsights
-  transactions={transactions}
-  balance={balance}
-/>
+          <div className="grid grid-cols-4 gap-4 sm:grid-cols-5 lg:grid-cols-7">
 
-{/* SAVINGS GOALS */}
-<div className="mt-8">
-  <SavingsGoals onBalanceChange={refreshDashboard} />
-</div>  {/* ACCOUNT SUMMARY */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+            <FundAccount />
 
-          <div className="rounded-2xl bg-gray-800/70 border border-gray-700 p-5">
-            <p className="text-gray-400 text-sm">
-              Money In
-            </p>
+            <QuickAction
+              href="/dashboard/transfers"
+              icon={<ArrowLeftRight size={20} />}
+              label="Transfer"
+            />
 
-            <p className="text-2xl font-semibold text-green-400 mt-2">
-              ₦
-              {formatMoney(
-                transactions
-                  .filter(
-                    (transaction) =>
-                      transaction.direction === "in"
-                  )
-                  .reduce(
-                    (total, transaction) =>
-                      total + transaction.amount,
-                    0
-                  )
-              )}
-            </p>
 
-            <p className="text-gray-500 text-xs mt-2">
-              Total deposits
-            </p>
+            <QuickAction
+              href="/dashboard/cards"
+              icon={<CreditCard size={20} />}
+              label="Cards"
+            />
+
+            <QuickAction
+              href="/dashboard/accounts"
+              icon={<Wallet size={20} />}
+              label="Accounts"
+            />
+
+            <QuickAction
+              href="/dashboard/banking"
+              icon={<PiggyBank size={20} />}
+              label="Savings"
+            />
+
+            <QuickAction
+              href="/dashboard/beneficiaries"
+              icon={<Users size={20} />}
+              label="Beneficiaries"
+            />
+
           </div>
+        </section>
 
-          <div className="rounded-2xl bg-gray-800/70 border border-gray-700 p-5">
-            <p className="text-gray-400 text-sm">
-              Money Out
-            </p>
+        {/* SERVICES */}
+        <section className="mt-8">
+          <h2 className="mb-4 text-lg font-bold text-[#0F172A]">
+            Services
+          </h2>
 
-            <p className="text-2xl font-semibold text-red-400 mt-2">
-              ₦
-              {formatMoney(
-                transactions
-                  .filter(
-                    (transaction) =>
-                      transaction.direction === "out"
-                  )
-                  .reduce(
-                    (total, transaction) =>
-                      total + transaction.amount,
-                    0
-                  )
-              )}
-            </p>
+          <div className="grid grid-cols-3 gap-4 sm:grid-cols-6">
+            {services.map((service) => {
+              const Icon = service.icon;
 
-            <p className="text-gray-500 text-xs mt-2">
-              Total withdrawals
-            </p>
+              const content = (
+                <>
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#CCFBF1] text-[#0F766E] transition group-hover:bg-[#14B8A6] group-hover:text-white">
+                    <Icon size={20} />
+                  </span>
+
+                  <span className="mt-2 text-xs font-medium text-gray-700">
+                    {service.name}
+                  </span>
+                </>
+              );
+
+              if (service.href) {
+                return (
+                  <Link
+                    key={service.name}
+                    href={service.href}
+                    className="group flex flex-col items-center justify-center rounded-2xl bg-white/90 px-2 py-4 shadow-sm ring-1 ring-gray-200/70 backdrop-blur-sm transition hover:-translate-y-0.5 hover:shadow-md hover:ring-[#14B8A6]"
+                  >
+                    {content}
+                  </Link>
+                );
+              }
+
+              return (
+                <button
+                  key={service.name}
+                  type="button"
+                  className="group flex flex-col items-center justify-center rounded-2xl bg-white/90 px-2 py-4 shadow-sm ring-1 ring-gray-200/70 backdrop-blur-sm transition hover:-translate-y-0.5 hover:shadow-md hover:ring-[#14B8A6]"
+                >
+                  {content}
+                </button>
+              );
+            })}
           </div>
+        </section>
 
-          <div className="rounded-2xl bg-gray-800/70 border border-gray-700 p-5">
-            <p className="text-gray-400 text-sm">
-              Savings
-            </p>
-
-            <p className="text-2xl font-semibold text-indigo-400 mt-2">
-              ₦
-              {formatMoney(balance)}
-            </p>
-
-            <p className="text-gray-500 text-xs mt-2">
-              Current balance
-            </p>
-          </div>
-
-        </div>
-
-        {/* RECENT TRANSACTIONS */}
-        <div className="rounded-2xl bg-gray-800/70 border border-gray-700">
-
-          <div className="flex items-center justify-between p-6 border-b border-gray-700">
-
+        {/* TRANSACTION HISTORY */}
+        <section className="mt-8 rounded-2xl bg-white/90 p-5 shadow-sm ring-1 ring-gray-200/70 backdrop-blur-sm">
+          <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-white">
-                Recent Transactions
+              <h2 className="font-bold text-[#0F172A]">
+                Transaction History
               </h2>
 
-              <p className="text-sm text-gray-400 mt-1">
-                Your latest account activity
+              <p className="mt-1 text-sm text-gray-500">
+                View your transactions and financial insights
               </p>
             </div>
 
             <Link
               href="/dashboard/transactions"
-              className="text-sm text-indigo-400 hover:text-indigo-300"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-[#CCFBF1] text-[#0F766E] transition hover:bg-[#14B8A6] hover:text-white"
+              aria-label="Open transaction history"
             >
-              View all
+              <ArrowLeftRight size={18} />
             </Link>
-
           </div>
-
-          <div className="divide-y divide-gray-700">
-
-            {loading ? (
-              <div className="px-6 py-8 text-center text-gray-400">
-                Loading transactions...
-              </div>
-            ) : transactions.length === 0 ? (
-              <div className="px-6 py-8 text-center text-gray-400">
-                No transactions yet.
-              </div>
-            ) : (
-              transactions
-                .sort(
-                  (a, b) =>
-                    new Date(b.date).getTime() -
-                    new Date(a.date).getTime()
-                )
-                .slice(0, 5)
-                .map((transaction) => (
-                  <Transaction
-                    key={transaction.id}
-                    title={transaction.title}
-                    date={new Date(
-                      transaction.date
-                    ).toLocaleString("en-NG", {
-                      dateStyle: "medium",
-                      timeStyle: "short",
-                    })}
-                    amount={transaction.amount}
-                    positive={
-                      transaction.direction === "in"
-                    }
-                  />
-                ))
-            )}
-
-          </div>
-        </div>
-
-      </main>
-    </div>
-  );
-}
-
-interface TransactionProps {
-  title: string;
-  date: string;
-  amount: number;
-  positive?: boolean;
-}
-
-function Transaction({
-  title,
-  date,
-  amount,
-  positive = false,
-}: TransactionProps) {
-  return (
-    <div className="flex items-center justify-between px-6 py-5">
-
-      <div className="flex items-center gap-4">
-
-        <div
-          className={`h-10 w-10 rounded-full flex items-center justify-center ${
-            positive
-              ? "bg-green-500/10"
-              : "bg-red-500/10"
-          }`}
-        >
-          {positive ? (
-            <ArrowDownLeft
-              size={18}
-              className="text-green-400"
-            />
-          ) : (
-            <ArrowUpRight
-              size={18}
-              className="text-red-400"
-            />
-          )}
-        </div>
-
-        <div>
-          <p className="text-sm font-medium text-white">
-            {title}
-          </p>
-
-          <p className="text-xs text-gray-500 mt-1">
-            {date}
-          </p>
-        </div>
+        </section>
 
       </div>
-
-      <p
-        className={`font-semibold ${
-          positive
-            ? "text-green-400"
-            : "text-red-400"
-        }`}
-      >
-        {positive ? "+" : "-"}₦
-        {formatTransactionAmount(amount)}
-      </p>
-
     </div>
   );
 }
 
-function formatTransactionAmount(
-  amount: number
-) {
-  return amount.toLocaleString("en-NG", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+function QuickAction({
+  href,
+  icon,
+  label,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group flex flex-col items-center justify-center"
+    >
+      <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/90 text-[#0F766E] shadow-sm ring-1 ring-gray-200 backdrop-blur-sm transition group-hover:bg-[#CCFBF1] group-hover:ring-[#14B8A6] active:scale-95">
+        {icon}
+      </span>
+
+      <span className="mt-2 text-xs font-medium text-gray-700">
+        {label}
+      </span>
+    </Link>
+  );
 }

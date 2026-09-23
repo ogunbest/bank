@@ -1,19 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, Lock, User } from "lucide-react";
-import SettingSection from "@/components/settings/SettingSection";
+import {
+  ArrowLeft,
+  Check,
+  LogOut,
+  Lock,
+  RefreshCw,
+  Shield,
+  User,
+  Wallet,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+
 import { useDashboardData } from "@/components/dashboard/useDashboardData";
 import {
+  logoutAccount,
   updateCurrentUserPassword,
   updateCurrentUserProfile,
 } from "@/lib/actions/user.actions";
-import {
-  getCurrentUserNotifications,
-  markNotificationAsRead,
-} from "@/lib/actions/notification.actions";
 
 export default function SettingsPage() {
+  const router = useRouter();
+
   const { data, loading, error, refreshDashboard } = useDashboardData();
 
   const [firstName, setFirstName] = useState("");
@@ -25,72 +34,36 @@ export default function SettingsPage() {
 
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+
   const [currentPassword, setCurrentPassword] = useState("");
-const [newPassword, setNewPassword] = useState("");
-const [confirmPassword, setConfirmPassword] = useState("");
-const [passwordSaving, setPasswordSaving] = useState(false);
-const [passwordMessage, setPasswordMessage] = useState("");
-const [notifications, setNotifications] = useState<
-  Array<{
-    $id: string;
-    title: string;
-    message: string;
-    type: string;
-    read: boolean;
-    reference?: string;
-    $createdAt: string;
-  }>
->([]);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-const [notificationsLoading, setNotificationsLoading] = useState(true);
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState("");
 
- useEffect(() => {
-  if (!data?.user) return;
+  const [loggingOut, setLoggingOut] = useState(false);
 
-  const user = data.user as {
-    firstName?: string;
-    lastName?: string;
-    phone?: string;
-    address?: string;
-    city?: string;
-    state?: string;
-  };
+  useEffect(() => {
+    if (!data?.user) return;
 
-  setFirstName(user.firstName ?? "");
-  setLastName(user.lastName ?? "");
-  setPhone(user.phone ?? "");
-  setAddress(user.address ?? "");
-  setCity(user.city ?? "");
-  setState(user.state ?? "");
-}, [data?.user]);
+    const user = data.user as {
+      firstName?: string;
+      lastName?: string;
+      phone?: string;
+      address?: string;
+      address1?: string;
+      city?: string;
+      state?: string;
+    };
 
-useEffect(() => {
-  const loadNotifications = async () => {
-    try {
-      setNotificationsLoading(true);
-
-      const result = await getCurrentUserNotifications();
-
-      setNotifications(
-        result as unknown as Array<{
-          $id: string;
-          title: string;
-          message: string;
-          type: string;
-          read: boolean;
-          reference?: string;
-          $createdAt: string;
-        }>
-      );
-    } catch (error) {
-      console.error("NOTIFICATIONS LOAD ERROR:", error);
-    } finally {
-      setNotificationsLoading(false);
-    }
-  };
-
-  loadNotifications();
-}, []);
+    setFirstName(user.firstName ?? "");
+    setLastName(user.lastName ?? "");
+    setPhone(user.phone ?? "");
+    setAddress(user.address ?? user.address1 ?? "");
+    setCity(user.city ?? "");
+    setState(user.state ?? "");
+  }, [data?.user]);
 
   const handleSave = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -114,6 +87,7 @@ useEffect(() => {
       });
 
       await refreshDashboard();
+
       setMessage("Profile updated successfully.");
     } catch (error) {
       console.error("PROFILE UPDATE ERROR:", error);
@@ -127,297 +101,432 @@ useEffect(() => {
       setSaving(false);
     }
   };
+
   const handlePasswordChange = async (
-  event: React.FormEvent
-) => {
-  event.preventDefault();
-  setPasswordMessage("");
+    event: React.FormEvent
+  ) => {
+    event.preventDefault();
+    setPasswordMessage("");
 
-  if (!currentPassword || !newPassword || !confirmPassword) {
-    setPasswordMessage("Please fill in all password fields.");
-    return;
-  }
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordMessage("Please fill in all password fields.");
+      return;
+    }
 
-  if (newPassword !== confirmPassword) {
-    setPasswordMessage("New passwords do not match.");
-    return;
-  }
+    if (newPassword.length < 8) {
+      setPasswordMessage(
+        "New password must be at least 8 characters."
+      );
+      return;
+    }
 
-  try {
-    setPasswordSaving(true);
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage("New passwords do not match.");
+      return;
+    }
 
-    await updateCurrentUserPassword({
-      currentPassword,
-      newPassword,
-    });
+    try {
+      setPasswordSaving(true);
 
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
+      await updateCurrentUserPassword({
+        currentPassword,
+        newPassword,
+      });
 
-    setPasswordMessage("Password updated successfully.");
-  } catch (error) {
-    console.error("PASSWORD UPDATE ERROR:", error);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
 
-    setPasswordMessage(
-      error instanceof Error
-        ? error.message
-        : "Could not update your password."
-    );
-  } finally {
-    setPasswordSaving(false);
-  }
-};
-const handleNotificationClick = async (
-  notificationId: string
-) => {
-  try {
-    await markNotificationAsRead(notificationId);
+      setPasswordMessage(
+        "Password updated successfully."
+      );
+    } catch (error) {
+      console.error("PASSWORD UPDATE ERROR:", error);
 
-    setNotifications((current) =>
-      current.map((notification) =>
-        notification.$id === notificationId
-          ? { ...notification, read: true }
-          : notification
-      )
-    );
-  } catch (error) {
-    console.error("NOTIFICATION READ ERROR:", error);
-  }
-};
+      setPasswordMessage(
+        error instanceof Error
+          ? error.message
+          : "Could not update your password."
+      );
+    } finally {
+      setPasswordSaving(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      setLoggingOut(true);
+
+      const success = await logoutAccount();
+
+      if (success) {
+        router.replace("/sign-in");
+        router.refresh();
+      } else {
+        setLoggingOut(false);
+      }
+    } catch (error) {
+      console.error("LOGOUT ERROR:", error);
+      setLoggingOut(false);
+    }
+  };
+
+  const handleSwitchAccount = async () => {
+    try {
+      setLoggingOut(true);
+
+      const success = await logoutAccount();
+
+      if (success) {
+        router.replace("/sign-in");
+        router.refresh();
+      } else {
+        setLoggingOut(false);
+      }
+    } catch (error) {
+      console.error("SWITCH ACCOUNT ERROR:", error);
+      setLoggingOut(false);
+    }
+  };
 
   return (
-    <div className="flex-1 overflow-auto relative z-10">
-      <main className="max-w-4xl mx-auto py-8 px-4 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold text-white">
-            Settings
-          </h1>
-          <p className="text-gray-400 mt-1">
-            Manage your account and preferences.
-          </p>
+    <main className="relative min-h-screen overflow-hidden bg-[#F8FAFC]">
+      {/* Background */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -left-40 -top-40 h-[500px] w-[500px] rounded-full bg-[#14B8A6]/10 blur-3xl" />
 
-          {error && (
-            <p className="mt-3 text-sm text-red-300">
-              {error}
+        <div className="absolute -right-40 top-0 h-[450px] w-[450px] rounded-full bg-[#0F172A]/10 blur-3xl" />
+
+        <div className="absolute bottom-[-200px] left-1/3 h-[500px] w-[500px] rounded-full bg-[#2DD4BF]/10 blur-3xl" />
+
+        <div
+          className="absolute inset-0 opacity-[0.035]"
+          style={{
+            backgroundImage:
+              "linear-gradient(#0F172A 1px, transparent 1px), linear-gradient(90deg, #0F172A 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
+      </div>
+
+      <div className="relative mx-auto w-full max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
+        {/* Header */}
+        <header className="mb-8 flex items-center gap-4">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#0F172A] shadow-sm ring-1 ring-gray-200 transition hover:bg-[#CCFBF1]"
+            aria-label="Go back"
+          >
+            <ArrowLeft size={20} />
+          </button>
+
+          <div>
+            <h1 className="text-2xl font-bold text-[#0F172A]">
+              Settings
+            </h1>
+
+            <p className="mt-1 text-sm text-gray-500">
+              Manage your account and security.
             </p>
-          )}
-        </div>
+          </div>
+        </header>
 
-        <SettingSection icon={User} title="Profile">
+        {error && (
+          <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
+
+        {/* PROFILE */}
+        <section className="mb-6 rounded-3xl bg-white/90 p-5 shadow-sm ring-1 ring-gray-200/70 backdrop-blur-sm sm:p-7">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#CCFBF1] text-[#0F766E]">
+              <User size={20} />
+            </div>
+
+            <div>
+              <h2 className="font-bold text-[#0F172A]">
+                Profile
+              </h2>
+              <p className="text-sm text-gray-500">
+                Update your personal information.
+              </p>
+            </div>
+          </div>
+
           {loading ? (
-            <p className="text-gray-400">Loading profile...</p>
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <RefreshCw size={16} className="animate-spin" />
+              Loading profile...
+            </div>
           ) : (
             <form onSubmit={handleSave} className="space-y-5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">
-                    First name
-                  </label>
-                  <input
-                    value={firstName}
-                    onChange={(event) => setFirstName(event.target.value)}
-                    className="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-white outline-none focus:border-indigo-500"
-                  />
-                </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <InputField
+                  label="First name"
+                  value={firstName}
+                  onChange={setFirstName}
+                />
 
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">
-                    Last name
-                  </label>
-                  <input
-                    value={lastName}
-                    onChange={(event) => setLastName(event.target.value)}
-                    className="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-white outline-none focus:border-indigo-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">
-                  Phone
-                </label>
-                <input
-                  value={phone}
-                  onChange={(event) => setPhone(event.target.value)}
-                  className="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-white outline-none focus:border-indigo-500"
+                <InputField
+                  label="Last name"
+                  value={lastName}
+                  onChange={setLastName}
                 />
               </div>
 
-              <div>
-                <label className="block text-sm text-gray-400 mb-2">
-                  Address
-                </label>
-                <input
-                  value={address}
-                  onChange={(event) => setAddress(event.target.value)}
-                  className="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-white outline-none focus:border-indigo-500"
+              <InputField
+                label="Phone"
+                value={phone}
+                onChange={setPhone}
+              />
+
+              <InputField
+                label="Address"
+                value={address}
+                onChange={setAddress}
+              />
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <InputField
+                  label="City"
+                  value={city}
+                  onChange={setCity}
                 />
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">
-                    City
-                  </label>
-                  <input
-                    value={city}
-                    onChange={(event) => setCity(event.target.value)}
-                    className="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-white outline-none focus:border-indigo-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">
-                    State
-                  </label>
-                  <input
-                    value={state}
-                    onChange={(event) => setState(event.target.value)}
-                    className="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-white outline-none focus:border-indigo-500"
-                  />
-                </div>
+                <InputField
+                  label="State"
+                  value={state}
+                  onChange={setState}
+                />
               </div>
 
               {message && (
-                <div className="rounded-lg border border-gray-700 bg-gray-900/70 p-4">
-                  <p className="text-sm text-gray-300">{message}</p>
+                <div className="flex items-center gap-2 rounded-2xl border border-[#99F6E4] bg-[#F0FDFA] p-4">
+                  <Check
+                    size={18}
+                    className="text-[#0F766E]"
+                  />
+
+                  <p className="text-sm text-[#0F766E]">
+                    {message}
+                  </p>
                 </div>
               )}
 
               <button
                 type="submit"
                 disabled={saving}
-                className="rounded-lg bg-indigo-500 px-5 py-3 font-medium text-white transition hover:bg-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-xl bg-[#0F172A] px-5 py-3 font-medium text-white transition hover:bg-[#1E293B] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saving ? "Saving..." : "Save changes"}
               </button>
             </form>
           )}
-        </SettingSection>
+        </section>
 
-        <SettingSection icon={Lock} title="Security">
-  <form onSubmit={handlePasswordChange} className="space-y-5">
-    <div>
-      <label className="block text-sm text-gray-400 mb-2">
-        Current password
-      </label>
+        {/* SECURITY */}
+        <section className="mb-6 rounded-3xl bg-white/90 p-5 shadow-sm ring-1 ring-gray-200/70 backdrop-blur-sm sm:p-7">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#CCFBF1] text-[#0F766E]">
+              <Lock size={20} />
+            </div>
 
-      <input
-        type="password"
-        value={currentPassword}
-        onChange={(event) =>
-          setCurrentPassword(event.target.value)
-        }
-        className="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-white outline-none focus:border-indigo-500"
-        placeholder="Enter current password"
-      />
-    </div>
-
-    <div>
-      <label className="block text-sm text-gray-400 mb-2">
-        New password
-      </label>
-
-      <input
-        type="password"
-        value={newPassword}
-        onChange={(event) =>
-          setNewPassword(event.target.value)
-        }
-        className="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-white outline-none focus:border-indigo-500"
-        placeholder="At least 8 characters"
-      />
-    </div>
-
-    <div>
-      <label className="block text-sm text-gray-400 mb-2">
-        Confirm new password
-      </label>
-
-      <input
-        type="password"
-        value={confirmPassword}
-        onChange={(event) =>
-          setConfirmPassword(event.target.value)
-        }
-        className="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-3 text-white outline-none focus:border-indigo-500"
-        placeholder="Confirm new password"
-      />
-    </div>
-
-    {passwordMessage && (
-      <div className="rounded-lg border border-gray-700 bg-gray-900/70 p-4">
-        <p className="text-sm text-gray-300">
-          {passwordMessage}
-        </p>
-      </div>
-    )}
-
-    <button
-      type="submit"
-      disabled={passwordSaving}
-      className="rounded-lg bg-indigo-500 px-5 py-3 font-medium text-white transition hover:bg-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
-    >
-      {passwordSaving ? "Updating..." : "Update password"}
-    </button>
-  </form>
-</SettingSection>
-       <SettingSection icon={Bell} title="Notifications">
-  {notificationsLoading ? (
-    <p className="text-gray-400">
-      Loading notifications...
-    </p>
-  ) : notifications.length === 0 ? (
-    <div className="rounded-lg border border-gray-700 bg-gray-900/70 p-6 text-center">
-      <p className="text-gray-300">
-        No notifications yet.
-      </p>
-
-      <p className="text-sm text-gray-500 mt-1">
-        Important account and transaction updates will appear here.
-      </p>
-    </div>
-  ) : (
-    <div className="space-y-3">
-      {notifications.map((notification) => (
-        <button
-          key={notification.$id}
-          type="button"
-          onClick={() =>
-            handleNotificationClick(notification.$id)
-          }
-          className={`w-full text-left rounded-lg border p-4 transition ${
-            notification.read
-              ? "border-gray-700 bg-gray-900/50"
-              : "border-indigo-500/40 bg-indigo-500/10"
-          }`}
-        >
-          <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 className="font-medium text-white">
-                {notification.title}
-              </h3>
+              <h2 className="font-bold text-[#0F172A]">
+                Security
+              </h2>
+              <p className="text-sm text-gray-500">
+                Keep your account secure.
+              </p>
+            </div>
+          </div>
 
-              <p className="text-sm text-gray-400 mt-1">
-                {notification.message}
+          <form
+            onSubmit={handlePasswordChange}
+            className="space-y-5"
+          >
+            <PasswordField
+              label="Current password"
+              value={currentPassword}
+              onChange={setCurrentPassword}
+              placeholder="Enter current password"
+            />
+
+            <PasswordField
+              label="New password"
+              value={newPassword}
+              onChange={setNewPassword}
+              placeholder="At least 8 characters"
+            />
+
+            <PasswordField
+              label="Confirm new password"
+              value={confirmPassword}
+              onChange={setConfirmPassword}
+              placeholder="Confirm new password"
+            />
+
+            {passwordMessage && (
+              <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+                <p className="text-sm text-gray-600">
+                  {passwordMessage}
+                </p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={passwordSaving}
+              className="rounded-xl bg-[#14B8A6] px-5 py-3 font-semibold text-[#0F172A] transition hover:bg-[#2DD4BF] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {passwordSaving
+                ? "Updating..."
+                : "Update password"}
+            </button>
+          </form>
+        </section>
+
+        {/* ACCOUNT */}
+        <section className="mb-6 rounded-3xl bg-white/90 p-5 shadow-sm ring-1 ring-gray-200/70 backdrop-blur-sm sm:p-7">
+          <div className="mb-5 flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#CCFBF1] text-[#0F766E]">
+              <Wallet size={20} />
+            </div>
+
+            <div>
+              <h2 className="font-bold text-[#0F172A]">
+                Account
+              </h2>
+
+              <p className="text-sm text-gray-500">
+                Manage your current account session.
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+            <div className="flex items-start gap-3">
+              <Shield
+                size={20}
+                className="mt-0.5 text-[#0F766E]"
+              />
+
+              <div>
+                <p className="font-medium text-[#0F172A]">
+                  Current account
+                </p>
+
+                <p className="mt-1 text-sm text-gray-500">
+                  {data?.user?.email ||
+                    "Your signed-in account"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleSwitchAccount}
+            disabled={loggingOut}
+            className="mt-4 flex w-full items-center justify-between rounded-2xl border border-gray-200 bg-white p-4 text-left transition hover:border-[#14B8A6] hover:bg-[#F0FDFA] disabled:opacity-50"
+          >
+            <div>
+              <p className="font-medium text-[#0F172A]">
+                Switch account
+              </p>
+
+              <p className="mt-1 text-sm text-gray-500">
+                Sign out and sign in with another account.
               </p>
             </div>
 
-            {!notification.read && (
-              <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-indigo-400" />
-            )}
-          </div>
+            <RefreshCw
+              size={20}
+              className="text-[#0F766E]"
+            />
+          </button>
+        </section>
 
-          <p className="text-xs text-gray-500 mt-3">
-            {new Date(notification.$createdAt).toLocaleString()}
-          </p>
-        </button>
-      ))}
+        {/* LOGOUT */}
+        <section className="rounded-3xl border border-red-100 bg-white/90 p-5 shadow-sm ring-1 ring-gray-200/70 backdrop-blur-sm sm:p-7">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="font-bold text-[#0F172A]">
+                Sign out
+              </h2>
+
+              <p className="mt-1 text-sm text-gray-500">
+                Sign out of your Covenant account on this device.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="flex items-center justify-center gap-2 rounded-xl border border-red-200 px-5 py-3 font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <LogOut size={18} />
+
+              {loggingOut ? "Signing out..." : "Logout"}
+            </button>
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function InputField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div>
+      <label className="mb-2 block text-sm font-medium text-gray-700">
+        {label}
+      </label>
+
+      <input
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-[#0F172A] outline-none transition placeholder:text-gray-400 focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/10"
+      />
     </div>
-  )}
-</SettingSection>
-      </main>
+  );
+}
+
+function PasswordField({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}) {
+  return (
+    <div>
+      <label className="mb-2 block text-sm font-medium text-gray-700">
+        {label}
+      </label>
+
+      <input
+        type="password"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-[#0F172A] outline-none transition placeholder:text-gray-400 focus:border-[#14B8A6] focus:ring-2 focus:ring-[#14B8A6]/10"
+      />
     </div>
   );
 }

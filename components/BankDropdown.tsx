@@ -28,7 +28,7 @@ export const BankDropdown = ({
 
     setSeclected(account);
     const newUrl = formUrlQuery({
-      params: searchParams.toString(),
+      params: searchParams?.toString() || "",
       key: "id",
       value: id,
     });

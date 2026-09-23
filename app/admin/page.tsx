@@ -74,7 +74,7 @@ const totalTransfers = transactions
         </h1>
 
         <p className="text-gray-400 mt-2">
-          Welcome to the Horizon administration panel.
+          Welcome to the Covenant administration panel.
         </p>
 
         {/* Statistics */}

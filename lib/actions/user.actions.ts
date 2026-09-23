@@ -1,6 +1,8 @@
 'use server';
 
 import { ID, Query } from "node-appwrite";
+
+import crypto from "crypto";
 import {
   createAdminClient,
   createSessionClient,
@@ -715,3 +717,108 @@ export const deleteBankAccountForCurrentUser = async (
     throw new Error("Could not remove bank account.");
   }
 };
+
+export const setTransactionPin = async (pin: string) => {
+  if (!/^\d{4,6}$/.test(pin)) {
+    throw new Error("Transaction PIN must be 4 to 6 digits.");
+  }
+
+  const sessionClient = await createSessionClient();
+
+  if (!sessionClient) {
+    throw new Error("You must be signed in.");
+  }
+
+  const currentUser = await sessionClient.account.get();
+  const { database } = await createAdminClient();
+
+  const users = await database.listDocuments(
+    DATABASE_ID,
+    USER_COLLECTION_ID,
+    [Query.equal("userId", currentUser.$id)],
+  );
+
+  if (users.documents.length === 0) {
+    throw new Error("Your profile was not found.");
+  }
+
+  const user = users.documents[0];
+
+  const salt = crypto.randomBytes(16).toString("hex");
+
+  const hash = crypto
+    .scryptSync(pin, salt, 64)
+    .toString("hex");
+
+  await database.updateDocument(
+    DATABASE_ID,
+    USER_COLLECTION_ID,
+    user.$id,
+    {
+      transactionPinHash: `${salt}:${hash}`,
+      transactionPinSet: true,
+    },
+  );
+
+  return {
+    success: true,
+  };
+};
+
+export const verifyTransactionPin = async (pin: string) => {
+  if (!/^\d{4,6}$/.test(pin)) {
+    throw new Error("Invalid transaction PIN.");
+  }
+
+  const sessionClient = await createSessionClient();
+
+  if (!sessionClient) {
+    throw new Error("You must be signed in.");
+  }
+
+  const currentUser = await sessionClient.account.get();
+  const { database } = await createAdminClient();
+
+  const users = await database.listDocuments(
+    DATABASE_ID,
+    USER_COLLECTION_ID,
+    [Query.equal("userId", currentUser.$id)],
+  );
+
+  if (users.documents.length === 0) {
+    throw new Error("Your profile was not found.");
+  }
+
+  const user = users.documents[0];
+
+  if (!user.transactionPinSet || !user.transactionPinHash) {
+    throw new Error("Please set your transaction PIN first.");
+  }
+
+  const [salt, storedHash] =
+    String(user.transactionPinHash).split(":");
+
+  if (!salt || !storedHash) {
+    throw new Error("Transaction PIN is not configured correctly.");
+  }
+
+  const hash = crypto
+    .scryptSync(pin, salt, 64)
+    .toString("hex");
+
+  const isValid =
+    storedHash.length === hash.length &&
+    crypto.timingSafeEqual(
+      Buffer.from(storedHash, "hex"),
+      Buffer.from(hash, "hex"),
+    );
+
+  if (!isValid) {
+    throw new Error("Incorrect transaction PIN.");
+  }
+
+  return {
+    success: true,
+  };
+};
+

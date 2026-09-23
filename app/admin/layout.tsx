@@ -9,7 +9,7 @@ export default function AdminLayout({
     <div className="min-h-screen bg-gray-900 text-white flex">
       <aside className="w-64 bg-gray-950 border-r border-gray-800 p-6">
         <h1 className="text-2xl font-bold mb-8">
-          Horizon Admin
+          Covenant Admin
         </h1>
 
         <nav className="space-y-2">

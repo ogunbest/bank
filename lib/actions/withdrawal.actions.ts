@@ -113,7 +113,7 @@ export const createWithdrawal = async ({
         senderName:
           `${user.firstName ?? ""} ${user.lastName ?? ""}`.trim() ||
           currentUser.name ||
-          "Horizon User",
+          "Covenant User",
 
         receiverName: bank.accountName || "Bank Account",
 

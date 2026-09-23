@@ -11,7 +11,7 @@ export const BankTabItem = ({ account, appwriteItemId }: BankTabItemProps) => {
 
   const handleBankChange = () => {
     const newUrl = formUrlQuery({
-      params: searchParams.toString(),
+      params: searchParams?.toString() || "",
       key: "id",
       value: account?.appwriteItemId,
     });

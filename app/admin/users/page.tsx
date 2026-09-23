@@ -29,7 +29,7 @@ if (
         <h1 className="text-3xl font-bold">Users</h1>
 
         <p className="text-gray-400 mt-2">
-          Manage all registered Horizon users.
+          Manage all registered Covenant users.
         </p>
 
         <div className="mt-8 overflow-x-auto rounded-xl border border-gray-700">

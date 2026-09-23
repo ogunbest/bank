@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ArrowDownToLine,
   Building2,
   CheckCircle2,
   Eye,
@@ -20,7 +19,6 @@ import {
   getPaystackBanks,
   resolvePaystackAccount,
 } from "@/lib/actions/paystack.actions";
-import { createWithdrawal } from "@/lib/actions/withdrawal.actions";
 
 const formatMoney = (amount: number) =>
   amount.toLocaleString("en-NG", {
@@ -65,11 +63,6 @@ export default function BankingPage() {
   const [bankMessageType, setBankMessageType] = useState<
     "success" | "error" | ""
   >("");
-
-  const [selectedBankId, setSelectedBankId] = useState("");
-  const [withdrawalAmount, setWithdrawalAmount] = useState("");
-  const [withdrawalMessage, setWithdrawalMessage] = useState("");
-  const [withdrawing, setWithdrawing] = useState(false);
 
   const balance = data?.balance ?? 0;
 
@@ -143,9 +136,6 @@ export default function BankingPage() {
 
       await deleteBankAccountForCurrentUser(bankId);
 
-      if (selectedBankId === bankId) {
-        setSelectedBankId("");
-      }
 
       setBankMessage(
         "Bank account removed successfully."
@@ -223,67 +213,6 @@ export default function BankingPage() {
     }
   };
 
-  const handleWithdrawal = async (
-    event: React.FormEvent<HTMLFormElement>
-  ) => {
-    event.preventDefault();
-
-    setWithdrawalMessage("");
-
-    if (!selectedBankId) {
-      setWithdrawalMessage(
-        "Select a saved bank account."
-      );
-      return;
-    }
-
-    const amount = Number(withdrawalAmount);
-
-    if (!amount || amount <= 0) {
-      setWithdrawalMessage(
-        "Enter a valid withdrawal amount."
-      );
-      return;
-    }
-
-    if (amount > balance) {
-      setWithdrawalMessage(
-        "Insufficient balance."
-      );
-      return;
-    }
-
-    try {
-      setWithdrawing(true);
-
-      setWithdrawalMessage(
-        "Processing withdrawal..."
-      );
-
-      const result = await createWithdrawal({
-        bankId: selectedBankId,
-        amount,
-      });
-
-      setWithdrawalAmount("");
-
-      setWithdrawalMessage(
-        `Withdrawal successful. Reference: ${result.reference}`
-      );
-
-      await refreshDashboard();
-    } catch (error) {
-      console.error("WITHDRAWAL ERROR:", error);
-
-      setWithdrawalMessage(
-        error instanceof Error
-          ? error.message
-          : "Withdrawal failed. Please try again."
-      );
-    } finally {
-      setWithdrawing(false);
-    }
-  };
 
   return (
     <div className="flex-1 overflow-auto relative z-10">
@@ -295,7 +224,7 @@ export default function BankingPage() {
           </h1>
 
           <p className="text-gray-400 mt-1">
-            Manage your bank accounts and withdrawals.
+            Manage your bank accounts.
           </p>
 
           {error && (
@@ -310,7 +239,7 @@ export default function BankingPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-400 text-sm">
-                Available Horizon balance
+                Available Covenant balance
               </p>
 
               <div className="flex items-center gap-3 mt-2">
@@ -543,11 +472,7 @@ export default function BankingPage() {
               {data.accounts.map((account) => (
                 <article
                   key={account.id}
-                  className={`bg-gray-800/60 border rounded-2xl p-6 transition ${
-                    selectedBankId === account.id
-                      ? "border-indigo-500"
-                      : "border-gray-700"
-                  }`}
+                  className="bg-gray-800/60 border border-gray-700 rounded-2xl p-6"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-4">
@@ -574,21 +499,7 @@ export default function BankingPage() {
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSelectedBankId(account.id)
-                    }
-                    className={`mt-5 w-full rounded-xl px-4 py-3 text-sm font-medium transition ${
-                      selectedBankId === account.id
-                        ? "bg-indigo-600 text-white"
-                        : "bg-gray-900 text-gray-300 hover:bg-gray-700"
-                    }`}
-                  >
-                    {selectedBankId === account.id
-                      ? "Selected for withdrawal"
-                      : "Use for withdrawal"}
-                  </button>
+                  
                   <button
   type="button"
   onClick={() =>
@@ -618,131 +529,8 @@ export default function BankingPage() {
             </div>
           )}
         </section>
-
-        {/* Withdrawal */}
-        <section className="bg-gray-800/60 border border-gray-700 rounded-2xl p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2.5 rounded-xl bg-red-500/10">
-              <ArrowDownToLine
-                size={22}
-                className="text-red-400"
-              />
-            </div>
-
-            <h2 className="text-lg font-semibold text-white">
-              Withdraw money
-            </h2>
-          </div>
-
-          <p className="text-sm text-gray-400 mb-6">
-            Withdraw money to one of your verified bank accounts.
-          </p>
-
-          <form
-            onSubmit={handleWithdrawal}
-            className="space-y-5"
-          >
-            <div>
-              <label
-                htmlFor="withdrawalBank"
-                className="block text-sm text-gray-400 mb-2"
-              >
-                Withdraw to
-              </label>
-
-              <select
-                id="withdrawalBank"
-                value={selectedBankId}
-                onChange={(event) =>
-                  setSelectedBankId(event.target.value)
-                }
-                disabled={withdrawing}
-                className="w-full rounded-xl border border-gray-700 bg-gray-900 py-3 px-4 text-white outline-none focus:border-red-500 disabled:opacity-50"
-              >
-                <option value="">
-                  Select a saved bank account
-                </option>
-
-                {data?.accounts?.map((account) => (
-                  <option
-                    key={account.id}
-                    value={account.id}
-                  >
-                    {account.bankName} —{" "}
-                    {account.accountName} —{" "}
-                    {account.accountNumber}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label
-                htmlFor="withdrawalAmount"
-                className="block text-sm text-gray-400 mb-2"
-              >
-                Withdrawal amount
-              </label>
-
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                  ₦
-                </span>
-
-                <input
-                  id="withdrawalAmount"
-                  type="number"
-                  min="1"
-                  step="0.01"
-                  value={withdrawalAmount}
-                  onChange={(event) =>
-                    setWithdrawalAmount(
-                      event.target.value
-                    )
-                  }
-                  placeholder="0.00"
-                  disabled={withdrawing}
-                  className="w-full rounded-xl border border-gray-700 bg-gray-900 py-3 pl-9 pr-4 text-white outline-none focus:border-red-500 disabled:opacity-50"
-                />
-              </div>
-
-              <p className="text-xs text-gray-500 mt-2">
-                Available: ₦{formatMoney(balance)}
-              </p>
-            </div>
-
-            {withdrawalMessage && (
-              <div
-                className={`rounded-xl border p-4 ${
-                  withdrawalMessage.includes(
-                    "successful"
-                  )
-                    ? "border-green-700/50 bg-green-900/20"
-                    : "border-gray-700 bg-gray-900/70"
-                }`}
-              >
-                <p className="text-sm text-gray-300">
-                  {withdrawalMessage}
-                </p>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={
-                withdrawing ||
-                loading ||
-                !data?.accounts?.length
-              }
-              className="w-full rounded-xl bg-red-500 hover:bg-red-600 px-5 py-3 font-medium text-white transition disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {withdrawing
-                ? "Processing..."
-                : "Continue withdrawal"}
-            </button>
-          </form>
-        </section>
       </main>
     </div>
   );
 }
+

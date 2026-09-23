@@ -31,7 +31,7 @@ if (
         </h1>
 
         <p className="text-gray-400 mt-2">
-          View all bank accounts connected to Horizon.
+          View all bank accounts connected to Covenant.
         </p>
 
         <div className="mt-8 overflow-x-auto rounded-xl border border-gray-700">

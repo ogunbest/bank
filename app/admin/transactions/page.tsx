@@ -31,7 +31,7 @@ if (
         </h1>
 
         <p className="mt-2 text-gray-400">
-          View all transactions processed through Horizon.
+          View all transactions processed through Covenant.
         </p>
 
         <TransactionsTable transactions={transactions as any[]} />

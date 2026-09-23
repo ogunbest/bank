@@ -1,17 +1,22 @@
 "use server";
 
 import { ID, Query } from "node-appwrite";
-import { createAdminClient, createSessionClient } from "@/lib/appwrite";
+import {
+  createAdminClient,
+  createSessionClient,
+} from "@/lib/appwrite";
 import { createNotification } from "@/lib/actions/notification.actions";
-export async function transferMoney({
-  recipientEmail,
-  amount,
-  note,
-}: {
-  recipientEmail: string;
+
+type TransferParams = {
+  recipientAccountNumber: string;
   amount: number;
   note?: string;
-}) {
+};
+export async function transferMoney({
+  recipientAccountNumber,
+  amount,
+  note,
+}: TransferParams) {
   const sessionClient = await createSessionClient();
 
   if (!sessionClient) {
@@ -21,17 +26,33 @@ export async function transferMoney({
   const currentUser = await sessionClient.account.get();
   const { database } = await createAdminClient();
 
-  const databaseId = process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!;
+  const databaseId =
+    process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID!;
+
   const userCollectionId =
     process.env.NEXT_PUBLIC_APPWRITE_USER_COLLECTION_ID!;
+
+  const bankCollectionId =
+    process.env.NEXT_PUBLIC_APPWRITE_BANK_COLLECTION_ID!;
+
   const transactionCollectionId =
     process.env.NEXT_PUBLIC_APPWRITE_TRANSACTION_COLLECTION_ID!;
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    throw new Error("Enter a valid transfer amount.");
+  }
+
+  const cleanAccountNumber = recipientAccountNumber.trim();
+
+  if (!/^\d{10}$/.test(cleanAccountNumber)) {
+    throw new Error("Enter a valid 10-digit account number.");
+  }
 
   // Find sender profile
   const senderResult = await database.listDocuments(
     databaseId,
     userCollectionId,
-    [Query.equal("userId", currentUser.$id)],
+    [Query.equal("userId", [currentUser.$id])]
   );
 
   if (senderResult.documents.length === 0) {
@@ -40,36 +61,51 @@ export async function transferMoney({
 
   const sender = senderResult.documents[0];
 
-  // Find recipient
-  const recipientResult = await database.listDocuments(
+  // Find recipient bank account
+ const recipientBankResult =
+  await database.listDocuments(
     databaseId,
-    userCollectionId,
-    [Query.equal("email", recipientEmail.trim().toLowerCase())],
+    bankCollectionId,
+    [
+      Query.equal("accountNumber", [cleanAccountNumber]),
+    ]
   );
 
-  if (recipientResult.documents.length === 0) {
+  if (recipientBankResult.documents.length === 0) {
     throw new Error("Recipient account was not found.");
+  }
+
+  const recipientBank =
+    recipientBankResult.documents[0];
+
+  // Find recipient profile
+  const recipientResult =
+    await database.listDocuments(
+      databaseId,
+      userCollectionId,
+      [
+        Query.equal(
+          "userId",
+          [recipientBank.userId]
+        ),
+      ]
+    );
+
+  if (recipientResult.documents.length === 0) {
+    throw new Error("Recipient profile was not found.");
   }
 
   const recipient = recipientResult.documents[0];
 
   if (recipient.userId === currentUser.$id) {
-    throw new Error("You cannot transfer money to yourself.");
+    throw new Error(
+      "You cannot transfer money to yourself."
+    );
   }
 
-  if (!Number.isFinite(amount) || amount <= 0) {
-    throw new Error("Enter a valid transfer amount.");
-  }
-
-  const senderBalance = Number(sender.balance ?? 0);
-  console.log("TRANSFER SENDER:", {
-  authUserId: currentUser.$id,
-  profileId: sender.$id,
-  email: sender.email,
-  balance: sender.balance,
-  senderBalance,
-  requestedAmount: amount,
-});
+  const senderBalance = Number(
+    sender.balance ?? 0
+  );
 
   if (amount > senderBalance) {
     throw new Error("Insufficient balance.");
@@ -90,20 +126,17 @@ export async function transferMoney({
     .join(" ");
 
   const reference = `TRF-${Date.now()}-${Math.floor(
-    Math.random() * 100000,
+    Math.random() * 100000
   )}`;
 
-  const existingTransactions = await database.listDocuments(
-  databaseId,
-  transactionCollectionId,
-  [Query.equal("reference", [reference])]
-);
+  const newSenderBalance =
+    senderBalance - amount;
 
-if (existingTransactions.documents.length > 0) {
-  throw new Error(
-    "This transfer has already been processed."
-  );
-}
+  const recipientBalance =
+    Number(recipient.balance ?? 0);
+
+  const newRecipientBalance =
+    recipientBalance + amount;
 
   // Deduct sender balance
   await database.updateDocument(
@@ -111,18 +144,18 @@ if (existingTransactions.documents.length > 0) {
     userCollectionId,
     sender.$id,
     {
-      balance: senderBalance - amount,
-    },
+      balance: newSenderBalance,
+    }
   );
 
-  // Add recipient balance
+  // Credit recipient balance
   await database.updateDocument(
     databaseId,
     userCollectionId,
     recipient.$id,
     {
-      balance: Number(recipient.balance ?? 0) + amount,
-    },
+      balance: newRecipientBalance,
+    }
   );
 
   // Sender transaction
@@ -134,51 +167,37 @@ if (existingTransactions.documents.length > 0) {
       userId: currentUser.$id,
       type: "transfer",
       title: note?.trim()
-        ? `Transfer to ${recipientName || recipientEmail}: ${note.trim()}`
-        : `Transfer to ${recipientName || recipientEmail}`,
+        ? `Transfer to ${recipientName}: ${note.trim()}`
+        : `Transfer to ${recipientName}`,
       amount,
       status: "success",
       reference,
       date: new Date().toISOString(),
       senderId: currentUser.$id,
       receiverId: recipient.userId,
-      senderName: senderName || currentUser.name || "Customer",
-      receiverName: recipientName || recipientEmail,
-      senderEmail: sender.email || currentUser.email,
-      receiverEmail: recipient.email || recipientEmail,
+      senderName:
+        senderName ||
+        currentUser.name ||
+        "Customer",
+      receiverName:
+        recipientName ||
+        recipientBank.accountName ||
+        "Customer",
+      senderEmail:
+        sender.email ||
+        currentUser.email ||
+        "",
+      receiverEmail:
+        recipient.email || "",
       paystackTransactionId: 0,
       channel: "internal",
       currency: "NGN",
       fees: 0,
       paidAt: new Date().toISOString(),
-
-    },
+    }
   );
-    await createNotification({
-    userId: currentUser.$id,
-    title: "Transfer successful",
-    message: `₦${amount.toLocaleString("en-NG", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })} was sent to ${recipientName || recipientEmail}.`,
-    type: "transfer_sent",
-    reference,
-  });
 
-  await createNotification({
-    userId: recipient.userId,
-    title: "Money received",
-    message: `₦${amount.toLocaleString("en-NG", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })} was received from ${senderName || currentUser.email}.`,
-    type: "transfer_received",
-    reference,
-  });
-
-  console.log("=== TRANSFER NOTIFICATIONS CREATED ===");
-
-  // Receiver transaction
+  // Recipient transaction
   await database.createDocument(
     databaseId,
     transactionCollectionId,
@@ -186,30 +205,83 @@ if (existingTransactions.documents.length > 0) {
     {
       userId: recipient.userId,
       type: "transfer",
-      title: `Transfer from ${senderName || currentUser.email}`,
+      title: `Transfer from ${
+        senderName ||
+        currentUser.name ||
+        "Customer"
+      }`,
       amount,
       status: "success",
       reference,
       date: new Date().toISOString(),
       senderId: currentUser.$id,
       receiverId: recipient.userId,
-      senderName: senderName || currentUser.name || "Customer",
-      receiverName: recipientName || recipientEmail,
-      senderEmail: sender.email || currentUser.email,
-      receiverEmail: recipient.email || recipientEmail,
+      senderName:
+        senderName ||
+        currentUser.name ||
+        "Customer",
+      receiverName:
+        recipientName ||
+        recipientBank.accountName ||
+        "Customer",
+      senderEmail:
+        sender.email ||
+        currentUser.email ||
+        "",
+      receiverEmail:
+        recipient.email || "",
       paystackTransactionId: 0,
       channel: "internal",
       currency: "NGN",
       fees: 0,
       paidAt: new Date().toISOString(),
-
-    },
+    }
   );
+
+  // Sender notification
+  await createNotification({
+    userId: currentUser.$id,
+    title: "Transfer successful",
+    message: `₦${amount.toLocaleString("en-NG", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} was sent to ${
+      recipientName ||
+      recipientBank.accountName ||
+      "the recipient"
+    }.`,
+    type: "transfer_sent",
+    reference,
+  });
+
+  // Recipient notification
+  await createNotification({
+    userId: recipient.userId,
+    title: "Money received",
+    message: `₦${amount.toLocaleString("en-NG", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} was received from ${
+      senderName ||
+      currentUser.name ||
+      "Customer"
+    }.`,
+    type: "transfer_received",
+    reference,
+  });
 
   return {
     success: true,
     reference,
     amount,
-    newBalance: senderBalance - amount,
+    newBalance: newSenderBalance,
+    recipientName:
+      recipientName ||
+      recipientBank.accountName ||
+      "Customer",
+    recipientBankName:
+      recipientBank.bankName || "",
+    recipientAccountNumber:
+      cleanAccountNumber,
   };
 }

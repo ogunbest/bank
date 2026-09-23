@@ -297,7 +297,7 @@ await database.createDocument(
       customerName || "Paystack Customer",
 
     receiverName:
-      receiverName || "Horizon User",
+      receiverName || "Covenant User",
 
     senderEmail:
       customerEmail,
@@ -394,10 +394,13 @@ export async function getPaystackBanks() {
       params: {
         country: "nigeria",
         perPage: 100,
+        use_cursor: false,
       },
     });
 
-    return response.data.data.map(
+    const banks = response.data?.data ?? [];
+
+    return banks.map(
       (bank: {
         name: string;
         code: string;
@@ -407,7 +410,10 @@ export async function getPaystackBanks() {
       })
     );
   } catch (error: unknown) {
-    console.error("GET PAYSTACK BANKS ERROR:", error);
+    console.error(
+      "GET PAYSTACK BANKS ERROR:",
+      error
+    );
 
     throw new Error(
       error instanceof Error
@@ -416,53 +422,116 @@ export async function getPaystackBanks() {
     );
   }
 }
-
 export async function resolvePaystackAccount({
   accountNumber,
   bankCode,
 }: {
   accountNumber: string;
-  bankCode: string;
+  bankCode?: string;
 }) {
+  const cleanAccountNumber = accountNumber.replace(/\D/g, "");
+
+  if (!/^\d{10}$/.test(cleanAccountNumber)) {
+    throw new Error(
+      "Enter a valid 10-digit Nigerian account number."
+    );
+  }
+
+  if (!bankCode) {
+    return {
+      needsBankSelection: true,
+      accountNumber: cleanAccountNumber,
+      accountName: "",
+      bankCode: "",
+      bankName: "",
+      bankId: undefined,
+    };
+  }
+
   try {
-    if (!/^\d{10}$/.test(accountNumber)) {
+    console.log("VERIFYING PAYSTACK ACCOUNT:", {
+      accountNumber: cleanAccountNumber,
+      bankCode,
+    });
+
+    const response = await paystack.get("/bank/resolve", {
+      params: {
+        account_number: cleanAccountNumber,
+        bank_code: bankCode,
+      },
+    });
+
+    console.log(
+      "PAYSTACK RESOLVE RESPONSE:",
+      response.data
+    );
+
+    if (!response.data?.status) {
       throw new Error(
-        "Enter a valid 10-digit Nigerian account number."
+        response.data?.message ||
+          "Could not verify this bank account."
       );
     }
 
-    if (!bankCode) {
-      throw new Error("Please select a bank.");
-    }
-
-    const response = await paystack.get(
-      "/bank/resolve",
-      {
-        params: {
-          account_number: accountNumber,
-          bank_code: bankCode,
-        },
-      }
-    );
-
     const account = response.data.data;
 
+    if (!account?.account_name) {
+      throw new Error(
+        "Paystack could not find the account name."
+      );
+    }
+
     return {
-      accountNumber: account.account_number,
+      needsBankSelection: false,
+      accountNumber:
+        account.account_number || cleanAccountNumber,
       accountName: account.account_name,
+      bankCode,
+      bankName: "Bank",
       bankId: account.bank_id,
     };
   } catch (error: unknown) {
     console.error(
-      "RESOLVE PAYSTACK ACCOUNT ERROR:",
-      error
+      "=== PAYSTACK ACCOUNT RESOLVE ERROR ==="
     );
 
+    if (
+      error &&
+      typeof error === "object" &&
+      "response" in error
+    ) {
+      const axiosError = error as {
+        response?: {
+          status?: number;
+          data?: {
+            message?: string;
+          };
+        };
+      };
+
+      const status = axiosError.response?.status;
+      const message =
+        axiosError.response?.data?.message;
+
+      if (status === 429) {
+        throw new Error(
+          message ||
+            "Paystack test account verification limit reached."
+        );
+      }
+
+      throw new Error(
+        message ||
+          "Paystack account verification failed."
+      );
+    }
+
+    if (error instanceof Error) {
+      throw new Error(error.message);
+    }
+
     throw new Error(
-      error instanceof Error
-        ? error.message
-        : "Could not verify bank account."
+      "Could not verify bank account."
     );
   }
 }
-

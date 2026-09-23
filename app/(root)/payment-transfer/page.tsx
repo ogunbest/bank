@@ -14,7 +14,7 @@ const Transfer = async () => {
     <section className="payment-transfer">
       <HeaderBox
         title="Payment Transfer"
-        subtext="Send money securely to another Horizon account"
+        subtext="Send money securely to another Covenant account"
       />
 
       <section className="size-full pt-5">
