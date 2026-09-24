@@ -1,37 +1,56 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { cn, formUrlQuery } from "@/lib/utils";
 
-export const BankTabItem = ({ account, appwriteItemId }: BankTabItemProps) => {
+export const BankTabItem = ({
+  account,
+  appwriteItemId,
+}: BankTabItemProps) => {
   const searchParams = useSearchParams();
   const router = useRouter();
+
   const isActive = appwriteItemId === account?.appwriteItemId;
 
   const handleBankChange = () => {
+    if (!account?.appwriteItemId) return;
+
     const newUrl = formUrlQuery({
       params: searchParams?.toString() || "",
       key: "id",
-      value: account?.appwriteItemId,
+      value: account.appwriteItemId,
     });
+
     router.push(newUrl, { scroll: false });
   };
 
   return (
-    <div
+    <button
+      type="button"
       onClick={handleBankChange}
-      className={cn(`banktab-item`, {
-        " border-blue-600": isActive,
-      })}
+      className={cn(
+        "relative min-w-[130px] px-1 pb-3 text-left transition",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0F766E]",
+        "focus-visible:ring-offset-2",
+      )}
     >
       <p
-        className={cn(`text-16 line-clamp-1 flex-1 font-medium text-gray-500`, {
-          " text-blue-600": isActive,
-        })}
+        className={cn(
+          "truncate text-sm font-medium text-slate-500 transition",
+          isActive && "font-semibold text-[#0F766E]",
+        )}
       >
         {account.name}
       </p>
-    </div>
+
+      {/* Active indicator */}
+      <span
+        className={cn(
+          "absolute bottom-0 left-0 h-0.5 w-full rounded-full bg-transparent transition",
+          isActive && "bg-[#0F766E]",
+        )}
+      />
+    </button>
   );
 };

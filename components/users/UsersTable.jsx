@@ -1,6 +1,8 @@
+"use client";
+
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Search } from "lucide-react";
+import { Search, UserRound } from "lucide-react";
 
 const userData = [
   {
@@ -12,7 +14,7 @@ const userData = [
   },
   {
     id: 2,
-    name: "prince",
+    name: "Prince",
     email: "prince@example.com",
     role: "Admin",
     status: "Active",
@@ -42,120 +44,166 @@ const userData = [
 
 const UsersTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredUsers, setFilteredUsers] = useState(userData);
 
-  const handleSearch = (e) => {
-    const term = e.target.value.toLowerCase();
-    setSearchTerm(term);
-    const filtered = userData.filter(
-      (user) =>
-        user.name.toLowerCase().includes(term) ||
-        user.email.toLowerCase().includes(term)
-    );
-    setFilteredUsers(filtered);
-  };
+  const filteredUsers = userData.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
 
   return (
     <motion.div
-      className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
+      className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-100">Users</h2>
-        <div className="relative">
+      <div className="flex flex-col gap-4 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-[#0F766E]">
+            Management
+          </p>
+
+          <h2 className="mt-1 text-lg font-bold text-slate-900 sm:text-xl">
+            Users
+          </h2>
+
+          <p className="mt-1 text-sm text-slate-500">
+            Manage registered users and account access.
+          </p>
+        </div>
+
+        <div className="relative w-full sm:w-64">
+          <Search
+            size={18}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+          />
+
           <input
             type="text"
             placeholder="Search users..."
-            className="bg-gray-700 text-white placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={searchTerm}
-            onChange={handleSearch}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-[#0F766E] focus:bg-white focus:ring-2 focus:ring-[#0F766E]/10"
           />
-          <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-700">
-          <thead>
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                Email
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                Role
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
+      {filteredUsers.length === 0 ? (
+        <div className="flex min-h-[220px] flex-col items-center justify-center px-6 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-50 text-[#0F766E]">
+            <UserRound size={22} />
+          </div>
 
-          <tbody className="divide-y divide-gray-700">
-            {filteredUsers.map((user) => (
-              <motion.tr
-                key={user.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-              >
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10">
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-r from-purple-400 to-blue-500 flex items-center justify-center text-white font-semibold">
-                        {user.name.charAt(0)}
+          <h3 className="mt-4 text-sm font-semibold text-slate-900">
+            No users found
+          </h3>
+
+          <p className="mt-1 text-sm text-slate-500">
+            Try searching with a different name or email.
+          </p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full">
+            <thead className="bg-slate-50">
+              <tr className="border-b border-slate-100">
+                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-6">
+                  User
+                </th>
+                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-6">
+                  Email
+                </th>
+                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-6">
+                  Role
+                </th>
+                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-6">
+                  Status
+                </th>
+                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-6">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-slate-100">
+              {filteredUsers.map((user) => (
+                <motion.tr
+                  key={user.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.25 }}
+                  className="transition-colors hover:bg-teal-50/40"
+                >
+                  <td className="whitespace-nowrap px-5 py-4 sm:px-6">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-teal-50 font-bold text-[#0F766E]">
+                        {user.name.charAt(0).toUpperCase()}
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">
+                          {user.name}
+                        </p>
+                        <p className="text-xs text-slate-400">
+                          User #{user.id}
+                        </p>
                       </div>
                     </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-100">
-                        {user.name}
-                      </div>
-                    </div>
-                  </div>
-                </td>
+                  </td>
 
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-300">{user.email}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-800 text-blue-100">
-                    {user.role}
-                  </span>
-                </td>
+                  <td className="whitespace-nowrap px-5 py-4 text-sm text-slate-600 sm:px-6">
+                    {user.email}
+                  </td>
 
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      user.status === "Active"
-                        ? "bg-green-800 text-green-100"
-                        : "bg-red-800 text-red-100"
-                    }`}
-                  >
-                    {user.status}
-                  </span>
-                </td>
+                  <td className="whitespace-nowrap px-5 py-4 sm:px-6">
+                    <span className="inline-flex rounded-full border border-teal-100 bg-teal-50 px-2.5 py-1 text-xs font-semibold text-[#0F766E]">
+                      {user.role}
+                    </span>
+                  </td>
 
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                  <button className="text-indigo-400 hover:text-indigo-300 mr-2">
-                    Edit
-                  </button>
-                  <button className="text-red-400 hover:text-red-300">
-                    Delete
-                  </button>
-                </td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  <td className="whitespace-nowrap px-5 py-4 sm:px-6">
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                        user.status === "Active"
+                          ? "border border-emerald-100 bg-emerald-50 text-emerald-600"
+                          : "border border-red-100 bg-red-50 text-red-500"
+                      }`}
+                    >
+                      <span
+                        className={`h-1.5 w-1.5 rounded-full ${
+                          user.status === "Active"
+                            ? "bg-emerald-500"
+                            : "bg-red-500"
+                        }`}
+                      />
+                      {user.status}
+                    </span>
+                  </td>
+
+                  <td className="whitespace-nowrap px-5 py-4 text-sm sm:px-6">
+                    <button
+                      type="button"
+                      className="mr-3 font-semibold text-[#0F766E] transition hover:text-[#115E59]"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      type="button"
+                      className="font-semibold text-red-500 transition hover:text-red-600"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </motion.div>
   );
 };
+
 export default UsersTable;

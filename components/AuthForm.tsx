@@ -2,16 +2,16 @@
 
 import Link from "next/link";
 import React, { useState } from "react";
-
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { Loader2, ShieldCheck } from "lucide-react";
+import { useRouter } from "next/navigation";
+
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import CustomInput from "./CustomInput";
 import { authFormSchema } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { signIn, signUp } from "@/lib/actions/user.actions";
 
 const AuthForm = ({ type }: { type: string }) => {
@@ -61,69 +61,86 @@ const AuthForm = ({ type }: { type: string }) => {
         }
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const isSignIn = type === "sign-in";
+
   return (
-    <section className="auth-form">
-      <header className="flex flex-col gap-5 md:gap-8">
-        {/* COVENANT BRAND */}
-        <Link href="/" className="flex cursor-pointer items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0F172A] shadow-md">
-            <span className="text-lg font-bold text-[#2DD4BF]">C</span>
-          </div>
-
-          <h1 className="text-2xl font-bold tracking-tight text-[#0F172A]">
-            Covenant
-          </h1>
-        </Link>
-
-        <div className="flex flex-col gap-1 md:gap-3">
-          <h1 className="text-24 font-semibold text-gray-900 lg:text-36">
-            {user
-              ? "Link Account"
-              : type === "sign-in"
-                ? "Sign In"
-                : "Sign Up"}
-
-            <p className="text-16 font-normal text-gray-600">
-              {user
-                ? "Link your account to get started"
-                : "Please enter your details"}
-            </p>
-          </h1>
+    <section className="w-full max-w-md">
+      {/* Brand */}
+      <Link
+        href="/"
+        className="mb-10 flex items-center gap-3"
+      >
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#0F766E] shadow-sm">
+          <span className="text-xl font-bold text-white">C</span>
         </div>
-      </header>
+
+        <span className="text-2xl font-bold tracking-tight text-[#0F172A]">
+          Covenant
+        </span>
+      </Link>
+
+      {/* Heading */}
+      <div className="mb-8">
+        <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-teal-50 text-[#0F766E]">
+          <ShieldCheck size={22} />
+        </div>
+
+        <h1 className="text-3xl font-bold tracking-tight text-[#0F172A]">
+          {user
+            ? "Account created"
+            : isSignIn
+              ? "Welcome back"
+              : "Create your account"}
+        </h1>
+
+        <p className="mt-2 text-sm leading-6 text-slate-500">
+          {user
+            ? "Your account has been created successfully."
+            : isSignIn
+              ? "Sign in to access your Covenant banking dashboard."
+              : "Enter your details to create your Covenant account."}
+        </p>
+      </div>
 
       {user ? (
-        <div className="flex flex-col gap-4">
-          <p>Account created successfully.</p>
+        <div className="rounded-2xl border border-teal-100 bg-teal-50 p-5">
+          <p className="font-semibold text-[#0F766E]">
+            Account created successfully.
+          </p>
+
+          <p className="mt-1 text-sm text-slate-600">
+            You can now continue to your banking account.
+          </p>
         </div>
       ) : (
         <>
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-8"
+              className="space-y-5"
             >
+              {/* Sign up fields */}
               {type === "sign-up" && (
                 <>
-                  <div className="flex gap-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
                     <CustomInput
                       control={form.control}
                       name="firstName"
                       label="First Name"
-                      placeholder="Enter your first name"
+                      placeholder="First name"
                     />
 
                     <CustomInput
                       control={form.control}
                       name="lastName"
                       label="Last Name"
-                      placeholder="Enter your last name"
+                      placeholder="Last name"
                     />
                   </div>
 
@@ -131,22 +148,24 @@ const AuthForm = ({ type }: { type: string }) => {
                     control={form.control}
                     name="address1"
                     label="Address"
-                    placeholder="Enter your specific address"
+                    placeholder="Enter your address"
                   />
 
-                  <CustomInput
-                    control={form.control}
-                    name="city"
-                    label="City"
-                    placeholder="Enter your city"
-                  />
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <CustomInput
+                      control={form.control}
+                      name="city"
+                      label="City"
+                      placeholder="Enter your city"
+                    />
 
-                  <CustomInput
-                    control={form.control}
-                    name="state"
-                    label="State"
-                    placeholder="Enter your state"
-                  />
+                    <CustomInput
+                      control={form.control}
+                      name="state"
+                      label="State"
+                      placeholder="Enter your state"
+                    />
+                  </div>
 
                   <CustomInput
                     control={form.control}
@@ -157,6 +176,7 @@ const AuthForm = ({ type }: { type: string }) => {
                 </>
               )}
 
+              {/* Email */}
               <CustomInput
                 control={form.control}
                 name="email"
@@ -164,6 +184,7 @@ const AuthForm = ({ type }: { type: string }) => {
                 placeholder="Enter your email"
               />
 
+              {/* Password */}
               <CustomInput
                 control={form.control}
                 name="password"
@@ -171,41 +192,50 @@ const AuthForm = ({ type }: { type: string }) => {
                 placeholder="Enter your password"
               />
 
-              <div className="flex flex-col gap-4">
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="form-btn"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 size={20} className="animate-spin" />
-                      &nbsp; Loading...
-                    </>
-                  ) : type === "sign-in" ? (
-                    "Sign In"
-                  ) : (
-                    "Sign Up"
-                  )}
-                </Button>
-              </div>
+              {/* Submit */}
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="h-12 w-full rounded-xl bg-[#0F766E] text-sm font-semibold text-white shadow-sm transition hover:bg-[#115E59]"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2
+                      size={18}
+                      className="mr-2 animate-spin"
+                    />
+                    Please wait...
+                  </>
+                ) : isSignIn ? (
+                  "Sign In"
+                ) : (
+                  "Create Account"
+                )}
+              </Button>
             </form>
           </Form>
 
-          <footer className="flex justify-center gap-1">
-            <p className="text-14 font-normal text-gray-600">
-              {type === "sign-in"
+          {/* Switch auth */}
+          <div className="mt-7 flex justify-center gap-1 text-sm">
+            <p className="text-slate-500">
+              {isSignIn
                 ? "Don't have an account?"
                 : "Already have an account?"}
             </p>
 
             <Link
-              href={type === "sign-in" ? "/sign-up" : "/sign-in"}
-              className="form-link"
+              href={isSignIn ? "/sign-up" : "/sign-in"}
+              className="font-semibold text-[#0F766E] hover:text-[#115E59]"
             >
-              {type === "sign-in" ? "Sign up" : "Sign in"}
+              {isSignIn ? "Sign up" : "Sign in"}
             </Link>
-          </footer>
+          </div>
+
+          {/* Security note */}
+          <div className="mt-8 flex items-center justify-center gap-2 text-xs text-slate-400">
+            <ShieldCheck size={15} />
+            <span>Your information is securely protected.</span>
+          </div>
         </>
       )}
     </section>

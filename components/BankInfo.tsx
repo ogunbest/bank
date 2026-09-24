@@ -10,18 +10,25 @@ import {
   getAccountTypeColors,
 } from "@/lib/utils";
 
-const BankInfo = ({ account, appwriteItemId, type }: BankInfoProps) => {
+const BankInfo = ({
+  account,
+  appwriteItemId,
+  type,
+}: BankInfoProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const isActive = appwriteItemId === account?.appwriteItemId;
 
   const handleBankChange = () => {
+    if (!account?.appwriteItemId) return;
+
     const newUrl = formUrlQuery({
       params: searchParams?.toString() || "",
       key: "id",
-      value: account?.appwriteItemId,
+      value: account.appwriteItemId,
     });
+
     router.push(newUrl, { scroll: false });
   };
 
@@ -30,43 +37,70 @@ const BankInfo = ({ account, appwriteItemId, type }: BankInfoProps) => {
   return (
     <div
       onClick={handleBankChange}
-      className={cn(`bank-info ${colors.bg}`, {
-        "shadow-sm border-blue-700": type === "card" && isActive,
-        "rounded-xl": type === "card",
-        "hover:shadow-sm cursor-pointer": type === "card",
-      })}
+      className={cn(
+        "flex w-full items-center gap-4 rounded-2xl border bg-white p-4 transition",
+        type === "card" && "cursor-pointer hover:-translate-y-0.5 hover:shadow-md",
+        isActive && type === "card"
+          ? "border-[#0F766E] bg-teal-50/40 shadow-sm"
+          : "border-slate-200",
+      )}
     >
-      <figure
-        className={`flex-center h-fit rounded-full bg-blue-100 ${colors.lightBg}`}
+      {/* Icon */}
+      <div
+        className={cn(
+          "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
+          colors.lightBg || "bg-teal-50",
+        )}
       >
         <Image
           src="/icons/connect-bank.svg"
           width={20}
           height={20}
-          alt={account.subtype}
-          className="m-2 min-w-5"
+          alt={account?.subtype || "Bank account"}
         />
-      </figure>
-      <div className="flex w-full flex-1 flex-col justify-center gap-1">
-        <div className="bank-info_content">
+      </div>
+
+      {/* Account information */}
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
           <h2
-            className={`text-16 line-clamp-1 flex-1 font-bold text-blue-900 ${colors.title}`}
+            className={cn(
+              "truncate text-sm font-semibold text-slate-900",
+              colors.title,
+            )}
           >
             {account.name}
           </h2>
+
           {type === "full" && (
-            <p
-              className={`text-12 rounded-full px-3 py-1 font-medium text-blue-700 ${colors.subText} ${colors.lightBg}`}
+            <span
+              className={cn(
+                "hidden shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold sm:inline-flex",
+                colors.lightBg || "bg-teal-50",
+                colors.subText || "text-[#0F766E]",
+              )}
             >
               {account.subtype}
-            </p>
+            </span>
           )}
         </div>
 
-        <p className={`text-16 font-medium text-blue-700 ${colors.subText}`}>
+        <p
+          className={cn(
+            "mt-1 text-sm font-semibold",
+            colors.subText || "text-[#0F766E]",
+          )}
+        >
           {formatAmount(account.currentBalance)}
         </p>
       </div>
+
+      {/* Active indicator */}
+      {type === "card" && isActive && (
+        <span className="hidden shrink-0 rounded-full bg-[#0F766E] px-2.5 py-1 text-[11px] font-semibold text-white sm:inline-flex">
+          Active
+        </span>
+      )}
     </div>
   );
 };

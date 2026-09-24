@@ -1,53 +1,113 @@
+"use client";
+
 import { motion } from "framer-motion";
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import {
+  Cell,
+  Legend,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
+
 const salesByCategory = [
-	{ name: "Electronics", value: 400 },
-	{ name: "Clothing", value: 300 },
-	{ name: "Home & Garden", value: 200 },
-	{ name: "Books", value: 100 },
-	{ name: "Others", value: 150 },
+  { name: "Electronics", value: 400 },
+  { name: "Clothing", value: 300 },
+  { name: "Home & Garden", value: 200 },
+  { name: "Books", value: 100 },
+  { name: "Others", value: 150 },
 ];
 
-const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#0088FE"];
+const COLORS = [
+  "#0F766E",
+  "#14B8A6",
+  "#2DD4BF",
+  "#5EEAD4",
+  "#115E59",
+];
 
 const SalesByCategoryChart = () => {
-	return (
-		<motion.div
-			className='bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700'
-			initial={{ opacity: 0, y: 20 }}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{ delay: 0.3 }}
-		>
-			<h2 className='text-xl font-semibold text-gray-100 mb-4'>Sales by Category</h2>
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: 0.3 }}
+      className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
+    >
+      <div className="mb-5">
+        <p className="text-xs font-semibold uppercase tracking-wide text-[#0F766E]">
+          Categories
+        </p>
 
-			<div style={{ width: "100%", height: 300 }}>
-				<ResponsiveContainer>
-					<PieChart>
-						<Pie
-							data={salesByCategory}
-							cx='50%'
-							cy='50%'
-							outerRadius={80}
-							fill='#8884d8'
-							dataKey='value'
-							label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-						>
-							{salesByCategory.map((entry, index) => (
-								<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-							))}
-						</Pie>
-						<Tooltip
-							contentStyle={{
-								backgroundColor: "rgba(31, 41, 55, 0.8)",
-								borderColor: "#4B5563",
-							}}
-							itemStyle={{ color: "#E5E7EB" }}
-						/>
-						<Legend />
-					</PieChart>
-				</ResponsiveContainer>
-			</div>
-		</motion.div>
-	);
+        <h2 className="mt-1 text-lg font-bold text-slate-900 sm:text-xl">
+          Sales by Category
+        </h2>
+
+        <p className="mt-1 text-sm text-slate-500">
+          Distribution of sales across product categories.
+        </p>
+      </div>
+
+      <div className="h-[320px] w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={salesByCategory}
+              cx="50%"
+              cy="45%"
+              innerRadius={55}
+              outerRadius={90}
+              paddingAngle={3}
+              dataKey="value"
+              nameKey="name"
+              label={({ name, percent }) =>
+                `${name} ${((percent ?? 0) * 100).toFixed(0)}%`
+              }
+              labelLine={false}
+              stroke="#FFFFFF"
+              strokeWidth={2}
+            >
+              {salesByCategory.map((entry, index) => (
+                <Cell
+                  key={`cell-${entry.name}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
+              ))}
+            </Pie>
+
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E2E8F0",
+                borderRadius: "12px",
+                boxShadow: "0 10px 30px rgba(15, 23, 42, 0.08)",
+              }}
+              labelStyle={{
+                color: "#0F172A",
+                fontWeight: 600,
+              }}
+              itemStyle={{
+                color: "#0F766E",
+              }}
+              formatter={(value) => [
+                Number(value).toLocaleString(),
+                "Sales",
+              ]}
+            />
+
+            <Legend
+              verticalAlign="bottom"
+              wrapperStyle={{
+                paddingTop: "12px",
+                color: "#64748B",
+                fontSize: "12px",
+              }}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+    </motion.div>
+  );
 };
+
 export default SalesByCategoryChart;

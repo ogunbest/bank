@@ -1,6 +1,16 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { redirect } from "next/navigation";
 import Link from "next/link";
+import {
+  ArrowUpRight,
+  Building2,
+  CreditCard,
+  ReceiptText,
+  TrendingDown,
+  TrendingUp,
+  Users,
+  Wallet,
+} from "lucide-react";
+import { redirect } from "next/navigation";
+
 import {
   getAllBankAccounts,
   getAllTransactions,
@@ -11,234 +21,454 @@ import {
 export default async function AdminPage() {
   const user = await getLoggedInUser();
 
-const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-const userEmail = user?.email?.trim().toLowerCase();
+  const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  const userEmail = user?.email?.trim().toLowerCase();
 
-if (
-  !user ||
-  !adminEmail ||
-  userEmail !== adminEmail ||
-  user.role?.trim().toLowerCase() !== "admin"
-) {
-  redirect("/dashboard");
-}
+  if (
+    !user ||
+    !adminEmail ||
+    userEmail !== adminEmail ||
+    user.role?.trim().toLowerCase() !== "admin"
+  ) {
+    redirect("/dashboard");
+  }
 
   const users = await getAllUsers();
   const bankAccounts = await getAllBankAccounts();
   const transactions = await getAllTransactions();
 
   const totalBalance = users.reduce(
-  (total: number, user: any) =>
-    total + Number(user.balance || 0),
-  0
-);
-
-const totalDeposits = transactions
-  .filter(
-    (transaction: any) =>
-      transaction.type?.toLowerCase() === "deposit"
-  )
-  .reduce(
-    (total: number, transaction: any) =>
-      total + Number(transaction.amount || 0),
-    0
+    (total, customer) =>
+      total + Number(customer.balance || 0),
+    0,
   );
 
-const totalWithdrawals = transactions
-  .filter(
-    (transaction: any) =>
-      transaction.type?.toLowerCase() === "withdrawal"
-  )
-  .reduce(
-    (total: number, transaction: any) =>
-      total + Number(transaction.amount || 0),
-    0
-  );
+  const totalDeposits = transactions
+    .filter(
+      (transaction) =>
+        transaction.type?.toLowerCase() === "deposit",
+    )
+    .reduce(
+      (total, transaction) =>
+        total + Number(transaction.amount || 0),
+      0,
+    );
 
-const totalTransfers = transactions
-  .filter(
-    (transaction: any) =>
-      transaction.type?.toLowerCase() === "transfer"
-  )
-  .reduce(
-    (total: number, transaction: any) =>
-      total + Number(transaction.amount || 0),
-    0
-  );
+  const totalWithdrawals = transactions
+    .filter(
+      (transaction) =>
+        transaction.type?.toLowerCase() === "withdrawal",
+    )
+    .reduce(
+      (total, transaction) =>
+        total + Number(transaction.amount || 0),
+      0,
+    );
+
+  const totalTransfers = transactions
+    .filter(
+      (transaction) =>
+        transaction.type?.toLowerCase() === "transfer",
+    )
+    .reduce(
+      (total, transaction) =>
+        total + Number(transaction.amount || 0),
+      0,
+    );
+
+  const recentUsers = users.slice(-5).reverse();
+  const recentTransactions = transactions.slice(-5).reverse();
 
   return (
-    <div className="p-8">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold">
-          Admin Dashboard
-        </h1>
+    <div className="min-h-screen bg-[#F8FAFC]">
+      <div className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+        {/* Header */}
+        <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[#0F766E]">
+              Administration
+            </p>
 
-        <p className="text-gray-400 mt-2">
-          Welcome to the Covenant administration panel.
-        </p>
+            <h1 className="mt-2 text-2xl font-bold text-slate-900 sm:text-3xl">
+              Admin Overview
+            </h1>
 
-        {/* Statistics */}
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-  <div className="bg-gray-800 rounded-xl p-6">
-    <p className="text-gray-400">Total Users</p>
-    <p className="text-3xl font-bold mt-2">
-      {users.length}
-    </p>
-  </div>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+              Monitor Covenant users, accounts, funds, and transaction
+              activity from one place.
+            </p>
+          </div>
 
-  <div className="bg-gray-800 rounded-xl p-6">
-    <p className="text-gray-400">Bank Accounts</p>
-    <p className="text-3xl font-bold mt-2">
-      {bankAccounts.length}
-    </p>
-  </div>
-
-  <div className="bg-gray-800 rounded-xl p-6">
-    <p className="text-gray-400">Transactions</p>
-    <p className="text-3xl font-bold mt-2">
-      {transactions.length}
-    </p>
-  </div>
-
-  <div className="bg-gray-800 rounded-xl p-6">
-    <p className="text-gray-400">Total Customer Funds</p>
-    <p className="text-2xl font-bold mt-2">
-      ₦{totalBalance.toLocaleString("en-NG")}
-    </p>
-  </div>
-
-  <div className="bg-gray-800 rounded-xl p-6">
-    <p className="text-gray-400">Total Deposits</p>
-    <p className="text-2xl font-bold mt-2 text-green-400">
-      ₦{totalDeposits.toLocaleString("en-NG")}
-    </p>
-  </div>
-
-  <div className="bg-gray-800 rounded-xl p-6">
-    <p className="text-gray-400">Total Withdrawals</p>
-    <p className="text-2xl font-bold mt-2 text-red-400">
-      ₦{totalWithdrawals.toLocaleString("en-NG")}
-    </p>
-  </div>
-
-  <div className="bg-gray-800 rounded-xl p-6">
-    <p className="text-gray-400">Total Transfers</p>
-    <p className="text-2xl font-bold mt-2">
-      ₦{totalTransfers.toLocaleString("en-NG")}
-    </p>
-  </div>
-</div>
-
-        {/* Recent Users */}
-        <div className="mt-8 bg-gray-800 rounded-xl p-6">
-          <h2 className="text-xl font-semibold">
-            Recent Users
-          </h2>
-
-          <div className="mt-4 space-y-3">
-            {users
-              .slice(-5)
-              .reverse()
-              .map((user: any) => (
-                <div
-                  key={user.$id}
-                  className="flex justify-between items-center border-b border-gray-700 pb-3"
-                >
-                  <div>
-                    <Link
-  href={`/admin/users/${user.$id}`}
-  className="font-medium text-blue-400 hover:text-blue-300 hover:underline"
->
-  {user.firstName} {user.lastName}
-</Link>
-
-                    <p className="text-sm text-gray-400">
-                      {user.email}
-                    </p>
-                  </div>
-<div className="text-right">
-  <p className="text-sm">
-    {user.role || "user"}
-  </p>
-
-  <p className="text-sm">
-    {user.status || "active"}
-  </p>
-
-  <p className="text-sm text-gray-400">
-    ₦
-    {Number(
-      user.balance || 0
-    ).toLocaleString("en-NG")}
-  </p>
-</div>
-                </div>
-              ))}
+          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-600">
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            System operational
           </div>
         </div>
 
-        {/* Recent Transactions */}
-        <div className="mt-8 bg-gray-800 rounded-xl p-6">
-          <h2 className="text-xl font-semibold">
-            Recent Transactions
-          </h2>
+        {/* Main Statistics */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            icon={<Users size={20} />}
+            label="Total Users"
+            value={users.length.toLocaleString("en-NG")}
+            href="/admin/users"
+          />
 
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-gray-700">
-                  <th className="p-3">ID</th>
-                  <th className="p-3">Amount</th>
-                  <th className="p-3">Type</th>
-                  <th className="p-3">Status</th>
-                </tr>
-              </thead>
+          <StatCard
+            icon={<Building2 size={20} />}
+            label="Bank Accounts"
+            value={bankAccounts.length.toLocaleString("en-NG")}
+            href="/admin/accounts"
+          />
 
-              <tbody>
-                {transactions
-                  .slice(-5)
-                  .reverse()
-                  .map((transaction: any) => (
-                    <tr
-                      key={transaction.$id}
-                      className="border-b border-gray-700"
+          <StatCard
+            icon={<ReceiptText size={20} />}
+            label="Transactions"
+            value={transactions.length.toLocaleString("en-NG")}
+            href="/admin/transactions"
+          />
+
+          <StatCard
+            icon={<Wallet size={20} />}
+            label="Customer Funds"
+            value={`₦${totalBalance.toLocaleString("en-NG")}`}
+            highlight
+          />
+        </div>
+
+        {/* Financial Overview */}
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <FinanceCard
+            icon={<TrendingUp size={19} />}
+            label="Total Deposits"
+            value={`₦${totalDeposits.toLocaleString("en-NG")}`}
+            positive
+          />
+
+          <FinanceCard
+            icon={<TrendingDown size={19} />}
+            label="Total Withdrawals"
+            value={`₦${totalWithdrawals.toLocaleString("en-NG")}`}
+            negative
+          />
+
+          <FinanceCard
+            icon={<CreditCard size={19} />}
+            label="Total Transfers"
+            value={`₦${totalTransfers.toLocaleString("en-NG")}`}
+          />
+        </div>
+
+        {/* Recent Activity */}
+        <div className="mt-6 grid gap-6 xl:grid-cols-2">
+          {/* Recent Users */}
+          <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 sm:px-6">
+              <div>
+                <h2 className="text-base font-bold text-slate-900">
+                  Recent Users
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  Latest customer accounts.
+                </p>
+              </div>
+
+              <Link
+                href="/admin/users"
+                className="inline-flex items-center gap-1 text-sm font-semibold text-[#0F766E] hover:text-[#115E59]"
+              >
+                View all
+                <ArrowUpRight size={15} />
+              </Link>
+            </div>
+
+            {recentUsers.length === 0 ? (
+              <EmptyState message="No users found." />
+            ) : (
+              <div className="divide-y divide-slate-100">
+                {recentUsers.map((customer) => {
+                  const name =
+                    [customer.firstName, customer.lastName]
+                      .filter(Boolean)
+                      .join(" ") || "Unnamed User";
+
+                  const status =
+                    customer.status?.trim().toLowerCase() || "active";
+
+                  const disabled = status === "disabled";
+
+                  return (
+                    <div
+                      key={customer.$id}
+                      className="flex items-center justify-between gap-4 px-5 py-4 transition hover:bg-teal-50/40 sm:px-6"
                     >
-                      <td className="p-3 text-sm">
-  <Link
-    href={`/admin/transactions/${transaction.$id}`}
-    className="text-blue-400 hover:text-blue-300 hover:underline"
-  >
-    {transaction.$id}
-  </Link>
-</td>
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-teal-50 font-bold text-[#0F766E]">
+                          {(
+                            customer.firstName?.charAt(0) ||
+                            customer.email?.charAt(0) ||
+                            "U"
+                          ).toUpperCase()}
+                        </div>
 
-                      <td className="p-3">
-                        ₦
-                        {Number(
-                          transaction.amount || 0
-                        ).toLocaleString()}
-                      </td>
+                        <div className="min-w-0">
+                          <Link
+                            href={`/admin/users/${customer.$id}`}
+                            className="block truncate text-sm font-semibold text-slate-900 hover:text-[#0F766E]"
+                          >
+                            {name}
+                          </Link>
 
-                      <td className="p-3">
-                        {transaction.type || "—"}
-                      </td>
+                          <p className="truncate text-xs text-slate-400">
+                            {customer.email || "No email"}
+                          </p>
+                        </div>
+                      </div>
 
-                      <td className="p-3">
-                        {transaction.status || "—"}
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
+                      <div className="shrink-0 text-right">
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${
+                            disabled
+                              ? "border-red-100 bg-red-50 text-red-500"
+                              : "border-emerald-100 bg-emerald-50 text-emerald-600"
+                          }`}
+                        >
+                          <span
+                            className={`h-1.5 w-1.5 rounded-full ${
+                              disabled
+                                ? "bg-red-500"
+                                : "bg-emerald-500"
+                            }`}
+                          />
 
-            {transactions.length === 0 && (
-              <p className="text-gray-400 py-4">
-                No transactions yet.
-              </p>
+                          {disabled ? "Disabled" : "Active"}
+                        </span>
+
+                        <p className="mt-1 text-xs font-medium text-slate-500">
+                          ₦
+                          {Number(
+                            customer.balance || 0,
+                          ).toLocaleString("en-NG")}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             )}
-          </div>
+          </section>
+
+          {/* Recent Transactions */}
+          <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 sm:px-6">
+              <div>
+                <h2 className="text-base font-bold text-slate-900">
+                  Recent Transactions
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  Latest transaction activity.
+                </p>
+              </div>
+
+              <Link
+                href="/admin/transactions"
+                className="inline-flex items-center gap-1 text-sm font-semibold text-[#0F766E] hover:text-[#115E59]"
+              >
+                View all
+                <ArrowUpRight size={15} />
+              </Link>
+            </div>
+
+            {recentTransactions.length === 0 ? (
+              <EmptyState message="No transactions yet." />
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-[650px] w-full text-left">
+                  <thead className="bg-slate-50">
+                    <tr className="border-b border-slate-100">
+                      <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-6">
+                        Transaction
+                      </th>
+
+                      <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-6">
+                        Amount
+                      </th>
+
+                      <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-6">
+                        Type
+                      </th>
+
+                      <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-6">
+                        Status
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody className="divide-y divide-slate-100">
+                    {recentTransactions.map((transaction) => {
+                      const status =
+                        transaction.status?.toLowerCase();
+
+                      const statusClass =
+                        status === "success" ||
+                        status === "successful"
+                          ? "border-emerald-100 bg-emerald-50 text-emerald-600"
+                          : status === "pending"
+                            ? "border-amber-100 bg-amber-50 text-amber-600"
+                            : "border-red-100 bg-red-50 text-red-500";
+
+                      return (
+                        <tr
+                          key={transaction.$id}
+                          className="transition hover:bg-teal-50/40"
+                        >
+                          <td className="px-5 py-4 sm:px-6">
+                            <Link
+                              href={`/admin/transactions/${transaction.$id}`}
+                              className="font-mono text-xs font-semibold text-[#0F766E] hover:underline"
+                            >
+                              {transaction.reference ||
+                                transaction.$id}
+                            </Link>
+                          </td>
+
+                          <td className="whitespace-nowrap px-5 py-4 text-sm font-semibold text-slate-900 sm:px-6">
+                            ₦
+                            {Number(
+                              transaction.amount || 0,
+                            ).toLocaleString("en-NG")}
+                          </td>
+
+                          <td className="whitespace-nowrap px-5 py-4 text-sm capitalize text-slate-600 sm:px-6">
+                            {transaction.type || "—"}
+                          </td>
+
+                          <td className="px-5 py-4 sm:px-6">
+                            <span
+                              className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold capitalize ${statusClass}`}
+                            >
+                              {transaction.status || "Unknown"}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
         </div>
       </div>
+    </div>
+  );
+}
+
+function StatCard({
+  icon,
+  label,
+  value,
+  href,
+  highlight = false,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  href?: string;
+  highlight?: boolean;
+}) {
+  const content = (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-teal-100 hover:shadow-md">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-[#0F766E]">
+          {icon}
+        </div>
+
+        {href && (
+          <ArrowUpRight
+            size={17}
+            className="text-slate-300 transition group-hover:text-[#0F766E]"
+          />
+        )}
+      </div>
+
+      <p className="mt-4 text-xs font-medium uppercase tracking-wide text-slate-400">
+        {label}
+      </p>
+
+      <p
+        className={`mt-2 text-2xl font-bold ${
+          highlight ? "text-[#0F766E]" : "text-slate-900"
+        }`}
+      >
+        {value}
+      </p>
+    </div>
+  );
+
+  if (!href) {
+    return content;
+  }
+
+  return (
+    <Link href={href} className="group block">
+      {content}
+    </Link>
+  );
+}
+
+function FinanceCard({
+  icon,
+  label,
+  value,
+  positive = false,
+  negative = false,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  positive?: boolean;
+  negative?: boolean;
+}) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div
+        className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+          positive
+            ? "bg-emerald-50 text-emerald-600"
+            : negative
+              ? "bg-red-50 text-red-500"
+              : "bg-teal-50 text-[#0F766E]"
+        }`}
+      >
+        {icon}
+      </div>
+
+      <p className="mt-4 text-xs font-medium uppercase tracking-wide text-slate-400">
+        {label}
+      </p>
+
+      <p
+        className={`mt-2 text-xl font-bold ${
+          positive
+            ? "text-emerald-600"
+            : negative
+              ? "text-red-500"
+              : "text-slate-900"
+        }`}
+      >
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function EmptyState({ message }: { message: string }) {
+  return (
+    <div className="flex min-h-[180px] items-center justify-center px-6 text-center">
+      <p className="text-sm text-slate-400">{message}</p>
     </div>
   );
 }

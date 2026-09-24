@@ -1,44 +1,77 @@
-import React from 'react'
-import { FormControl, FormField, FormLabel, FormMessage } from './ui/form'
-import { Input } from './ui/input'
+"use client";
 
-import { Control, FieldPath } from 'react-hook-form'
-import { z } from 'zod'
-import { authFormSchema } from '@/lib/utils'
+import React from "react";
+import { Control, FieldPath } from "react-hook-form";
+import { z } from "zod";
 
-type FormSchema = z.infer<ReturnType<typeof authFormSchema>>
+import { authFormSchema } from "@/lib/utils";
+import {
+  FormControl,
+  FormField,
+  FormLabel,
+  FormMessage,
+} from "./ui/form";
+import { Input } from "./ui/input";
 
-interface CustomInput {
-  control: Control<FormSchema>,
-  name: FieldPath<FormSchema>,
-  label: string,
-  placeholder: string
+type FormSchema = z.infer<ReturnType<typeof authFormSchema>>;
+
+interface CustomInputProps {
+  control: Control<FormSchema>;
+  name: FieldPath<FormSchema>;
+  label: string;
+  placeholder: string;
 }
-const CustomInput = ({ control, name, label, placeholder }: CustomInput) => {
+
+const CustomInput = ({
+  control,
+  name,
+  label,
+  placeholder,
+}: CustomInputProps) => {
+  const isPassword = name === "password";
+  const isEmail = name === "email";
+  const isDate = name === "dateOfBirth";
+
   return (
     <FormField
       control={control}
       name={name}
       render={({ field }) => (
-        <div className="form-item">
-          <FormLabel className="form-label">
+        <div className="w-full space-y-2">
+          <FormLabel className="text-sm font-medium text-slate-700">
             {label}
           </FormLabel>
-          <div className="flex w-full flex-col">
-            <FormControl>
-              <Input 
-                placeholder={placeholder}
-                className="input-class"
-                type={name === 'password' ? 'password' : 'text'}
-                {...field}
-              />
-            </FormControl>
-            <FormMessage className="form-message mt-2" />
-          </div>
+
+          <FormControl>
+            <Input
+              {...field}
+              value={field.value ?? ""}
+              type={
+                isPassword
+                  ? "password"
+                  : isEmail
+                    ? "email"
+                    : isDate
+                      ? "date"
+                      : "text"
+              }
+              placeholder={placeholder}
+              autoComplete={
+                isEmail
+                  ? "email"
+                  : isPassword
+                    ? "current-password"
+                    : undefined
+              }
+              className="h-12 rounded-xl border-slate-200 bg-white px-4 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
+            />
+          </FormControl>
+
+          <FormMessage className="text-xs font-medium text-red-500" />
         </div>
       )}
     />
-  )
-}
+  );
+};
 
-export default CustomInput
+export default CustomInput;

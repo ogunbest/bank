@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+
 import { getDashboardData } from "@/lib/actions/dashboard.actions";
 
 export type DashboardData = Awaited<
@@ -17,47 +18,42 @@ export function useDashboardData() {
 
   const refreshDashboard = useCallback(async () => {
     try {
+      setError(null);
+
       const dashboardData = await getDashboardData();
 
       if (!dashboardData) {
         router.replace("/sign-in");
-        return;
+        return null;
       }
 
       setData(dashboardData);
-      setError(null);
+
+      return dashboardData;
     } catch (loadError) {
       console.error("DASHBOARD DATA ERROR:", loadError);
 
       setError(
-        "We could not load your account data. Please refresh and try again."
+        "We could not load your account data. Please refresh and try again.",
       );
+
+      return null;
     }
   }, [router]);
 
   useEffect(() => {
     let isMounted = true;
 
-    const load = async () => {
+    const loadDashboard = async () => {
       try {
-        const dashboardData = await getDashboardData();
+        setLoading(true);
 
-        if (!dashboardData) {
-          router.replace("/sign-in");
-          return;
-        }
+        const dashboardData = await refreshDashboard();
 
-        if (isMounted) {
+        if (!isMounted) return;
+
+        if (dashboardData) {
           setData(dashboardData);
-          setError(null);
-        }
-      } catch (loadError) {
-        console.error("DASHBOARD DATA ERROR:", loadError);
-
-        if (isMounted) {
-          setError(
-            "We could not load your account data. Please refresh and try again."
-          );
         }
       } finally {
         if (isMounted) {
@@ -66,12 +62,12 @@ export function useDashboardData() {
       }
     };
 
-    load();
+    loadDashboard();
 
     return () => {
       isMounted = false;
     };
-  }, [router]);
+  }, [refreshDashboard]);
 
   return {
     data,

@@ -1,20 +1,52 @@
 "use client";
-import { motion } from "framer-motion";
 
-const StatCard = ({ name, icon: Icon, value, color }) => {
+import { motion } from "framer-motion";
+import type { LucideIcon } from "lucide-react";
+
+interface StatCardProps {
+  name: string;
+  icon: LucideIcon;
+  value: string | number;
+  color?: string;
+}
+
+const StatCard = ({
+  name,
+  icon: Icon,
+  value,
+  color = "#0F766E",
+}: StatCardProps) => {
   return (
     <motion.div
-      className="bg-gray-800 bg-opacity-50 backdrop-blur-md overflow-hidden shadow-lg rounded-xl border border-gray-700"
-      whileHover={{ y: -5, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)" }}
+      whileHover={{
+        y: -4,
+        boxShadow: "0 20px 40px -18px rgba(15, 118, 110, 0.25)",
+      }}
+      transition={{ duration: 0.2 }}
+      className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
     >
-      <div className="px-4 py-5 sm:p-6">
-        <span className="flex items-center text-sm font-medium text-gray-400">
-          <Icon size={20} className="mr-2" style={{ color }} />
-          {name}
-        </span>
-        <p className="mt-1 text-3xl font-semibold text-gray-100">{value}</p>
+      <div className="p-5 sm:p-6">
+        <div className="flex items-center gap-3">
+          <div
+            className="flex h-10 w-10 items-center justify-center rounded-xl"
+            style={{
+              backgroundColor: `${color}12`,
+            }}
+          >
+            <Icon size={20} style={{ color }} />
+          </div>
+
+          <span className="text-sm font-medium text-slate-500">
+            {name}
+          </span>
+        </div>
+
+        <p className="mt-4 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+          {value}
+        </p>
       </div>
     </motion.div>
   );
 };
+
 export default StatCard;

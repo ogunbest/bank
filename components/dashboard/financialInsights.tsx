@@ -70,7 +70,8 @@ export default function FinancialInsights({
       maximumFractionDigits: 2,
     });
 
-  let coachMessage = "Keep tracking your money to build a clearer picture of your finances.";
+  let coachMessage =
+    "Keep tracking your money to build a clearer picture of your finances.";
 
   if (income === 0 && expenses === 0) {
     coachMessage =
@@ -86,154 +87,170 @@ export default function FinancialInsights({
   }
 
   return (
-    <section className="mb-8">
-      <div className="mb-5">
-        <h2 className="text-xl font-semibold text-white">
-          Financial Insights
-        </h2>
+    <section className="space-y-5">
+      {/* Header */}
+      <div>
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-[#0F766E]">
+            <TrendingUp size={19} />
+          </div>
 
-        <p className="text-sm text-gray-400 mt-1">
-          Understand where your money is going this month.
-        </p>
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">
+              Financial Insights
+            </h2>
+
+            <p className="mt-0.5 text-sm text-slate-500">
+              Understand where your money is going this month.
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* MONTHLY SUMMARY */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
-        <div className="rounded-2xl bg-gray-800/70 border border-gray-700 p-5">
+      {/* Monthly Summary */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {/* Income */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <p className="text-gray-400 text-sm">
+            <p className="text-sm font-medium text-slate-500">
               Monthly Income
             </p>
 
-            <div className="h-9 w-9 rounded-full bg-green-500/10 flex items-center justify-center">
-              <ArrowDownLeft
-                size={18}
-                className="text-green-400"
-              />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-[#0F766E]">
+              <ArrowDownLeft size={18} />
             </div>
           </div>
 
-          <p className="text-2xl font-semibold text-green-400 mt-4">
+          <p className="mt-4 text-2xl font-bold tracking-tight text-[#0F766E]">
             ₦{formatMoney(income)}
           </p>
 
-          <p className="text-xs text-gray-500 mt-2">
+          <p className="mt-2 text-xs text-slate-400">
             Money received this month
           </p>
         </div>
 
-        <div className="rounded-2xl bg-gray-800/70 border border-gray-700 p-5">
+        {/* Spending */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <p className="text-gray-400 text-sm">
+            <p className="text-sm font-medium text-slate-500">
               Monthly Spending
             </p>
 
-            <div className="h-9 w-9 rounded-full bg-red-500/10 flex items-center justify-center">
-              <ArrowUpRight
-                size={18}
-                className="text-red-400"
-              />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-500">
+              <ArrowUpRight size={18} />
             </div>
           </div>
 
-          <p className="text-2xl font-semibold text-red-400 mt-4">
+          <p className="mt-4 text-2xl font-bold tracking-tight text-red-500">
             ₦{formatMoney(expenses)}
           </p>
 
-          <p className="text-xs text-gray-500 mt-2">
+          <p className="mt-2 text-xs text-slate-400">
             Money spent this month
           </p>
         </div>
 
-        <div className="rounded-2xl bg-gray-800/70 border border-gray-700 p-5">
+        {/* Net */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
-            <p className="text-gray-400 text-sm">
+            <p className="text-sm font-medium text-slate-500">
               Net Cash Flow
             </p>
 
-            <div className="h-9 w-9 rounded-full bg-indigo-500/10 flex items-center justify-center">
-              <TrendingUp
-                size={18}
-                className="text-indigo-400"
-              />
+            <div
+              className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+                net >= 0
+                  ? "bg-teal-50 text-[#0F766E]"
+                  : "bg-red-50 text-red-500"
+              }`}
+            >
+              <TrendingUp size={18} />
             </div>
           </div>
 
           <p
-            className={`text-2xl font-semibold mt-4 ${
+            className={`mt-4 text-2xl font-bold tracking-tight ${
               net >= 0
-                ? "text-indigo-400"
-                : "text-red-400"
+                ? "text-[#0F766E]"
+                : "text-red-500"
             }`}
           >
             {net >= 0 ? "+" : "-"}₦
             {formatMoney(Math.abs(net))}
           </p>
 
-          <p className="text-xs text-gray-500 mt-2">
+          <p className="mt-2 text-xs text-slate-400">
             Income minus spending
           </p>
         </div>
       </div>
 
-      {/* INSIGHTS */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* SPENDING */}
-        <div className="rounded-2xl bg-gray-800/70 border border-gray-700 p-6">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="h-10 w-10 rounded-full bg-red-500/10 flex items-center justify-center">
-              <ArrowUpRight
-                size={20}
-                className="text-red-400"
-              />
+      {/* Detailed Insights */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        {/* Spending Breakdown */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <div className="mb-5 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-500">
+              <ArrowUpRight size={19} />
             </div>
 
             <div>
-              <h3 className="font-semibold text-white">
+              <h3 className="font-bold text-slate-900">
                 Spending Breakdown
               </h3>
 
-              <p className="text-xs text-gray-500">
-                This month
+              <p className="mt-0.5 text-xs text-slate-400">
+                Your top spending categories this month
               </p>
             </div>
           </div>
 
           {categories.length === 0 ? (
-            <p className="text-sm text-gray-400">
-              No spending transactions recorded this month.
-            </p>
+            <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-5 py-8 text-center">
+              <p className="text-sm font-medium text-slate-600">
+                No spending transactions yet
+              </p>
+
+              <p className="mt-1 text-xs text-slate-400">
+                Your spending breakdown will appear here.
+              </p>
+            </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-5">
               {categories.map(([category, amount]) => {
                 const percentage =
                   expenses > 0
                     ? Math.min(
                         (amount / expenses) * 100,
-                        100
+                        100,
                       )
                     : 0;
 
                 return (
                   <div key={category}>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-gray-300">
+                    <div className="mb-2 flex items-center justify-between gap-4">
+                      <span className="truncate text-sm font-medium text-slate-700">
                         {category}
                       </span>
 
-                      <span className="text-sm text-white">
+                      <span className="whitespace-nowrap text-sm font-semibold text-slate-900">
                         ₦{formatMoney(amount)}
                       </span>
                     </div>
 
-                    <div className="h-2 rounded-full bg-gray-700 overflow-hidden">
+                    <div className="h-2 overflow-hidden rounded-full bg-slate-100">
                       <div
-                        className="h-full rounded-full bg-indigo-500"
+                        className="h-full rounded-full bg-[#0F766E] transition-all"
                         style={{
                           width: `${percentage}%`,
                         }}
                       />
                     </div>
+
+                    <p className="mt-1 text-right text-[11px] text-slate-400">
+                      {percentage.toFixed(1)}%
+                    </p>
                   </div>
                 );
               })}
@@ -241,44 +258,42 @@ export default function FinancialInsights({
           )}
         </div>
 
-        {/* MONEY COACH */}
-        <div className="rounded-2xl bg-gradient-to-br from-indigo-600/20 to-purple-600/20 border border-indigo-500/20 p-6">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="h-10 w-10 rounded-full bg-indigo-500/10 flex items-center justify-center">
-              <Lightbulb
-                size={20}
-                className="text-indigo-400"
-              />
+        {/* Money Coach */}
+        <div className="rounded-2xl border border-teal-100 bg-gradient-to-br from-teal-50 to-white p-5 shadow-sm sm:p-6">
+          <div className="mb-5 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#0F766E] shadow-sm">
+              <Lightbulb size={19} />
             </div>
 
             <div>
-              <h3 className="font-semibold text-white">
+              <h3 className="font-bold text-slate-900">
                 Money Coach
               </h3>
 
-              <p className="text-xs text-gray-400">
+              <p className="mt-0.5 text-xs text-slate-500">
                 Your financial snapshot
               </p>
             </div>
           </div>
 
-          <p className="text-gray-300 leading-7">
-            {coachMessage}
-          </p>
+          <div className="rounded-xl border border-teal-100 bg-white/80 p-4">
+            <p className="text-sm leading-6 text-slate-600">
+              {coachMessage}
+            </p>
+          </div>
 
-          <div className="mt-6 rounded-xl bg-gray-900/50 border border-gray-700 p-4">
+          <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4">
             <div className="flex items-center gap-3">
-              <PiggyBank
-                size={20}
-                className="text-indigo-400"
-              />
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-[#0F766E]">
+                <PiggyBank size={19} />
+              </div>
 
               <div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs font-medium text-slate-400">
                   Current balance
                 </p>
 
-                <p className="text-lg font-semibold text-white">
+                <p className="mt-0.5 text-lg font-bold text-slate-900">
                   ₦{formatMoney(balance)}
                 </p>
               </div>

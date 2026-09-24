@@ -1,18 +1,20 @@
-import { useState } from "react";
+"use client";
+
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Search, Eye } from "lucide-react";
+import { Eye, Search } from "lucide-react";
 
 const orderData = [
   {
     id: "ORD001",
-    customer: "John ",
+    customer: "John",
     total: 235.4,
     status: "Delivered",
     date: "2023-07-01",
   },
   {
     id: "ORD002",
-    customer: "Jane ",
+    customer: "Jane",
     total: 412.0,
     status: "Processing",
     date: "2023-07-02",
@@ -61,113 +63,176 @@ const orderData = [
   },
 ];
 
+const getStatusStyle = (status: string) => {
+  switch (status) {
+    case "Delivered":
+      return "bg-teal-50 text-[#0F766E] border-teal-100";
+
+    case "Processing":
+      return "bg-amber-50 text-amber-600 border-amber-100";
+
+    case "Shipped":
+      return "bg-sky-50 text-sky-600 border-sky-100";
+
+    case "Pending":
+      return "bg-red-50 text-red-600 border-red-100";
+
+    default:
+      return "bg-slate-50 text-slate-600 border-slate-200";
+  }
+};
+
 const OrdersTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredOrders, setFilteredOrders] = useState(orderData);
 
-  const handleSearch = (e) => {
-    const term = e.target.value.toLowerCase();
-    setSearchTerm(term);
-    const filtered = orderData.filter(
+  const filteredOrders = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+
+    if (!term) {
+      return orderData;
+    }
+
+    return orderData.filter(
       (order) =>
         order.id.toLowerCase().includes(term) ||
-        order.customer.toLowerCase().includes(term)
+        order.customer.toLowerCase().includes(term),
     );
-    setFilteredOrders(filtered);
-  };
+  }, [searchTerm]);
 
   return (
     <motion.div
-      className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.4 }}
+      transition={{ duration: 0.4, delay: 0.4 }}
+      className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
     >
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-100">Order List</h2>
-        <div className="relative">
+      {/* HEADER */}
+      <div className="flex flex-col gap-4 border-b border-slate-100 p-5 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wide text-[#0F766E]">
+            Orders
+          </p>
+
+          <h2 className="mt-1 text-lg font-bold text-slate-900 sm:text-xl">
+            Order List
+          </h2>
+
+          <p className="mt-1 text-sm text-slate-500">
+            View and search recent orders.
+          </p>
+        </div>
+
+        {/* SEARCH */}
+        <div className="relative w-full lg:w-72">
+          <Search
+            size={18}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+          />
+
           <input
             type="text"
             placeholder="Search orders..."
-            className="bg-gray-700 text-white placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={searchTerm}
-            onChange={handleSearch}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0F766E] focus:bg-white focus:ring-2 focus:ring-[#0F766E]/10"
           />
-          <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
         </div>
       </div>
 
+      {/* TABLE */}
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-700">
+        <table className="min-w-[800px] w-full">
           <thead>
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                Order ID
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                Customer
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                Total
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                Date
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                Actions
-              </th>
+            <tr className="border-b border-slate-100 bg-slate-50/70">
+              {[
+                "Order ID",
+                "Customer",
+                "Total",
+                "Status",
+                "Date",
+                "Actions",
+              ].map((heading) => (
+                <th
+                  key={heading}
+                  className="px-6 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"
+                >
+                  {heading}
+                </th>
+              ))}
             </tr>
           </thead>
 
-          <tbody className="divide divide-gray-700">
-            {filteredOrders.map((order) => (
+          <tbody className="divide-y divide-slate-100">
+            {filteredOrders.map((order, index) => (
               <motion.tr
                 key={order.id}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
+                transition={{
+                  duration: 0.25,
+                  delay: index * 0.03,
+                }}
+                className="transition hover:bg-slate-50/70"
               >
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-100">
+                <td className="whitespace-nowrap px-6 py-4 text-sm font-semibold text-slate-900">
                   {order.id}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-100">
+
+                <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
                   {order.customer}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-100">
+
+                <td className="whitespace-nowrap px-6 py-4 text-sm font-semibold text-slate-900">
                   ${order.total.toFixed(2)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+
+                <td className="whitespace-nowrap px-6 py-4">
                   <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      order.status === "Delivered"
-                        ? "bg-green-100 text-green-800"
-                        : order.status === "Processing"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : order.status === "Shipped"
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
+                    className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${getStatusStyle(
+                      order.status,
+                    )}`}
                   >
                     {order.status}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+
+                <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-500">
                   {order.date}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                  <button className="text-indigo-400 hover:text-indigo-300 mr-2">
-                    <Eye size={18} />
+
+                <td className="whitespace-nowrap px-6 py-4">
+                  <button
+                    type="button"
+                    aria-label={`View ${order.id}`}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:border-teal-100 hover:bg-teal-50 hover:text-[#0F766E]"
+                  >
+                    <Eye size={17} />
                   </button>
                 </td>
               </motion.tr>
             ))}
           </tbody>
         </table>
+
+        {/* EMPTY STATE */}
+        {filteredOrders.length === 0 && (
+          <div className="px-6 py-12 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100">
+              <Search size={20} className="text-slate-400" />
+            </div>
+
+            <h3 className="mt-3 text-sm font-semibold text-slate-900">
+              No orders found
+            </h3>
+
+            <p className="mt-1 text-sm text-slate-500">
+              Try searching with a different order ID or customer name.
+            </p>
+          </div>
+        )}
       </div>
     </motion.div>
   );
 };
+
 export default OrdersTable;

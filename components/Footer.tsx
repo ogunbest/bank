@@ -1,39 +1,79 @@
-import { logoutAccount } from '@/lib/actions/user.actions'
-import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-import React from 'react'
+"use client";
 
-const Footer = ({ user, type = 'desktop' }: FooterProps) => {
+import { logoutAccount } from "@/lib/actions/user.actions";
+import { LogOut, UserCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+
+const Footer = ({ user, type = "desktop" }: FooterProps) => {
   const router = useRouter();
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const firstName = user?.firstName || "User";
+  const email = user?.email || "";
 
   const handleLogOut = async () => {
-    const loggedOut = await logoutAccount();
+    if (loggingOut) return;
 
-    if(loggedOut) router.push('/sign-in')
-  }
+    setLoggingOut(true);
+
+    try {
+      const loggedOut = await logoutAccount();
+
+      if (loggedOut) {
+        router.push("/sign-in");
+      }
+    } finally {
+      setLoggingOut(false);
+    }
+  };
 
   return (
-    <footer className="footer">
-      <div className={type === 'mobile' ? 'footer_name-mobile' : 'footer_name'}>
-        <p className="text-xl font-bold text-gray-700">
-          {user?.firstName[0]}
-        </p>
-      </div>
+    <footer
+      className={`border-t border-slate-200 bg-white ${
+        type === "mobile" ? "px-4 py-4" : "px-4 py-5"
+      }`}
+    >
+      <div className="flex items-center gap-3">
+        {/* Avatar */}
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-[#0F766E]">
+          {firstName ? (
+            <span className="text-sm font-bold">
+              {firstName.charAt(0).toUpperCase()}
+            </span>
+          ) : (
+            <UserCircle size={21} />
+          )}
+        </div>
 
-      <div className={type === 'mobile' ? 'footer_email-mobile' : 'footer_email'}>
-          <h1 className="text-14 truncate text-gray-700 font-semibold">
-            {user?.firstName}
-          </h1>
-          <p className="text-14 truncate font-normal text-gray-600">
-            {user?.email}
+        {/* User details */}
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold text-slate-900">
+            {firstName}
           </p>
-      </div>
 
-      <div className="footer_image" onClick={handleLogOut}>
-        <Image src="icons/logout.svg" fill alt="jsm" />
+          <p className="truncate text-xs text-slate-500">
+            {email}
+          </p>
+        </div>
+
+        {/* Logout */}
+        <button
+          type="button"
+          onClick={handleLogOut}
+          disabled={loggingOut}
+          aria-label="Log out"
+          title="Log out"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-red-50 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <LogOut
+            size={18}
+            className={loggingOut ? "animate-pulse" : ""}
+          />
+        </button>
       </div>
     </footer>
-  )
-}
+  );
+};
 
-export default Footer
+export default Footer;

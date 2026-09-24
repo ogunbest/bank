@@ -1,20 +1,27 @@
 "use client";
 
-import Image from "next/image";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { formUrlQuery } from "@/lib/utils";
 
-export const Pagination = ({ page, totalPages }: PaginationProps) => {
+export const Pagination = ({
+  page,
+  totalPages,
+}: PaginationProps) => {
   const router = useRouter();
-  const searchParams = useSearchParams()!;
+  const searchParams = useSearchParams();
+
+  const currentPage = Number(page);
+  const total = Number(totalPages);
 
   const handleNavigation = (type: "prev" | "next") => {
-    const pageNumber = type === "prev" ? page - 1 : page + 1;
+    const pageNumber =
+      type === "prev" ? currentPage - 1 : currentPage + 1;
 
     const newUrl = formUrlQuery({
-      params: searchParams.toString(),
+      params: searchParams?.toString() ?? "",
       key: "page",
       value: pageNumber.toString(),
     });
@@ -23,41 +30,33 @@ export const Pagination = ({ page, totalPages }: PaginationProps) => {
   };
 
   return (
-    <div className="flex justify-between gap-3">
+    <div className="flex items-center justify-between gap-4 border-t border-slate-100 pt-4">
       <Button
-        size="lg"
+        type="button"
         variant="ghost"
-        className="p-0 hover:bg-transparent"
         onClick={() => handleNavigation("prev")}
-        disabled={Number(page) <= 1}
+        disabled={currentPage <= 1}
+        className="h-10 rounded-xl px-3 text-sm font-medium text-slate-600 hover:bg-teal-50 hover:text-[#0F766E] disabled:cursor-not-allowed disabled:opacity-40"
       >
-        <Image
-          src="/icons/arrow-left.svg"
-          alt="arrow"
-          width={20}
-          height={20}
-          className="mr-2"
-        />
-        Prev
+        <ChevronLeft size={18} />
+        <span className="ml-1 hidden sm:inline">Previous</span>
       </Button>
-      <p className="text-14 flex items-center px-2">
-        {page} / {totalPages}
-      </p>
+
+      <div className="flex items-center rounded-xl bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">
+        <span className="text-[#0F766E]">{currentPage}</span>
+        <span className="mx-2 text-slate-300">/</span>
+        <span>{total}</span>
+      </div>
+
       <Button
-        size="lg"
+        type="button"
         variant="ghost"
-        className="p-0 hover:bg-transparent"
         onClick={() => handleNavigation("next")}
-        disabled={Number(page) >= totalPages}
+        disabled={currentPage >= total}
+        className="h-10 rounded-xl px-3 text-sm font-medium text-slate-600 hover:bg-teal-50 hover:text-[#0F766E] disabled:cursor-not-allowed disabled:opacity-40"
       >
-        Next
-        <Image
-          src="/icons/arrow-left.svg"
-          alt="arrow"
-          width={20}
-          height={20}
-          className="ml-2 -scale-x-100"
-        />
+        <span className="mr-1 hidden sm:inline">Next</span>
+        <ChevronRight size={18} />
       </Button>
     </div>
   );

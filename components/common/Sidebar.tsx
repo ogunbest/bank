@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -22,6 +21,8 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+
+import { logoutAccount } from "@/lib/actions/user.actions";
 
 type SidebarItem = {
   name: string;
@@ -53,7 +54,7 @@ const MAIN_ITEMS: SidebarItem[] = [
   {
     name: "Savings",
     icon: PiggyBank,
-    href: "/dashboard/banking",
+    href: "/dashboard/savings",
   },
   {
     name: "Beneficiaries",
@@ -63,7 +64,11 @@ const MAIN_ITEMS: SidebarItem[] = [
 ];
 
 const MORE_ITEMS: SidebarItem[] = [
- 
+  {
+    name: "Withdrawals",
+    icon: ArrowLeftRight,
+    href: "/dashboard/withdrawals",
+  },
   {
     name: "Banking",
     icon: Landmark,
@@ -89,6 +94,7 @@ const MORE_ITEMS: SidebarItem[] = [
 export default function Sidebar() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const pathname = usePathname();
   const router = useRouter();
@@ -103,10 +109,15 @@ export default function Sidebar() {
 
   const handleLogout = async () => {
     try {
-      // Keep your existing logout implementation here.
-      router.push("/sign-in");
+      setIsLoggingOut(true);
+
+      await logoutAccount();
+
+      router.replace("/sign-in");
+      router.refresh();
     } catch (error) {
       console.error("Logout failed:", error);
+      setIsLoggingOut(false);
     }
   };
 
@@ -118,10 +129,9 @@ export default function Sidebar() {
       transition={{
         duration: 0.25,
       }}
-      className="relative z-40 h-screen flex-shrink-0"
+      className="fixed left-0 top-0 z-40 hidden h-screen flex-shrink-0 lg:block"
     >
-      <div className="flex h-full flex-col border-r border-gray-200 bg-white p-4 shadow-sm">
-
+      <div className="flex h-full flex-col border-r border-slate-200 bg-white p-4 shadow-sm">
         {/* BRAND */}
         <div
           className={`mb-8 flex items-center ${
@@ -134,11 +144,11 @@ export default function Sidebar() {
               animate={{ opacity: 1, x: 0 }}
               className="flex items-center gap-2"
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#00a86b] text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0F766E] text-white">
                 <Wallet size={20} />
               </div>
 
-              <span className="text-lg font-bold text-gray-900">
+              <span className="text-lg font-bold text-slate-900">
                 Covenant
               </span>
             </motion.div>
@@ -147,7 +157,7 @@ export default function Sidebar() {
           <button
             type="button"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-gray-500 transition hover:bg-gray-100 hover:text-gray-900"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
             aria-label="Toggle sidebar"
           >
             <Menu size={21} />
@@ -155,10 +165,9 @@ export default function Sidebar() {
         </div>
 
         {/* NAVIGATION */}
-        <nav className="flex-1">
-
+        <nav className="flex-1 overflow-y-auto">
           {isSidebarOpen && (
-            <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+            <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
               Main menu
             </p>
           )}
@@ -174,23 +183,19 @@ export default function Sidebar() {
                     whileHover={{ x: 2 }}
                     className={`flex h-11 items-center rounded-xl px-3 text-sm font-medium transition ${
                       active
-                        ? "bg-[#00a86b]/10 text-[#00a86b]"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                        ? "bg-[#F0FDFA] text-[#0F766E]"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                     } ${!isSidebarOpen ? "justify-center" : ""}`}
                   >
                     <Icon
                       size={20}
                       className={
-                        active
-                          ? "text-[#00a86b]"
-                          : "text-gray-500"
+                        active ? "text-[#0F766E]" : "text-slate-500"
                       }
                     />
 
                     {isSidebarOpen && (
-                      <span className="ml-3">
-                        {item.name}
-                      </span>
+                      <span className="ml-3">{item.name}</span>
                     )}
                   </motion.div>
                 </Link>
@@ -203,17 +208,15 @@ export default function Sidebar() {
             <button
               type="button"
               onClick={() => setMoreOpen(!moreOpen)}
-              className={`flex h-11 w-full items-center rounded-xl px-3 text-sm font-medium text-gray-600 transition hover:bg-gray-50 hover:text-gray-900 ${
+              className={`flex h-11 w-full items-center rounded-xl px-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 ${
                 !isSidebarOpen ? "justify-center" : ""
               }`}
             >
-              <MoreHorizontal size={20} className="text-gray-500" />
+              <MoreHorizontal size={20} className="text-slate-500" />
 
               {isSidebarOpen && (
                 <>
-                  <span className="ml-3 flex-1 text-left">
-                    More
-                  </span>
+                  <span className="ml-3 flex-1 text-left">More</span>
 
                   <ChevronDown
                     size={16}
@@ -244,23 +247,26 @@ export default function Sidebar() {
                     const active = isActive(item.href);
 
                     return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                      >
-                        <div
+                      <Link key={item.href} href={item.href}>
+                        <motion.div
+                          whileHover={{ x: 2 }}
                           className={`flex h-10 items-center rounded-lg px-3 text-sm transition ${
                             active
-                              ? "bg-[#00a86b]/10 text-[#00a86b]"
-                              : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                              ? "bg-[#F0FDFA] font-medium text-[#0F766E]"
+                              : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                           }`}
                         >
-                          <Icon size={17} />
+                          <Icon
+                            size={17}
+                            className={
+                              active
+                                ? "text-[#0F766E]"
+                                : "text-slate-500"
+                            }
+                          />
 
-                          <span className="ml-3">
-                            {item.name}
-                          </span>
-                        </div>
+                          <span className="ml-3">{item.name}</span>
+                        </motion.div>
                       </Link>
                     );
                   })}
@@ -274,7 +280,8 @@ export default function Sidebar() {
         <button
           type="button"
           onClick={handleLogout}
-          className={`flex h-11 items-center rounded-xl px-3 text-sm font-medium text-gray-500 transition hover:bg-red-50 hover:text-red-500 ${
+          disabled={isLoggingOut}
+          className={`mt-4 flex h-11 items-center rounded-xl px-3 text-sm font-medium text-slate-500 transition hover:bg-red-50 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50 ${
             !isSidebarOpen ? "justify-center" : ""
           }`}
         >
@@ -282,7 +289,7 @@ export default function Sidebar() {
 
           {isSidebarOpen && (
             <span className="ml-3">
-              Logout
+              {isLoggingOut ? "Logging out..." : "Logout"}
             </span>
           )}
         </button>

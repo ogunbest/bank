@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import FinancialInsights from "@/components/dashboard/financialInsights";
+import FundAccount from "@/components/dashboard/FundAccount";
+import { useDashboardData } from "@/components/dashboard/useDashboardData";
 import {
   ArrowLeftRight,
-  Bell,
   CreditCard,
   Eye,
   EyeOff,
@@ -11,7 +13,6 @@ import {
   Landmark,
   MoreHorizontal,
   PiggyBank,
-  Settings,
   Smartphone,
   Users,
   Wallet,
@@ -20,16 +21,15 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-import FundAccount from "@/components/dashboard/FundAccount";
-import { useDashboardData } from "@/components/dashboard/useDashboardData";
-
 export default function DashboardPage() {
   const { data, loading } = useDashboardData();
   const [showBalance, setShowBalance] = useState(true);
 
   const user = data?.user;
   const balance = data?.balance ?? 0;
- const firstName = user?.name?.split(" ")[0] || "Customer";
+  const firstName = user?.name?.split(" ")[0] || "Customer";
+
+  const transactions = data?.transactions ?? [];
 
   const formatMoney = (amount: number) =>
     new Intl.NumberFormat("en-NG", {
@@ -38,469 +38,466 @@ export default function DashboardPage() {
       minimumFractionDigits: 2,
     }).format(amount);
 
-  const services = [
-    {
-      name: "Airtime",
-      icon: Smartphone,
-    },
-    {
-      name: "Data",
-      icon: Wifi,
-    },
-    {
-      name: "Electricity",
-      icon: Zap,
-    },
-    {
-      name: "Gifts",
-      icon: Gift,
-    },
-    {
-      name: "Banking",
-      icon: Landmark,
-      href: "/dashboard/banking",
-    },
-    {
-      name: "More",
-      icon: MoreHorizontal,
-      href: "/dashboard/transactions",
-    },
-  ];
+  const moneyIn = transactions
+    .filter(
+      (transaction) =>
+        transaction.direction !== "out" &&
+        !["debit", "transfer", "withdrawal"].includes(transaction.type),
+    )
+    .reduce(
+      (total, transaction) => total + Number(transaction.amount ?? 0),
+      0,
+    );
+
+  const moneyOut = transactions
+    .filter(
+      (transaction) =>
+        transaction.direction === "out" ||
+        ["debit", "transfer", "withdrawal"].includes(transaction.type),
+    )
+    .reduce(
+      (total, transaction) => total + Number(transaction.amount ?? 0),
+      0,
+    );
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC]">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#14B8A6] border-t-transparent" />
+      <div className="flex min-h-[70vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#0F766E] border-t-transparent" />
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#F8FAFC]">
+    <div className="space-y-7">
+      {/* PAGE INTRO */}
+      <section>
+        <p className="text-sm font-medium text-slate-400">
+          Good morning
+        </p>
 
-      {/* BACKGROUND DESIGN */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-40 -top-40 h-[500px] w-[500px] rounded-full bg-[#14B8A6]/10 blur-3xl" />
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+          {firstName}
+        </h1>
 
-        <div className="absolute -right-40 top-0 h-[450px] w-[450px] rounded-full bg-[#0F172A]/10 blur-3xl" />
+        <p className="mt-1 text-sm text-slate-500">
+  Here&apos;s your financial overview.
+</p>
+      </section>
 
-        <div className="absolute bottom-[-200px] left-1/3 h-[500px] w-[500px] rounded-full bg-[#2DD4BF]/10 blur-3xl" />
+      {/* ACCOUNT + QUICK ACTIONS */}
+      <section className="grid gap-5 xl:grid-cols-[1.45fr_1fr]">
+        {/* ACCOUNT REVIEW */}
+        <div className="relative overflow-hidden rounded-3xl bg-[#115E59] p-6 text-white shadow-sm sm:p-7">
+          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#2DD4BF]/10 blur-3xl" />
 
-        <div
-          className="absolute inset-0 opacity-[0.035]"
-          style={{
-            backgroundImage:
-              "linear-gradient(#0F172A 1px, transparent 1px), linear-gradient(90deg, #0F172A 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-          }}
-        />
-      </div>
-
-      {/* MAIN CONTENT */}
-      <div className="relative mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 lg:px-8">
-
-        {/* HEADER */}
-        <header className="mb-6 flex items-center justify-between">
-          <div>
-            <p className="text-sm text-gray-500">
-              Good morning
-            </p>
-
-            <h1 className="mt-1 text-2xl font-bold text-[#0F172A]">
-              {firstName}
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Link
-              href="/dashboard/settings"
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#0F172A] shadow-sm ring-1 ring-gray-200 transition hover:bg-[#CCFBF1]"
-              aria-label="Settings"
-            >
-              <Settings size={20} />
-            </Link>
-
-            <button
-              type="button"
-              className="relative flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#0F172A] shadow-sm ring-1 ring-gray-200 transition hover:bg-[#CCFBF1]"
-              aria-label="Notifications"
-            >
-              <Bell size={20} />
-
-              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-[#14B8A6]" />
-            </button>
-          </div>
-        </header>
-
-        {/* ACCOUNT OVERVIEW */}
-        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0F172A] via-[#122C3A] to-[#0F766E] p-6 text-white shadow-xl">
-
-          {/* CARD GLOW */}
-          <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#2DD4BF]/20 blur-3xl" />
-
-          <div className="pointer-events-none absolute -bottom-24 -left-20 h-56 w-56 rounded-full bg-[#14B8A6]/20 blur-3xl" />
+          <div className="absolute -bottom-28 left-1/3 h-56 w-56 rounded-full bg-[#14B8A6]/10 blur-3xl" />
 
           <div className="relative">
-
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm text-gray-300">
-                  Account Overview
+                <p className="text-sm font-medium text-teal-100">
+                  Account Review
                 </p>
 
                 <div className="mt-3 flex items-center gap-3">
-                  <h2 className="text-3xl font-bold">
-                    {showBalance
-                      ? formatMoney(balance)
-                      : "₦••••••"}
+                  <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                    {showBalance ? formatMoney(balance) : "₦••••••••"}
                   </h2>
 
                   <button
                     type="button"
-                    onClick={() => setShowBalance(!showBalance)}
-                    className="text-gray-300 transition hover:text-[#2DD4BF]"
+                    onClick={() => setShowBalance((value) => !value)}
+                    className="rounded-lg p-1.5 text-teal-100 transition hover:bg-white/10 hover:text-white"
                     aria-label="Toggle balance visibility"
                   >
                     {showBalance ? (
-                      <Eye size={20} />
+                      <Eye size={19} />
                     ) : (
-                      <EyeOff size={20} />
+                      <EyeOff size={19} />
                     )}
                   </button>
                 </div>
+
+                <p className="mt-1 text-xs text-teal-100">
+                  Available balance
+                </p>
               </div>
 
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#14B8A6] shadow-lg shadow-[#14B8A6]/20">
-                <Wallet size={22} />
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10">
+                <Wallet size={21} />
               </div>
             </div>
 
-            {/* MONEY STATS */}
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-sm">
-                <p className="text-xs text-gray-300">
-                  Money In
+            <div className="mt-7 grid grid-cols-2 gap-3">
+              <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+                <p className="text-xs text-teal-100">Money In</p>
+                <p className="mt-1 text-base font-bold">
+                  {formatMoney(moneyIn)}
                 </p>
-
-                <p className="mt-1 text-lg font-semibold">
-  ₦
-  {data?.transactions
-    ?.filter(
-      (transaction) =>
-        transaction.type === "credit" ||
-        transaction.type === "deposit" ||
-        transaction.type === "funding"
-    )
-    .reduce(
-      (total, transaction) =>
-        total + Number(transaction.amount ?? 0),
-      0
-    )
-    .toLocaleString("en-NG", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}
-</p>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-sm">
-                <p className="text-xs text-gray-300">
-                  Money Out
+              <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+                <p className="text-xs text-teal-100">Money Out</p>
+                <p className="mt-1 text-base font-bold">
+                  {formatMoney(moneyOut)}
                 </p>
-
-                <p className="mt-1 text-lg font-semibold">
-  ₦
-  {data?.transactions
-    ?.filter(
-      (transaction) =>
-        transaction.type === "debit" ||
-        transaction.type === "withdrawal" ||
-        transaction.type === "transfer"
-    )
-    .reduce(
-      (total, transaction) =>
-        total + Number(transaction.amount ?? 0),
-      0
-    )
-    .toLocaleString("en-NG", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}
-</p>
               </div>
             </div>
-
           </div>
-        </section>
+        </div>
 
         {/* QUICK ACTIONS */}
-        <section className="mt-7">
-          <h2 className="mb-4 text-lg font-bold text-[#0F172A]">
-            Quick Actions
-          </h2>
+        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <div className="mb-5">
+            <h2 className="text-base font-bold text-slate-900">
+              Quick Actions
+            </h2>
+            <p className="mt-1 text-xs text-slate-500">
+              Manage your money quickly.
+            </p>
+          </div>
 
-          <div className="grid grid-cols-4 gap-4 sm:grid-cols-5 lg:grid-cols-7">
+          <div className="grid grid-cols-3 gap-4">
+            <ActionItem
+              icon={<FundAccount />}
+              label="Fund"
+              special
+            />
 
-            <FundAccount />
-
-            <QuickAction
+            <ActionItem
               href="/dashboard/transfers"
               icon={<ArrowLeftRight size={20} />}
               label="Transfer"
             />
 
-
-            <QuickAction
+            <ActionItem
               href="/dashboard/cards"
               icon={<CreditCard size={20} />}
               label="Cards"
             />
 
-            <QuickAction
+            <ActionItem
               href="/dashboard/accounts"
               icon={<Wallet size={20} />}
               label="Accounts"
             />
 
-            <QuickAction
+            <ActionItem
               href="/dashboard/savings"
               icon={<PiggyBank size={20} />}
               label="Savings"
             />
 
-            <QuickAction
+            <ActionItem
               href="/dashboard/beneficiaries"
               icon={<Users size={20} />}
               label="Beneficiaries"
             />
-
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* SERVICES */}
-        <section className="mt-8">
-          <h2 className="mb-4 text-lg font-bold text-[#0F172A]">
+      {/* SERVICES */}
+      <section>
+        <div className="mb-4">
+          <h2 className="text-base font-bold text-slate-900">
             Services
           </h2>
+          <p className="mt-1 text-xs text-slate-500">
+            More ways to use your account.
+          </p>
+        </div>
 
-          <div className="grid grid-cols-3 gap-4 sm:grid-cols-6">
-            {services.map((service) => {
-              const Icon = service.icon;
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+          <ServiceItem icon={<Smartphone size={19} />} label="Airtime" />
+          <ServiceItem icon={<Wifi size={19} />} label="Data" />
+          <ServiceItem icon={<Zap size={19} />} label="Electricity" />
+          <ServiceItem icon={<Gift size={19} />} label="Gifts" />
 
-              const content = (
-                <>
-                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#CCFBF1] text-[#0F766E] transition group-hover:bg-[#14B8A6] group-hover:text-white">
-                    <Icon size={20} />
-                  </span>
+          <ServiceItem
+            href="/dashboard/banking"
+            icon={<Landmark size={19} />}
+            label="Banking"
+          />
 
-                  <span className="mt-2 text-xs font-medium text-gray-700">
-                    {service.name}
-                  </span>
-                </>
-              );
+          <ServiceItem
+            href="/dashboard/transactions"
+            icon={<MoreHorizontal size={19} />}
+            label="More"
+          />
+        </div>
+      </section>
 
-              if (service.href) {
-                return (
-                  <Link
-                    key={service.name}
-                    href={service.href}
-                    className="group flex flex-col items-center justify-center rounded-2xl bg-white/90 px-2 py-4 shadow-sm ring-1 ring-gray-200/70 backdrop-blur-sm transition hover:-translate-y-0.5 hover:shadow-md hover:ring-[#14B8A6]"
-                  >
-                    {content}
-                  </Link>
-                );
-              }
+      {/* TRANSACTION HISTORY */}
+      <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-5 sm:px-6">
+          <div>
+            <h2 className="font-bold text-slate-900">
+              Transaction History
+            </h2>
 
-              return (
-                <button
-                  key={service.name}
-                  type="button"
-                  className="group flex flex-col items-center justify-center rounded-2xl bg-white/90 px-2 py-4 shadow-sm ring-1 ring-gray-200/70 backdrop-blur-sm transition hover:-translate-y-0.5 hover:shadow-md hover:ring-[#14B8A6]"
-                >
-                  {content}
-                </button>
-              );
-            })}
+            <p className="mt-1 text-xs text-slate-500">
+              Recent activity and financial insights.
+            </p>
           </div>
-        </section>
 
-        {/* TRANSACTION HISTORY */}
-<section className="mt-8 overflow-hidden rounded-3xl bg-white/90 shadow-sm ring-1 ring-gray-200/70 backdrop-blur-sm">
-  <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
-    <div>
-      <h2 className="font-bold text-[#0F172A]">Transaction History</h2>
-      <p className="mt-1 text-sm text-gray-500">
-        Recent activity and financial insights
-      </p>
-    </div>
-
-    <Link
-      href="/dashboard/transactions"
-      className="text-sm font-semibold text-[#0F766E] hover:text-[#0F172A]"
-    >
-      View all
-    </Link>
-  </div>
-
-  <div className="divide-y divide-gray-100">
-    {(data?.transactions ?? [])
-      .slice()
-      .sort(
-        (a, b) =>
-          new Date(b.date).getTime() - new Date(a.date).getTime(),
-      )
-      .slice(0, 5)
-      .map((transaction) => {
-        const outgoing =
-          transaction.direction === "out" ||
-          ["debit", "transfer", "withdrawal"].includes(
-            transaction.type,
-          );
-
-        const amount = Number(transaction.amount ?? 0);
-
-        return (
-          <div
-            key={transaction.id}
-            className="flex items-center justify-between gap-3 px-5 py-4"
+          <Link
+            href="/dashboard/transactions"
+            className="text-sm font-semibold text-[#0F766E] hover:text-[#115E59]"
           >
-            <div className="flex min-w-0 items-center gap-3">
-              <div
-                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-                  outgoing
-                    ? "bg-red-50 text-red-500"
-                    : "bg-teal-50 text-teal-600"
-                }`}
-              >
-                <span className="text-sm font-bold">
-                  {outgoing ? "↑" : "↓"}
-                </span>
-              </div>
+            View all
+          </Link>
+        </div>
 
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-slate-900">
-                  {transaction.title}
-                </p>
-
-                <p className="mt-0.5 text-xs text-slate-500">
-                  {new Date(transaction.date).toLocaleString("en-NG", {
-                    month: "short",
-                    day: "numeric",
-                    hour: "numeric",
-                    minute: "2-digit",
-                  })}
-                </p>
-              </div>
-            </div>
-
-            <div className="text-right">
-              <p
-                className={`text-sm font-bold ${
-                  outgoing ? "text-red-500" : "text-teal-600"
-                }`}
-              >
-                {outgoing ? "-" : "+"}
-                {formatMoney(amount)}
-              </p>
-
-              <p className="text-xs capitalize text-slate-400">
-                {transaction.status}
-              </p>
-            </div>
-          </div>
-        );
-      })}
-  </div>
-
-  {(data?.transactions ?? []).length === 0 && (
-    <div className="px-5 py-10 text-center">
-      <p className="text-sm font-medium text-slate-600">
-        No transactions yet
-      </p>
-      <p className="mt-1 text-xs text-slate-400">
-        Your recent transactions will appear here.
-      </p>
-    </div>
-  )}
-
-  <div className="grid grid-cols-3 border-t border-gray-100">
-    <div className="px-4 py-4">
-      <p className="text-xs text-gray-400">Money In</p>
-      <p className="mt-1 text-sm font-bold text-teal-600">
-        {formatMoney(
-          (data?.transactions ?? [])
-            .filter(
-              (transaction) =>
-                transaction.direction !== "out" &&
-                !["debit", "transfer", "withdrawal"].includes(
-                  transaction.type,
-                ),
+        {/* RECENT TRANSACTIONS */}
+        <div className="divide-y divide-slate-100">
+          {transactions
+            .slice()
+            .sort(
+              (a, b) =>
+                new Date(b.date).getTime() -
+                new Date(a.date).getTime(),
             )
-            .reduce(
-              (total, transaction) =>
-                total + Number(transaction.amount ?? 0),
-              0,
-            ),
-        )}
-      </p>
-    </div>
-
-    <div className="border-x border-gray-100 px-4 py-4">
-      <p className="text-xs text-gray-400">Money Out</p>
-      <p className="mt-1 text-sm font-bold text-red-500">
-        {formatMoney(
-          (data?.transactions ?? [])
-            .filter(
-              (transaction) =>
+            .slice(0, 5)
+            .map((transaction) => {
+              const outgoing =
                 transaction.direction === "out" ||
                 ["debit", "transfer", "withdrawal"].includes(
                   transaction.type,
-                ),
-            )
-            .reduce(
-              (total, transaction) =>
-                total + Number(transaction.amount ?? 0),
-              0,
-            ),
+                );
+
+              const amount = Number(transaction.amount ?? 0);
+
+              return (
+                <div
+                  key={transaction.id}
+                  className="flex items-center justify-between gap-3 px-5 py-4 sm:px-6"
+                >
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                        outgoing
+                          ? "bg-red-50 text-red-500"
+                          : "bg-teal-50 text-teal-600"
+                      }`}
+                    >
+                      <span className="text-sm font-bold">
+                        {outgoing ? "↑" : "↓"}
+                      </span>
+                    </div>
+
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-slate-900">
+                        {transaction.title}
+                      </p>
+
+                      <p className="mt-0.5 text-xs text-slate-400">
+                        {new Date(transaction.date).toLocaleString(
+                          "en-NG",
+                          {
+                            month: "short",
+                            day: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
+                          },
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="shrink-0 text-right">
+                    <p
+                      className={`text-sm font-bold ${
+                        outgoing
+                          ? "text-red-500"
+                          : "text-teal-600"
+                      }`}
+                    >
+                      {outgoing ? "-" : "+"}
+                      {formatMoney(amount)}
+                    </p>
+
+                    <p className="text-[11px] capitalize text-slate-400">
+                      {transaction.status}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+
+        {transactions.length === 0 && (
+          <div className="px-5 py-12 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50">
+              <ReceiptIcon />
+            </div>
+
+            <p className="mt-3 text-sm font-semibold text-slate-700">
+              No transactions yet
+            </p>
+
+            <p className="mt-1 text-xs text-slate-400">
+              Your recent transactions will appear here.
+            </p>
+          </div>
         )}
-      </p>
-    </div>
 
-    <div className="px-4 py-4">
-      <p className="text-xs text-gray-400">Transactions</p>
-      <p className="mt-1 text-sm font-bold text-[#0F172A]">
-        {(data?.transactions ?? []).length}
-      </p>
-    </div>
-  </div>
-</section>
+        {/* SUMMARY */}
+        <div className="grid grid-cols-3 border-t border-slate-100">
+          <SummaryItem
+            label="Money In"
+            value={formatMoney(moneyIn)}
+            className="text-teal-600"
+          />
 
-      </div>
+          <SummaryItem
+            label="Money Out"
+            value={formatMoney(moneyOut)}
+            className="border-x border-slate-100 text-red-500"
+          />
+
+          <SummaryItem
+            label="Transactions"
+            value={transactions.length.toString()}
+            className="text-slate-900"
+          />
+        </div>
+
+        {/* FINANCIAL INSIGHTS */}
+        <div className="border-t border-slate-100 p-5 sm:p-6">
+          <FinancialInsights
+            transactions={transactions}
+            balance={balance}
+          />
+        </div>
+      </section>
     </div>
   );
 }
 
-function QuickAction({
+function ActionItem({
+  href,
+  icon,
+  label,
+  special,
+}: {
+  href?: string;
+  icon: React.ReactNode;
+  label: string;
+  special?: boolean;
+}) {
+  const content = (
+    <>
+      <span
+        className={`flex h-11 w-11 items-center justify-center rounded-xl transition ${
+          special
+            ? "bg-[#0F766E] text-white"
+            : "bg-[#F0FDFA] text-[#0F766E] group-hover:bg-[#0F766E] group-hover:text-white"
+        }`}
+      >
+        {icon}
+      </span>
+
+      <span className="mt-2 text-xs font-semibold text-slate-600">
+        {label}
+      </span>
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className="group flex flex-col items-center rounded-2xl p-2 transition hover:bg-slate-50"
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <div className="group flex flex-col items-center rounded-2xl p-2">
+      {content}
+    </div>
+  );
+}
+
+function ServiceItem({
   href,
   icon,
   label,
 }: {
-  href: string;
+  href?: string;
   icon: React.ReactNode;
   label: string;
 }) {
-  return (
-    <Link
-      href={href}
-      className="group flex flex-col items-center justify-center"
-    >
-      <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/90 text-[#0F766E] shadow-sm ring-1 ring-gray-200 backdrop-blur-sm transition group-hover:bg-[#CCFBF1] group-hover:ring-[#14B8A6] active:scale-95">
+  const content = (
+    <>
+      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-50 text-slate-500 transition group-hover:bg-[#F0FDFA] group-hover:text-[#0F766E]">
         {icon}
       </span>
 
-      <span className="mt-2 text-xs font-medium text-gray-700">
+      <span className="mt-2 text-xs font-medium text-slate-600">
         {label}
       </span>
-    </Link>
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className="group flex flex-col items-center rounded-2xl border border-slate-200 bg-white py-4 transition hover:-translate-y-0.5 hover:border-teal-200 hover:shadow-sm"
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      className="group flex flex-col items-center rounded-2xl border border-slate-200 bg-white py-4 transition hover:-translate-y-0.5 hover:border-teal-200 hover:shadow-sm"
+    >
+      {content}
+    </button>
+  );
+}
+
+function SummaryItem({
+  label,
+  value,
+  className,
+}: {
+  label: string;
+  value: string;
+  className?: string;
+}) {
+  return (
+    <div className={`px-4 py-4 sm:px-6 ${className ?? ""}`}>
+      <p className="text-[11px] text-slate-400">{label}</p>
+      <p className="mt-1 text-sm font-bold">{value}</p>
+    </div>
+  );
+}
+
+function ReceiptIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1Z" />
+      <path d="M8 8h8" />
+      <path d="M8 12h8" />
+      <path d="M8 16h5" />
+    </svg>
   );
 }
