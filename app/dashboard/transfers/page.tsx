@@ -93,29 +93,39 @@ const verifyAccount = async (
     setResolving(true);
     setResolveError("");
 
+    const code = selectedBankCode || bankCode;
+
+    // No bank selected yet.
+    // Load the bank list once instead of trying every bank.
+    if (!code) {
+      if (banks.length === 0) {
+        setLoadingBanks(true);
+
+        try {
+          const bankList = await getPaystackBanks();
+          setBanks(bankList);
+        } catch (error) {
+          console.error("BANK LIST ERROR:", error);
+          setResolveError("Could not load Nigerian banks.");
+          return;
+        } finally {
+          setLoadingBanks(false);
+        }
+      }
+
+      setShowBankSelector(true);
+      return;
+    }
+
+    // Bank is known, so resolve the account directly.
     const result = await resolvePaystackAccount({
       accountNumber: value,
-      bankCode: selectedBankCode || bankCode || undefined,
+      bankCode: code,
     });
 
     if (result.needsBankSelection) {
-      setAccountName("");
-      setBankName("");
-      setBankCode("");
-
-      setLoadingBanks(true);
-
-      try {
-        const bankList = await getPaystackBanks();
-        setBanks(bankList);
-        setShowBankSelector(true);
-      } catch (error) {
-        console.error("BANK LIST ERROR:", error);
-        setResolveError("Could not load Nigerian banks.");
-      } finally {
-        setLoadingBanks(false);
-      }
-
+      setResolveError("Please select the recipient's bank.");
+      setShowBankSelector(true);
       return;
     }
 
@@ -126,7 +136,7 @@ const verifyAccount = async (
     setAccountName(result.accountName);
     setBankCode(result.bankCode);
     setBankName(
-      selectedBank?.name || result.bankName,
+      selectedBank?.name || result.bankName || "Bank",
     );
     setShowBankSelector(false);
   } catch (error) {
@@ -327,26 +337,21 @@ setNote("");
         We need the bank to securely verify the account name.
       </p>
 
-      <select
+     <select
   value={bankCode}
   disabled={loadingBanks || resolving}
   onChange={async (event) => {
     const code = event.target.value;
 
     setBankCode(code);
+    setAccountName("");
+    setResolveError("");
 
     const selectedBank = banks.find(
       (bank) => bank.code === code,
     );
 
-    setBankName(
-      selectedBank?.name ||
-        (code === "057"
-          ? "Zenith Bank"
-          : code === "50211"
-            ? "Kuda Bank"
-            : "")
-    );
+    setBankName(selectedBank?.name || "");
 
     if (code) {
       await verifyAccount(accountNumber, code);
@@ -355,17 +360,7 @@ setNote("");
   className="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-sm text-slate-900 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10"
 >
   <option value="">
-    {loadingBanks
-      ? "Loading banks..."
-      : "Select bank"}
-  </option>
-
-  <option value="057">
-    Zenith Bank — Test
-  </option>
-
-  <option value="50211">
-    Kuda Bank — Test
+    {loadingBanks ? "Loading banks..." : "Select bank"}
   </option>
 
   {banks.map((bank) => (
@@ -378,9 +373,9 @@ setNote("");
   )}
 
   <p className="mt-2 text-xs text-slate-400">
-    Enter the 10-digit account number first. We&apos;ll verify the
-    account and display the recipient&apos;s name.
-  </p>
+  Enter the 10-digit account number, then select the recipient&apos;s
+  bank to verify the account name.
+</p>
 </div>
 
            {/* Verified Recipient */}
