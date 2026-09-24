@@ -263,7 +263,7 @@ export default function DashboardPage() {
             />
 
             <QuickAction
-              href="/dashboard/banking"
+              href="/dashboard/savings"
               icon={<PiggyBank size={20} />}
               label="Savings"
             />
@@ -325,27 +325,155 @@ export default function DashboardPage() {
         </section>
 
         {/* TRANSACTION HISTORY */}
-        <section className="mt-8 rounded-2xl bg-white/90 p-5 shadow-sm ring-1 ring-gray-200/70 backdrop-blur-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-bold text-[#0F172A]">
-                Transaction History
-              </h2>
+<section className="mt-8 overflow-hidden rounded-3xl bg-white/90 shadow-sm ring-1 ring-gray-200/70 backdrop-blur-sm">
+  <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+    <div>
+      <h2 className="font-bold text-[#0F172A]">Transaction History</h2>
+      <p className="mt-1 text-sm text-gray-500">
+        Recent activity and financial insights
+      </p>
+    </div>
 
-              <p className="mt-1 text-sm text-gray-500">
-                View your transactions and financial insights
-              </p>
+    <Link
+      href="/dashboard/transactions"
+      className="text-sm font-semibold text-[#0F766E] hover:text-[#0F172A]"
+    >
+      View all
+    </Link>
+  </div>
+
+  <div className="divide-y divide-gray-100">
+    {(data?.transactions ?? [])
+      .slice()
+      .sort(
+        (a, b) =>
+          new Date(b.date).getTime() - new Date(a.date).getTime(),
+      )
+      .slice(0, 5)
+      .map((transaction) => {
+        const outgoing =
+          transaction.direction === "out" ||
+          ["debit", "transfer", "withdrawal"].includes(
+            transaction.type,
+          );
+
+        const amount = Number(transaction.amount ?? 0);
+
+        return (
+          <div
+            key={transaction.id}
+            className="flex items-center justify-between gap-3 px-5 py-4"
+          >
+            <div className="flex min-w-0 items-center gap-3">
+              <div
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+                  outgoing
+                    ? "bg-red-50 text-red-500"
+                    : "bg-teal-50 text-teal-600"
+                }`}
+              >
+                <span className="text-sm font-bold">
+                  {outgoing ? "↑" : "↓"}
+                </span>
+              </div>
+
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-slate-900">
+                  {transaction.title}
+                </p>
+
+                <p className="mt-0.5 text-xs text-slate-500">
+                  {new Date(transaction.date).toLocaleString("en-NG", {
+                    month: "short",
+                    day: "numeric",
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </div>
             </div>
 
-            <Link
-              href="/dashboard/transactions"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-[#CCFBF1] text-[#0F766E] transition hover:bg-[#14B8A6] hover:text-white"
-              aria-label="Open transaction history"
-            >
-              <ArrowLeftRight size={18} />
-            </Link>
+            <div className="text-right">
+              <p
+                className={`text-sm font-bold ${
+                  outgoing ? "text-red-500" : "text-teal-600"
+                }`}
+              >
+                {outgoing ? "-" : "+"}
+                {formatMoney(amount)}
+              </p>
+
+              <p className="text-xs capitalize text-slate-400">
+                {transaction.status}
+              </p>
+            </div>
           </div>
-        </section>
+        );
+      })}
+  </div>
+
+  {(data?.transactions ?? []).length === 0 && (
+    <div className="px-5 py-10 text-center">
+      <p className="text-sm font-medium text-slate-600">
+        No transactions yet
+      </p>
+      <p className="mt-1 text-xs text-slate-400">
+        Your recent transactions will appear here.
+      </p>
+    </div>
+  )}
+
+  <div className="grid grid-cols-3 border-t border-gray-100">
+    <div className="px-4 py-4">
+      <p className="text-xs text-gray-400">Money In</p>
+      <p className="mt-1 text-sm font-bold text-teal-600">
+        {formatMoney(
+          (data?.transactions ?? [])
+            .filter(
+              (transaction) =>
+                transaction.direction !== "out" &&
+                !["debit", "transfer", "withdrawal"].includes(
+                  transaction.type,
+                ),
+            )
+            .reduce(
+              (total, transaction) =>
+                total + Number(transaction.amount ?? 0),
+              0,
+            ),
+        )}
+      </p>
+    </div>
+
+    <div className="border-x border-gray-100 px-4 py-4">
+      <p className="text-xs text-gray-400">Money Out</p>
+      <p className="mt-1 text-sm font-bold text-red-500">
+        {formatMoney(
+          (data?.transactions ?? [])
+            .filter(
+              (transaction) =>
+                transaction.direction === "out" ||
+                ["debit", "transfer", "withdrawal"].includes(
+                  transaction.type,
+                ),
+            )
+            .reduce(
+              (total, transaction) =>
+                total + Number(transaction.amount ?? 0),
+              0,
+            ),
+        )}
+      </p>
+    </div>
+
+    <div className="px-4 py-4">
+      <p className="text-xs text-gray-400">Transactions</p>
+      <p className="mt-1 text-sm font-bold text-[#0F172A]">
+        {(data?.transactions ?? []).length}
+      </p>
+    </div>
+  </div>
+</section>
 
       </div>
     </div>
