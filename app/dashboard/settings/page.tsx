@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation";
 import { useDashboardData } from "@/components/dashboard/useDashboardData";
 import {
   logoutAccount,
-  setTransactionPin,
+  setTransactionPin as saveTransactionPin,
   updateCurrentUserPassword,
   updateCurrentUserProfile,
 } from "@/lib/actions/user.actions";
@@ -180,7 +180,7 @@ const [pinMessage, setPinMessage] = useState("");
   try {
     setPinSaving(true);
 
-    await setTransactionPin(transactionPin);
+    await saveTransactionPin(transactionPin);
 
     setTransactionPin("");
     setConfirmTransactionPin("");
