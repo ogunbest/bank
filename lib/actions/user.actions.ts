@@ -789,9 +789,21 @@ export const verifyTransactionPin = async (pin: string) => {
     throw new Error("Your profile was not found.");
   }
 
-  const user = users.documents[0];
+const user = users.documents[0];
 
-  if (!user.transactionPinSet || !user.transactionPinHash) {
+console.log("=== TRANSACTION PIN CHECK ===");
+console.log("USER DOCUMENT ID:", user.$id);
+console.log("TRANSACTION PIN SET:", user.transactionPinSet);
+console.log(
+  "TRANSACTION PIN HASH EXISTS:",
+  !!user.transactionPinHash
+);
+console.log(
+  "TRANSACTION PIN HASH LENGTH:",
+  String(user.transactionPinHash || "").length
+);
+
+if (!user.transactionPinSet || !user.transactionPinHash) {
     throw new Error("Please set your transaction PIN first.");
   }
 

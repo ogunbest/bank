@@ -9,8 +9,8 @@ import {
   CreditCard,
   Eye,
   EyeOff,
-  Gift,
-  Landmark,
+  Tv,
+  Globe,
   MoreHorizontal,
   PiggyBank,
   Smartphone,
@@ -198,36 +198,57 @@ export default function DashboardPage() {
         </div>
       </section>
 
+      
       {/* SERVICES */}
-      <section>
-        <div className="mb-4">
-          <h2 className="text-base font-bold text-slate-900">
-            Services
-          </h2>
-          <p className="mt-1 text-xs text-slate-500">
-            More ways to use your account.
-          </p>
-        </div>
+<section>
+  <div className="mb-4">
+    <h2 className="text-base font-bold text-slate-900">
+      Services
+    </h2>
 
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
-          <ServiceItem icon={<Smartphone size={19} />} label="Airtime" />
-          <ServiceItem icon={<Wifi size={19} />} label="Data" />
-          <ServiceItem icon={<Zap size={19} />} label="Electricity" />
-          <ServiceItem icon={<Gift size={19} />} label="Gifts" />
+    <p className="mt-1 text-xs text-slate-500">
+      Pay bills and stay connected.
+    </p>
+  </div>
 
-          <ServiceItem
-            href="/dashboard/banking"
-            icon={<Landmark size={19} />}
-            label="Banking"
-          />
+  <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+    <ServiceItem
+      href="/dashboard/services/airtime"
+      icon={<Smartphone size={19} />}
+      label="Airtime"
+    />
 
-          <ServiceItem
-            href="/dashboard/transactions"
-            icon={<MoreHorizontal size={19} />}
-            label="More"
-          />
-        </div>
-      </section>
+    <ServiceItem
+      href="/dashboard/services/data"
+      icon={<Wifi size={19} />}
+      label="Data"
+    />
+
+    <ServiceItem
+      href="/dashboard/services/electricity"
+      icon={<Zap size={19} />}
+      label="Electricity"
+    />
+
+    <ServiceItem
+      href="/dashboard/services/tv"
+      icon={<Tv size={19} />}
+      label="TV"
+    />
+
+    <ServiceItem
+      href="/dashboard/services/internet"
+      icon={<Globe size={19} />}
+      label="Internet"
+    />
+
+    <ServiceItem
+      href="/dashboard/services"
+      icon={<MoreHorizontal size={19} />}
+      label="More"
+    />
+  </div>
+</section>
 
       {/* TRANSACTION HISTORY */}
       <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">

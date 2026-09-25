@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { useDashboardData } from "@/components/dashboard/useDashboardData";
 import {
   logoutAccount,
+  setTransactionPin,
   updateCurrentUserPassword,
   updateCurrentUserProfile,
 } from "@/lib/actions/user.actions";
@@ -41,7 +42,12 @@ export default function SettingsPage() {
 
   const [passwordSaving, setPasswordSaving] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState("");
+   const [transactionPin, setTransactionPin] = useState("");
+const [confirmTransactionPin, setConfirmTransactionPin] =
+  useState("");
 
+const [pinSaving, setPinSaving] = useState(false);
+const [pinMessage, setPinMessage] = useState("");
   const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
@@ -150,6 +156,48 @@ export default function SettingsPage() {
       setPasswordSaving(false);
     }
   };
+  const handleTransactionPinChange = async (
+  event: React.FormEvent
+) => {
+  event.preventDefault();
+  setPinMessage("");
+
+  if (!transactionPin || !confirmTransactionPin) {
+    setPinMessage("Please enter and confirm your transaction PIN.");
+    return;
+  }
+
+  if (!/^\d{4}$/.test(transactionPin)) {
+    setPinMessage("Transaction PIN must be exactly 4 digits.");
+    return;
+  }
+
+  if (transactionPin !== confirmTransactionPin) {
+    setPinMessage("Transaction PINs do not match.");
+    return;
+  }
+
+  try {
+    setPinSaving(true);
+
+    await setTransactionPin(transactionPin);
+
+    setTransactionPin("");
+    setConfirmTransactionPin("");
+
+    setPinMessage("Transaction PIN updated successfully.");
+  } catch (error) {
+    console.error("TRANSACTION PIN ERROR:", error);
+
+    setPinMessage(
+      error instanceof Error
+        ? error.message
+        : "Could not update your transaction PIN."
+    );
+  } finally {
+    setPinSaving(false);
+  }
+};
 
   const handleLogout = async () => {
     try {
@@ -342,6 +390,53 @@ export default function SettingsPage() {
               : "Update password"}
           </button>
         </form>
+        <div className="my-7 border-t border-slate-100" />
+
+<form
+  onSubmit={handleTransactionPinChange}
+  className="space-y-5"
+>
+  <div>
+    <h3 className="font-semibold text-slate-900">
+      Transaction PIN
+    </h3>
+
+    <p className="mt-1 text-sm text-slate-500">
+      Set the 4-digit PIN you will use to authorize payments
+      and service purchases.
+    </p>
+  </div>
+
+  <PasswordField
+    label="Transaction PIN"
+    value={transactionPin}
+    onChange={(value) =>
+      setTransactionPin(value.replace(/\D/g, "").slice(0, 4))
+    }
+    placeholder="4-digit PIN"
+  />
+
+  <PasswordField
+    label="Confirm transaction PIN"
+    value={confirmTransactionPin}
+    onChange={(value) =>
+      setConfirmTransactionPin(
+        value.replace(/\D/g, "").slice(0, 4)
+      )
+    }
+    placeholder="Confirm 4-digit PIN"
+  />
+
+  {pinMessage && <MessageBox message={pinMessage} />}
+
+  <button
+    type="submit"
+    disabled={pinSaving}
+    className="rounded-xl bg-[#0F766E] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#115E59] disabled:cursor-not-allowed disabled:opacity-50"
+  >
+    {pinSaving ? "Updating..." : "Set transaction PIN"}
+  </button>
+</form>
       </section>
 
       {/* Account */}
