@@ -19,7 +19,7 @@ const BankCard = ({
       >
         {/* Decorative background */}
         <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-white/10" />
-        <div className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-[#115E59]/50" />
+        <div className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-teal-950/40" />
 
         <div className="relative z-10 flex h-full min-h-[158px] flex-col justify-between">
           {/* Top */}
@@ -79,7 +79,7 @@ const BankCard = ({
           </div>
         </div>
 
-        {/* MasterCard mark */}
+        {/* Mastercard mark */}
         <div className="absolute bottom-5 right-5 opacity-90">
           <Image
             src="/icons/mastercard.svg"

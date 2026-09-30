@@ -9,7 +9,6 @@ import { Progress } from "./ui/progress";
 
 const Category = ({ category }: CategoryProps) => {
   const {
-    
     circleBg,
     text: { main, count },
     progress: { bg: progressBg },
@@ -31,7 +30,9 @@ const Category = ({ category }: CategoryProps) => {
     <div
       className={cn(
         "rounded-2xl border border-slate-200 bg-white p-4",
-        "shadow-sm transition hover:shadow-md",
+        "shadow-sm transition hover:border-teal-200 hover:shadow-md",
+        "dark:border-slate-800 dark:bg-slate-900",
+        "dark:hover:border-teal-800 dark:hover:shadow-none",
       )}
     >
       <div className="flex items-center gap-4">
@@ -39,7 +40,7 @@ const Category = ({ category }: CategoryProps) => {
         <figure
           className={cn(
             "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl",
-            circleBg || "bg-teal-50",
+            circleBg || "bg-teal-50 dark:bg-teal-950/50",
           )}
         >
           <Image
@@ -55,7 +56,7 @@ const Category = ({ category }: CategoryProps) => {
           <div className="flex items-center justify-between gap-3">
             <h2
               className={cn(
-                "truncate text-sm font-semibold text-slate-900",
+                "truncate text-sm font-semibold text-slate-900 dark:text-white",
                 main,
               )}
             >
@@ -64,7 +65,7 @@ const Category = ({ category }: CategoryProps) => {
 
             <span
               className={cn(
-                "shrink-0 text-sm font-semibold text-[#0F766E]",
+                "shrink-0 text-sm font-semibold text-[#0F766E] dark:text-teal-400",
                 count,
               )}
             >
@@ -77,13 +78,13 @@ const Category = ({ category }: CategoryProps) => {
             <Progress
               value={percentage}
               className={cn(
-                "h-1.5 w-full bg-slate-100",
+                "h-1.5 w-full bg-slate-100 dark:bg-slate-800",
                 progressBg,
               )}
             />
           </div>
 
-          <p className="mt-2 text-xs text-slate-400">
+          <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
             {Math.round(percentage)}% of total
           </p>
         </div>

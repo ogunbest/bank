@@ -1,6 +1,6 @@
 "use server";
 
-import { ID, Query } from "node-appwrite";
+import { Query } from "node-appwrite";
 import { createAdminClient } from "@/lib/appwrite";
 import { parseStringify } from "../utils";
 
@@ -9,30 +9,6 @@ const DATABASE_ID =
 
 const TRANSACTION_COLLECTION_ID =
   process.env.NEXT_PUBLIC_APPWRITE_TRANSACTION_COLLECTION_ID!;
-
-export const createTransaction = async (
-  transaction: CreateTransactionProps,
-) => {
-  try {
-    const { database } = await createAdminClient();
-
-    const newTransaction = await database.createDocument(
-      DATABASE_ID,
-      TRANSACTION_COLLECTION_ID,
-      ID.unique(),
-      {
-        channel: "online",
-        category: "Transfer",
-        ...transaction,
-      },
-    );
-
-    return parseStringify(newTransaction);
-  } catch (error) {
-    console.error("CREATE TRANSACTION ERROR:", error);
-    throw error;
-  }
-};
 
 export const getTransactionsByBankId = async ({
   bankId,

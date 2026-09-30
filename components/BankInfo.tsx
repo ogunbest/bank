@@ -38,18 +38,25 @@ const BankInfo = ({
     <div
       onClick={handleBankChange}
       className={cn(
-        "flex w-full items-center gap-4 rounded-2xl border bg-white p-4 transition",
-        type === "card" && "cursor-pointer hover:-translate-y-0.5 hover:shadow-md",
-        isActive && type === "card"
-          ? "border-[#0F766E] bg-teal-50/40 shadow-sm"
-          : "border-slate-200",
+        "flex w-full items-center gap-4 rounded-2xl border bg-white p-4 transition-colors duration-200",
+        "dark:bg-slate-900",
+        type === "card" &&
+          "cursor-pointer hover:-translate-y-0.5 hover:shadow-md",
+        type === "card" &&
+          !isActive &&
+          "border-slate-200 hover:border-teal-200 dark:border-slate-800 dark:hover:border-teal-800",
+        isActive &&
+          type === "card" &&
+          "border-[#0F766E] bg-teal-50/40 shadow-sm dark:border-teal-500 dark:bg-teal-950/40 dark:shadow-none",
+        type !== "card" &&
+          "border-slate-200 dark:border-slate-800",
       )}
     >
       {/* Icon */}
       <div
         className={cn(
           "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl",
-          colors.lightBg || "bg-teal-50",
+          colors.lightBg || "bg-teal-50 dark:bg-teal-950/50",
         )}
       >
         <Image
@@ -65,7 +72,7 @@ const BankInfo = ({
         <div className="flex items-center gap-2">
           <h2
             className={cn(
-              "truncate text-sm font-semibold text-slate-900",
+              "truncate text-sm font-semibold text-slate-900 dark:text-white",
               colors.title,
             )}
           >
@@ -76,8 +83,9 @@ const BankInfo = ({
             <span
               className={cn(
                 "hidden shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold sm:inline-flex",
-                colors.lightBg || "bg-teal-50",
-                colors.subText || "text-[#0F766E]",
+                colors.lightBg || "bg-teal-50 dark:bg-teal-950/50",
+                colors.subText ||
+                  "text-[#0F766E] dark:text-teal-400",
               )}
             >
               {account.subtype}
@@ -88,7 +96,8 @@ const BankInfo = ({
         <p
           className={cn(
             "mt-1 text-sm font-semibold",
-            colors.subText || "text-[#0F766E]",
+            colors.subText ||
+              "text-[#0F766E] dark:text-teal-400",
           )}
         >
           {formatAmount(account.currentBalance)}
@@ -97,7 +106,7 @@ const BankInfo = ({
 
       {/* Active indicator */}
       {type === "card" && isActive && (
-        <span className="hidden shrink-0 rounded-full bg-[#0F766E] px-2.5 py-1 text-[11px] font-semibold text-white sm:inline-flex">
+        <span className="hidden shrink-0 rounded-full bg-[#0F766E] px-2.5 py-1 text-[11px] font-semibold text-white dark:bg-teal-600 sm:inline-flex">
           Active
         </span>
       )}

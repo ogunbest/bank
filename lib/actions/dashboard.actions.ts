@@ -160,12 +160,23 @@ for (const document of transactionResult.documents as AppwriteDocument[]) {
   const lastName = asText(user.lastName);
 
   return {
-    balance: asNumber(user.balance),
-    user: {
-      name: `${firstName} ${lastName}`.trim() || currentUser.name || "Customer",
-      email: asText(user.email) || currentUser.email,
-    },
-    accounts,
-    transactions,
-  };
+  balance: asNumber(user.balance),
+
+  user: {
+    name:
+      `${firstName} ${lastName}`.trim() ||
+      currentUser.name ||
+      "Customer",
+
+    email:
+      asText(user.email) ||
+      currentUser.email,
+
+    transactionPinSet:
+      user.transactionPinSet === true,
+  },
+
+  accounts,
+  transactions,
+};
 }

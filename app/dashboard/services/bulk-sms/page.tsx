@@ -26,51 +26,68 @@ export default function BulkSmsPage() {
     .map((number) => number.trim())
     .filter(Boolean);
 
-  const canContinue =
-    sender.trim().length >= 2 &&
-    recipientList.length > 0 &&
-    message.trim().length > 0 &&
-    Number(amount) > 0;
+  const validRecipients = recipientList.filter(
+  (number) => /^0\d{10}$/.test(number)
+);
 
+const canContinue =
+  sender.trim().length >= 2 &&
+  sender.trim().length <= 11 &&
+  validRecipients.length === recipientList.length &&
+  recipientList.length > 0 &&
+  message.trim().length > 0 &&
+  message.trim().length <= 160 &&
+  Number(amount) > 0 &&
+  Number.isFinite(Number(amount));
   const handleSend = async () => {
-    if (!canContinue || pin.length !== 4) return;
+  if (!canContinue || pin.length !== 4 || processing) return;
 
-    try {
-      setProcessing(true);
+  try {
+    setProcessing(true);
 
-      await verifyTransactionPin(pin);
+    await verifyTransactionPin(pin);
 
-      const result = await sendBulkSms({
-        sender: sender.trim(),
-        numbers: recipientList.join(","),
-        message: message.trim(),
-        amount: Number(amount),
-      });
+    const result = await sendBulkSms({
+      sender: sender.trim(),
+      numbers: recipientList.join(","),
+      message: message.trim(),
+      amount: Number(amount),
+    });
 
-      if (result.status === "processing") {
-        alert(
-          "Your Bulk SMS is being processed. Check Transactions for the status."
-        );
-      } else {
-        alert("Bulk SMS sent successfully.");
-      }
-
-      setSender("");
-      setNumbers("");
-      setMessage("");
-      setAmount("");
-      setPin("");
-      setShowPin(false);
-    } catch (error) {
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Bulk SMS failed."
+    if (!result?.success) {
+      throw new Error(
+        String(
+          result?.response?.api_response ||
+            result?.response?.message ||
+            "Bulk SMS failed."
+        )
       );
-    } finally {
-      setProcessing(false);
     }
-  };
+
+    if (result.status === "processing") {
+      alert(
+        "Your Bulk SMS is being processed. Check Transactions for the status."
+      );
+    } else {
+      alert("Bulk SMS sent successfully.");
+    }
+
+    setSender("");
+    setNumbers("");
+    setMessage("");
+    setAmount("");
+    setPin("");
+    setShowPin(false);
+  } catch (error) {
+    alert(
+      error instanceof Error
+        ? error.message
+        : "Bulk SMS failed."
+    );
+  } finally {
+    setProcessing(false);
+  }
+};
 
   return (
     <main className="min-h-screen bg-[#F8FAFC] px-4 py-6 text-slate-900">

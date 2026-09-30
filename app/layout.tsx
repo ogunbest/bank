@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, IBM_Plex_Serif } from "next/font/google";
 
-
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -34,9 +33,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${ibmPlexSerif.variable} min-h-screen bg-[#F8FAFC] font-sans text-[#0F172A] antialiased`}
+        className={`${inter.variable} ${ibmPlexSerif.variable} min-h-screen bg-[#F8FAFC] font-sans text-[#0F172A] antialiased dark:bg-[#0B1120] dark:text-slate-100`}
       >
         {children}
       </body>

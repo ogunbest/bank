@@ -165,43 +165,43 @@ export default function SavingsGoals({
   );
 
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition-colors duration-200 dark:border-slate-800 dark:bg-slate-900 sm:p-6">
       {/* Header */}
       <div className="mb-6 flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-teal-50 text-[#0F766E]">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-teal-50 text-[#0F766E] dark:bg-teal-950/50 dark:text-teal-400">
             <PiggyBank size={22} />
           </div>
 
           <div>
-            <h2 className="font-bold text-slate-900">
+            <h2 className="font-bold text-slate-900 dark:text-white">
               Savings Goals
             </h2>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               Save towards something important.
             </p>
           </div>
         </div>
 
-        <div className="hidden rounded-xl bg-slate-50 p-2.5 text-slate-300 sm:block">
+        <div className="hidden rounded-xl bg-slate-50 p-2.5 text-slate-300 dark:bg-slate-800 dark:text-slate-600 sm:block">
           <Target size={20} />
         </div>
       </div>
 
       {/* Error */}
       {error && (
-        <div className="mb-5 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+        <div className="mb-5 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm font-medium text-red-600 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-400">
           {error}
         </div>
       )}
 
       {/* Create goal */}
-      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
+      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/60 sm:p-5">
         <div className="mb-4 flex items-center gap-2">
-          <Plus size={17} className="text-[#0F766E]" />
+          <Plus size={17} className="text-[#0F766E] dark:text-teal-400" />
 
-          <p className="text-sm font-bold text-slate-900">
+          <p className="text-sm font-bold text-slate-900 dark:text-white">
             Create a savings goal
           </p>
         </div>
@@ -215,11 +215,11 @@ export default function SavingsGoals({
             }}
             placeholder="Goal name"
             disabled={creating}
-            className="h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0F766E] focus:ring-2 focus:ring-teal-100 disabled:opacity-60"
+            className="h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0F766E] focus:ring-2 focus:ring-teal-100 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-teal-500 dark:focus:ring-teal-950/50"
           />
 
-          <div className="flex h-12 items-center rounded-xl border border-slate-200 bg-white px-4 focus-within:border-[#0F766E] focus-within:ring-2 focus-within:ring-teal-100">
-            <span className="font-semibold text-[#0F766E]">
+          <div className="flex h-12 items-center rounded-xl border border-slate-200 bg-white px-4 focus-within:border-[#0F766E] focus-within:ring-2 focus-within:ring-teal-100 dark:border-slate-700 dark:bg-slate-900 dark:focus-within:border-teal-500 dark:focus-within:ring-teal-950/50">
+            <span className="font-semibold text-[#0F766E] dark:text-teal-400">
               ₦
             </span>
 
@@ -233,7 +233,7 @@ export default function SavingsGoals({
               }}
               placeholder="Target amount"
               disabled={creating}
-              className="w-full bg-transparent px-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 disabled:opacity-60"
+              className="w-full bg-transparent px-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 disabled:opacity-60 dark:text-white dark:placeholder:text-slate-500"
             />
           </div>
 
@@ -241,7 +241,7 @@ export default function SavingsGoals({
             type="button"
             onClick={handleCreateGoal}
             disabled={creating}
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#0F766E] px-5 text-sm font-semibold text-white transition hover:bg-[#115E59] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#0F766E] px-5 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
           >
             {creating ? (
               <>
@@ -263,32 +263,32 @@ export default function SavingsGoals({
 
       {/* Summary */}
       <div className="mt-5 grid gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl bg-teal-50 p-4">
-          <p className="text-xs font-medium text-[#0F766E]">
+        <div className="rounded-2xl bg-teal-50 p-4 dark:bg-teal-950/40">
+          <p className="text-xs font-medium text-[#0F766E] dark:text-teal-400">
             Total saved
           </p>
 
-          <p className="mt-1 text-lg font-bold text-slate-900">
+          <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">
             ₦{money(totalSaved)}
           </p>
         </div>
 
-        <div className="rounded-2xl bg-slate-50 p-4">
-          <p className="text-xs font-medium text-slate-500">
+        <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800">
+          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
             Total target
           </p>
 
-          <p className="mt-1 text-lg font-bold text-slate-900">
+          <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">
             ₦{money(totalTarget)}
           </p>
         </div>
 
-        <div className="rounded-2xl bg-slate-50 p-4">
-          <p className="text-xs font-medium text-slate-500">
+        <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800">
+          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
             Active goals
           </p>
 
-          <p className="mt-1 text-lg font-bold text-slate-900">
+          <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">
             {goals.length}
           </p>
         </div>
@@ -297,24 +297,24 @@ export default function SavingsGoals({
       {/* Goals */}
       <div className="mt-6 space-y-4">
         {loading ? (
-          <div className="flex items-center justify-center gap-2 py-10 text-sm text-slate-500">
+          <div className="flex items-center justify-center gap-2 py-10 text-sm text-slate-500 dark:text-slate-400">
             <Loader2
               size={18}
-              className="animate-spin text-[#0F766E]"
+              className="animate-spin text-[#0F766E] dark:text-teal-400"
             />
             Loading savings goals...
           </div>
         ) : goals.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 py-10 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-white text-slate-300 shadow-sm">
+          <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 py-10 text-center dark:border-slate-700 dark:bg-slate-800/50">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-white text-slate-300 shadow-sm dark:bg-slate-800 dark:text-slate-600">
               <PiggyBank size={25} />
             </div>
 
-            <p className="mt-3 font-semibold text-slate-900">
+            <p className="mt-3 font-semibold text-slate-900 dark:text-white">
               No savings goals yet
             </p>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               Create your first goal above.
             </p>
           </div>
@@ -341,38 +341,38 @@ export default function SavingsGoals({
             return (
               <article
                 key={item.$id}
-                className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-teal-100 hover:shadow-sm"
+                className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-teal-200 hover:shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:hover:border-teal-800 dark:hover:shadow-none"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="truncate font-bold text-slate-900">
+                      <h3 className="truncate font-bold text-slate-900 dark:text-white">
                         {item.name}
                       </h3>
 
                       {completed && (
                         <CheckCircle2
                           size={18}
-                          className="shrink-0 text-[#0F766E]"
+                          className="shrink-0 text-[#0F766E] dark:text-teal-400"
                         />
                       )}
                     </div>
 
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                       ₦{money(savedAmount)} of ₦
                       {money(targetAmount)}
                     </p>
                   </div>
 
-                  <span className="shrink-0 text-sm font-bold text-[#0F766E]">
+                  <span className="shrink-0 text-sm font-bold text-[#0F766E] dark:text-teal-400">
                     {Math.round(progress)}%
                   </span>
                 </div>
 
                 {/* Progress */}
-                <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-slate-100">
+                <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
                   <div
-                    className="h-full rounded-full bg-[#0F766E] transition-all duration-500"
+                    className="h-full rounded-full bg-[#0F766E] transition-all duration-500 dark:bg-teal-500"
                     style={{
                       width: `${progress}%`,
                     }}
@@ -382,8 +382,8 @@ export default function SavingsGoals({
                 {/* Add money */}
                 {addingGoalId === item.$id ? (
                   <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                    <div className="flex flex-1 items-center rounded-xl border border-slate-200 bg-white px-4 focus-within:border-[#0F766E] focus-within:ring-2 focus-within:ring-teal-100">
-                      <span className="font-semibold text-[#0F766E]">
+                    <div className="flex flex-1 items-center rounded-xl border border-slate-200 bg-white px-4 focus-within:border-[#0F766E] focus-within:ring-2 focus-within:ring-teal-100 dark:border-slate-700 dark:bg-slate-800 dark:focus-within:border-teal-500 dark:focus-within:ring-teal-950/50">
+                      <span className="font-semibold text-[#0F766E] dark:text-teal-400">
                         ₦
                       </span>
 
@@ -397,7 +397,7 @@ export default function SavingsGoals({
                         }}
                         placeholder="Amount to save"
                         disabled={adding}
-                        className="w-full bg-transparent px-2 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400"
+                        className="w-full bg-transparent px-2 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 dark:text-white dark:placeholder:text-slate-500"
                       />
                     </div>
 
@@ -407,7 +407,7 @@ export default function SavingsGoals({
                         handleAddMoney(item.$id)
                       }
                       disabled={adding}
-                      className="rounded-xl bg-[#0F766E] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#115E59] disabled:opacity-50"
+                      className="rounded-xl bg-[#0F766E] px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
                     >
                       {adding ? (
                         <span className="flex items-center gap-2">
@@ -430,7 +430,7 @@ export default function SavingsGoals({
                         setError("");
                       }}
                       disabled={adding}
-                      className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50"
+                      className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                     >
                       Cancel
                     </button>
@@ -442,13 +442,13 @@ export default function SavingsGoals({
                       setAddingGoalId(item.$id);
                       setError("");
                     }}
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F766E] py-3 text-sm font-semibold text-white transition hover:bg-[#115E59]"
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#0F766E] py-3 text-sm font-semibold text-white transition hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
                   >
                     <Plus size={17} />
                     Add money
                   </button>
                 ) : (
-                  <div className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-teal-50 px-4 py-3 text-sm font-semibold text-[#0F766E]">
+                  <div className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-teal-50 px-4 py-3 text-sm font-semibold text-[#0F766E] dark:bg-teal-950/40 dark:text-teal-400">
                     <CheckCircle2 size={17} />
                     Goal completed
                   </div>

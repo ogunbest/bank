@@ -219,15 +219,15 @@ export default function AccountsPage() {
       {/* HEADER */}
       <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-medium text-[#0F766E]">
+          <p className="text-sm font-medium text-[#0F766E] dark:text-teal-400">
             Banking
           </p>
 
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
             Accounts
           </h1>
 
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             Manage your account and linked bank accounts.
           </p>
         </div>
@@ -241,7 +241,7 @@ export default function AccountsPage() {
               resetForm();
             }
           }}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0F766E] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#115E59]"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0F766E] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#115E59] dark:hover:bg-teal-600"
         >
           {showAddBank ? (
             <>
@@ -257,8 +257,9 @@ export default function AccountsPage() {
         </button>
       </section>
 
+      {/* ERROR */}
       {error && (
-        <div className="rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <div className="rounded-2xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-400">
           {error}
         </div>
       )}
@@ -331,19 +332,19 @@ export default function AccountsPage() {
 
       {/* ADD ACCOUNT */}
       {showAddBank && (
-        <section className="rounded-3xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-100 px-5 py-5 sm:px-6">
+        <section className="rounded-3xl border border-slate-200 bg-white shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
+          <div className="border-b border-slate-100 px-5 py-5 dark:border-slate-800 sm:px-6">
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-[#0F766E]">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-[#0F766E] dark:bg-teal-950/50 dark:text-teal-400">
                 <Plus size={20} />
               </div>
 
               <div>
-                <h2 className="font-bold text-slate-900">
+                <h2 className="font-bold text-slate-900 dark:text-white">
                   Add bank account
                 </h2>
 
-                <p className="mt-1 text-xs text-slate-500">
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                   Verify your Nigerian bank account before saving it.
                 </p>
               </div>
@@ -356,7 +357,7 @@ export default function AccountsPage() {
               <div>
                 <label
                   htmlFor="bank"
-                  className="mb-2 block text-sm font-medium text-slate-600"
+                  className="mb-2 block text-sm font-medium text-slate-600 dark:text-slate-300"
                 >
                   Bank
                 </label>
@@ -379,7 +380,7 @@ export default function AccountsPage() {
                     setMessageType("");
                   }}
                   disabled={banksLoading || verifying || saving}
-                  className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition focus:border-[#0F766E] focus:bg-white disabled:opacity-50"
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition focus:border-[#0F766E] focus:bg-white disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-teal-500 dark:focus:bg-slate-800"
                 >
                   <option value="">
                     {banksLoading
@@ -402,7 +403,7 @@ export default function AccountsPage() {
               <div>
                 <label
                   htmlFor="accountNumber"
-                  className="mb-2 block text-sm font-medium text-slate-600"
+                  className="mb-2 block text-sm font-medium text-slate-600 dark:text-slate-300"
                 >
                   Account number
                 </label>
@@ -424,7 +425,7 @@ export default function AccountsPage() {
                   }}
                   placeholder="Enter 10-digit account number"
                   disabled={verifying || saving}
-                  className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0F766E] focus:bg-white disabled:opacity-50"
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0F766E] focus:bg-white disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-teal-500 dark:focus:bg-slate-800"
                 />
               </div>
             </div>
@@ -455,22 +456,22 @@ export default function AccountsPage() {
 
             {/* VERIFIED ACCOUNT */}
             {accountName && (
-              <div className="mt-5 rounded-2xl border border-teal-100 bg-teal-50 p-5">
+              <div className="mt-5 rounded-2xl border border-teal-100 bg-teal-50 p-5 dark:border-teal-900/60 dark:bg-teal-950/30">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#0F766E]">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#0F766E] dark:bg-slate-900 dark:text-teal-400">
                     <CheckCircle2 size={21} />
                   </div>
 
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-teal-600">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-teal-600 dark:text-teal-400">
                       Account verified
                     </p>
 
-                    <p className="mt-1 text-base font-bold text-slate-900">
+                    <p className="mt-1 text-base font-bold text-slate-900 dark:text-white">
                       {accountName}
                     </p>
 
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                       {bankName} • {accountNumber}
                     </p>
                   </div>
@@ -491,8 +492,8 @@ export default function AccountsPage() {
               <div
                 className={`mt-5 rounded-xl px-4 py-3 ${
                   messageType === "success"
-                    ? "bg-teal-50 text-teal-700"
-                    : "bg-red-50 text-red-600"
+                    ? "border border-teal-100 bg-teal-50 text-teal-700 dark:border-teal-900/60 dark:bg-teal-950/30 dark:text-teal-400"
+                    : "border border-red-100 bg-red-50 text-red-600 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-400"
                 }`}
               >
                 <p className="text-sm font-medium">{message}</p>
@@ -505,23 +506,23 @@ export default function AccountsPage() {
       {/* LINKED ACCOUNTS */}
       <section>
         <div className="mb-4">
-          <h2 className="text-lg font-bold text-slate-900">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
             Linked bank accounts
           </h2>
 
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             Verified accounts available for your banking operations.
           </p>
         </div>
 
         {loading ? (
-          <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <Loader2
               size={22}
-              className="mx-auto animate-spin text-[#0F766E]"
+              className="mx-auto animate-spin text-[#0F766E] dark:text-teal-400"
             />
 
-            <p className="mt-3 text-sm text-slate-500">
+            <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
               Loading linked accounts...
             </p>
           </div>
@@ -530,37 +531,37 @@ export default function AccountsPage() {
             {data.accounts.map((account) => (
               <article
                 key={account.id}
-                className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-[#0F766E]">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-[#0F766E] dark:bg-teal-950/50 dark:text-teal-400">
                       <Building2 size={21} />
                     </div>
 
                     <div className="min-w-0">
-                      <h3 className="truncate font-bold text-slate-900">
+                      <h3 className="truncate font-bold text-slate-900 dark:text-white">
                         {account.bankName}
                       </h3>
 
-                      <p className="mt-1 truncate text-sm text-slate-500">
+                      <p className="mt-1 truncate text-sm text-slate-500 dark:text-slate-400">
                         {account.accountName}
                       </p>
                     </div>
                   </div>
 
-                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-teal-50 px-2.5 py-1 text-[10px] font-semibold text-teal-600">
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-teal-100 bg-teal-50 px-2.5 py-1 text-[10px] font-semibold text-teal-600 dark:border-teal-900/60 dark:bg-teal-950/40 dark:text-teal-400">
                     <CheckCircle2 size={12} />
                     Verified
                   </span>
                 </div>
 
-                <div className="mt-5 rounded-xl bg-slate-50 p-4">
+                <div className="mt-5 rounded-xl bg-slate-50 p-4 dark:bg-slate-800">
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                     Account number
                   </p>
 
-                  <p className="mt-1 font-semibold tracking-wide text-slate-800">
+                  <p className="mt-1 font-semibold tracking-wide text-slate-800 dark:text-slate-200">
                     {account.accountNumber}
                   </p>
                 </div>
@@ -568,7 +569,7 @@ export default function AccountsPage() {
                 <button
                   type="button"
                   onClick={() => handleDeleteBank(account.id)}
-                  className="mt-4 w-full rounded-xl border border-red-100 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-500 transition hover:bg-red-100"
+                  className="mt-4 w-full rounded-xl border border-red-100 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-500 transition hover:bg-red-100 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-400 dark:hover:bg-red-950/60"
                 >
                   Remove account
                 </button>
@@ -576,16 +577,16 @@ export default function AccountsPage() {
             ))}
           </div>
         ) : (
-          <div className="rounded-3xl border border-dashed border-slate-200 bg-white p-10 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 text-slate-300">
+          <div className="rounded-3xl border border-dashed border-slate-200 bg-white p-10 text-center dark:border-slate-800 dark:bg-slate-900">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 text-slate-300 dark:bg-slate-800 dark:text-slate-600">
               <Building2 size={28} />
             </div>
 
-            <h3 className="mt-4 font-bold text-slate-900">
+            <h3 className="mt-4 font-bold text-slate-900 dark:text-white">
               No linked bank accounts
             </h3>
 
-            <p className="mx-auto mt-1 max-w-sm text-sm text-slate-500">
+            <p className="mx-auto mt-1 max-w-sm text-sm text-slate-500 dark:text-slate-400">
               Add and verify a bank account to use it for withdrawals
               and other banking services.
             </p>

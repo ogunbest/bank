@@ -82,16 +82,16 @@ const TransactionsTable = ({
 }: TransactionTableProps) => {
   if (!transactions?.length) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-12 text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-white text-slate-400 shadow-sm">
+      <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-12 text-center transition-colors dark:border-slate-700 dark:bg-slate-800/50">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-white text-slate-400 shadow-sm dark:bg-slate-800 dark:text-slate-500">
           <ReceiptText size={21} />
         </div>
 
-        <h3 className="mt-4 text-sm font-semibold text-slate-700">
+        <h3 className="mt-4 text-sm font-semibold text-slate-700 dark:text-slate-200">
           No transactions yet
         </h3>
 
-        <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 sm:text-sm">
           Your account activity will appear here.
         </p>
       </div>
@@ -99,31 +99,31 @@ const TransactionsTable = ({
   }
 
   return (
-    <div className="w-full overflow-x-auto rounded-2xl border border-slate-200">
+    <div className="w-full overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
       <Table className="min-w-[760px]">
-        <TableHeader className="bg-slate-50">
-          <TableRow className="border-slate-200 hover:bg-slate-50">
-            <TableHead className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <TableHeader className="bg-slate-50 dark:bg-slate-800/70">
+          <TableRow className="border-slate-200 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/70">
+            <TableHead className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
               Transaction
             </TableHead>
 
-            <TableHead className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <TableHead className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
               Amount
             </TableHead>
 
-            <TableHead className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <TableHead className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
               Status
             </TableHead>
 
-            <TableHead className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <TableHead className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
               Date
             </TableHead>
 
-            <TableHead className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <TableHead className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
               Channel
             </TableHead>
 
-            <TableHead className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <TableHead className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
               Category
             </TableHead>
           </TableRow>
@@ -146,7 +146,7 @@ const TransactionsTable = ({
             return (
               <TableRow
                 key={t.id}
-                className="border-slate-100 transition-colors hover:bg-teal-50/40"
+                className="border-slate-100 transition-colors hover:bg-teal-50/40 dark:border-slate-800 dark:hover:bg-teal-950/20"
               >
                 {/* Transaction */}
                 <TableCell className="max-w-[240px] px-4 py-4">
@@ -155,8 +155,8 @@ const TransactionsTable = ({
                       className={cn(
                         "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl",
                         isDebit
-                          ? "bg-red-50 text-red-500"
-                          : "bg-teal-50 text-[#0F766E]",
+                          ? "bg-red-50 text-red-500 dark:bg-red-950/40 dark:text-red-400"
+                          : "bg-teal-50 text-[#0F766E] dark:bg-teal-950/40 dark:text-teal-400",
                       )}
                     >
                       {isDebit ? (
@@ -167,12 +167,14 @@ const TransactionsTable = ({
                     </div>
 
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-slate-800">
+                      <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
                         {removeSpecialCharacters(t.name)}
                       </p>
 
-                      <p className="mt-0.5 text-xs text-slate-400">
-                        {isDebit ? "Money sent" : "Money received"}
+                      <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">
+                        {isDebit
+                          ? "Money sent"
+                          : "Money received"}
                       </p>
                     </div>
                   </div>
@@ -183,8 +185,8 @@ const TransactionsTable = ({
                   className={cn(
                     "whitespace-nowrap px-4 py-4 text-sm font-bold",
                     isDebit
-                      ? "text-red-500"
-                      : "text-[#0F766E]",
+                      ? "text-red-500 dark:text-red-400"
+                      : "text-[#0F766E] dark:text-teal-400",
                   )}
                 >
                   {displayAmount}
@@ -197,14 +199,17 @@ const TransactionsTable = ({
 
                 {/* Date */}
                 <TableCell className="whitespace-nowrap px-4 py-4">
-                  <p className="text-sm font-medium text-slate-700">
-                    {formatDateTime(new Date(t.date)).dateTime}
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    {
+                      formatDateTime(new Date(t.date))
+                        .dateTime
+                    }
                   </p>
                 </TableCell>
 
                 {/* Channel */}
                 <TableCell className="px-4 py-4">
-                  <span className="text-sm capitalize text-slate-500">
+                  <span className="text-sm capitalize text-slate-500 dark:text-slate-400">
                     {t.paymentChannel || "—"}
                   </span>
                 </TableCell>
@@ -214,7 +219,7 @@ const TransactionsTable = ({
                   {t.category ? (
                     <CategoryBadge category={t.category} />
                   ) : (
-                    <span className="text-sm text-slate-400">
+                    <span className="text-sm text-slate-400 dark:text-slate-500">
                       —
                     </span>
                   )}

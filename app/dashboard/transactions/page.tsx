@@ -1,17 +1,15 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import {
   ArrowDownLeft,
+  ArrowLeft,
   ArrowUpRight,
   CheckCircle2,
   Clock3,
-  Search,
   XCircle,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
-import FinancialInsights from "@/components/dashboard/financialInsights";
 import { useDashboardData } from "@/components/dashboard/useDashboardData";
 
 const formatMoney = (amount: number) =>
@@ -26,370 +24,238 @@ const formatDate = (value: string) => {
   return Number.isNaN(date.getTime())
     ? "Date unavailable"
     : date.toLocaleString("en-NG", {
-        dateStyle: "medium",
+        dateStyle: "full",
         timeStyle: "short",
       });
 };
 
-export default function TransactionsPage() {
-  const { data, error, loading } = useDashboardData();
+export default function TransactionDetailsPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const router = useRouter();
+  const { data, loading, error } = useDashboardData();
 
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-
- const allTransactions = useMemo(
-  () => data?.transactions ?? [],
-  [data?.transactions],
-);
-
-  const transactions = useMemo(
-    () =>
-      allTransactions.filter((transaction) => {
-        const searchable = `${transaction.title} ${transaction.type} ${transaction.reference}`
-          .toLowerCase()
-          .includes(search.trim().toLowerCase());
-
-        const matchesFilter =
-          filter === "all" ||
-          (filter === "incoming" && transaction.direction === "in") ||
-          (filter === "outgoing" && transaction.direction === "out");
-
-        const matchesStatus =
-          statusFilter === "all" ||
-          transaction.status.toLowerCase() === statusFilter;
-
-        return searchable && matchesFilter && matchesStatus;
-      }),
-    [allTransactions, filter, search, statusFilter],
+  const transaction = data?.transactions.find(
+    (item) => item.id === params.id,
   );
 
-  const moneyIn = allTransactions
-    .filter((transaction) => transaction.direction === "in")
-    .reduce(
-      (total, transaction) => total + Number(transaction.amount ?? 0),
-      0,
+  if (loading) {
+    return (
+      <main className="flex min-h-[60vh] items-center justify-center text-slate-900 dark:text-white">
+        <div className="text-center">
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-[#0F766E] border-t-transparent dark:border-teal-400 dark:border-t-transparent" />
+
+          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+            Loading transaction...
+          </p>
+        </div>
+      </main>
     );
+  }
 
-  const moneyOut = allTransactions
-    .filter((transaction) => transaction.direction === "out")
-    .reduce(
-      (total, transaction) => total + Number(transaction.amount ?? 0),
-      0,
-    );
-
-  const successfulCount = allTransactions.filter(
-    (transaction) => transaction.status.toLowerCase() === "success",
-  ).length;
-
-  return (
-    <div className="space-y-7">
-      {/* HEADER */}
-      <section>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-          Transactions
-        </h1>
-
-        <p className="mt-1 text-sm text-slate-500">
-          Review and manage activity on your account.
-        </p>
-
-        {error && (
-          <div className="mt-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
-            {error}
-          </div>
-        )}
-      </section>
-
-      {/* SUMMARY */}
-      <section className="grid gap-4 sm:grid-cols-3">
-        <SummaryCard
-          label="Money In"
-          value={`₦${formatMoney(moneyIn)}`}
-          icon={<ArrowDownLeft size={19} />}
-          iconClass="bg-teal-50 text-teal-600"
-        />
-
-        <SummaryCard
-          label="Money Out"
-          value={`₦${formatMoney(moneyOut)}`}
-          icon={<ArrowUpRight size={19} />}
-          iconClass="bg-red-50 text-red-500"
-        />
-
-        <SummaryCard
-          label="Successful"
-          value={successfulCount.toString()}
-          icon={<CheckCircle2 size={19} />}
-          iconClass="bg-slate-100 text-slate-600"
-        />
-      </section>
-
-      {/* FILTERS */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="flex flex-col gap-3 lg:flex-row">
-          {/* SEARCH */}
-          <label className="relative flex-1">
-            <Search
-              size={18}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-            />
-
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search transactions..."
-              className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0F766E] focus:bg-white"
-            />
-          </label>
-
-          {/* DIRECTION */}
-          <select
-            value={filter}
-            onChange={(event) => setFilter(event.target.value)}
-            className="h-11 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-600 outline-none focus:border-[#0F766E]"
-          >
-            <option value="all">All transactions</option>
-            <option value="incoming">Money in</option>
-            <option value="outgoing">Money out</option>
-          </select>
-
-          {/* STATUS */}
-          <select
-            value={statusFilter}
-            onChange={(event) => setStatusFilter(event.target.value)}
-            className="h-11 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-600 outline-none focus:border-[#0F766E]"
-          >
-            <option value="all">All statuses</option>
-            <option value="success">Success</option>
-            <option value="pending">Pending</option>
-            <option value="failed">Failed</option>
-          </select>
-        </div>
-      </section>
-
-      {/* TRANSACTION TABLE */}
-      <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-100 px-5 py-5 sm:px-6">
-          <h2 className="font-bold text-slate-900">
-            Transaction History
-          </h2>
-
-          <p className="mt-1 text-xs text-slate-500">
-            {transactions.length} transaction
-            {transactions.length === 1 ? "" : "s"} found
-          </p>
-        </div>
-
-        {/* DESKTOP HEADER */}
-        <div className="hidden grid-cols-12 gap-4 border-b border-slate-100 bg-slate-50/70 px-6 py-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 md:grid">
-          <div className="col-span-4">Transaction</div>
-          <div className="col-span-2">Type</div>
-          <div className="col-span-2">Date</div>
-          <div className="col-span-2">Status</div>
-          <div className="col-span-2 text-right">Amount</div>
-        </div>
-
-        {loading ? (
-          <div className="px-6 py-16 text-center">
-            <div className="mx-auto h-7 w-7 animate-spin rounded-full border-4 border-[#0F766E] border-t-transparent" />
-
-            <p className="mt-3 text-sm text-slate-500">
-              Loading transactions...
-            </p>
-          </div>
-        ) : transactions.length === 0 ? (
-          <div className="px-6 py-16 text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-50 text-slate-400">
-              <Search size={20} />
-            </div>
-
-            <p className="mt-3 text-sm font-semibold text-slate-700">
-              No matching transactions
-            </p>
-
-            <p className="mt-1 text-xs text-slate-400">
-              Try changing your search or filters.
-            </p>
-          </div>
-        ) : (
-          <div className="divide-y divide-slate-100">
-            {transactions.map((transaction) => {
-              const incoming = transaction.direction === "in";
-              const status = transaction.status.toLowerCase();
-
-              return (
-                <article
-                  key={transaction.id}
-                  onClick={() =>
-                    router.push(
-                      `/dashboard/transactions/${transaction.id}`,
-                    )
-                  }
-                  className="cursor-pointer px-5 py-4 transition hover:bg-slate-50 sm:px-6 md:grid md:grid-cols-12 md:items-center md:gap-4"
-                >
-                  {/* TRANSACTION */}
-                  <div className="flex min-w-0 items-center gap-3 md:col-span-4">
-                    <div
-                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                        incoming
-                          ? "bg-teal-50 text-teal-600"
-                          : "bg-red-50 text-red-500"
-                      }`}
-                    >
-                      {incoming ? (
-                        <ArrowDownLeft size={18} />
-                      ) : (
-                        <ArrowUpRight size={18} />
-                      )}
-                    </div>
-
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-slate-900">
-                        {transaction.title}
-                      </p>
-
-                      <p className="mt-0.5 truncate text-xs text-slate-400">
-                        Ref: {transaction.reference}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* MOBILE META */}
-                  <div className="mt-3 flex items-center justify-between md:hidden">
-                    <div>
-                      <p className="text-xs capitalize text-slate-500">
-                        {transaction.type}
-                      </p>
-
-                      <p className="mt-1 text-[11px] text-slate-400">
-                        {formatDate(transaction.date)}
-                      </p>
-                    </div>
-
-                    <TransactionStatus status={status}>
-                      {transaction.status}
-                    </TransactionStatus>
-                  </div>
-
-                  {/* DESKTOP TYPE */}
-                  <p className="hidden capitalize text-sm text-slate-500 md:col-span-2 md:block">
-                    {transaction.type}
-                  </p>
-
-                  {/* DESKTOP DATE */}
-                  <p className="hidden text-sm text-slate-500 md:col-span-2 md:block">
-                    {formatDate(transaction.date)}
-                  </p>
-
-                  {/* DESKTOP STATUS */}
-                  <div className="hidden md:col-span-2 md:block">
-                    <TransactionStatus status={status}>
-                      {transaction.status}
-                    </TransactionStatus>
-                  </div>
-
-                  {/* AMOUNT */}
-                  <p
-                    className={`mt-3 text-right text-sm font-bold md:col-span-2 md:mt-0 ${
-                      incoming ? "text-teal-600" : "text-red-500"
-                    }`}
-                  >
-                    {incoming ? "+" : "-"}₦
-                    {formatMoney(Number(transaction.amount ?? 0))}
-                  </p>
-                </article>
-              );
-            })}
-          </div>
-        )}
-      </section>
-
-      {/* FINANCIAL INSIGHTS */}
-      <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-100 px-5 py-5 sm:px-6">
-          <h2 className="font-bold text-slate-900">
-            Financial Insights
-          </h2>
-
-          <p className="mt-1 text-xs text-slate-500">
-            Understand your income, spending and cash flow.
-          </p>
-        </div>
-
-        <div className="p-5 sm:p-6">
-          <FinancialInsights
-            transactions={allTransactions}
-            balance={data?.balance ?? 0}
-          />
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function SummaryCard({
-  label,
-  value,
-  icon,
-  iconClass,
-}: {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-  iconClass: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs font-medium text-slate-400">{label}</p>
-
-          <p className="mt-2 text-xl font-bold text-slate-900">
-            {value}
-          </p>
-        </div>
-
-        <div
-          className={`flex h-10 w-10 items-center justify-center rounded-xl ${iconClass}`}
+  if (error || !transaction) {
+    return (
+      <main className="mx-auto max-w-3xl text-slate-900 dark:text-white">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="mb-6 flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-[#0F766E] dark:text-slate-400 dark:hover:text-teal-400"
         >
-          {icon}
-        </div>
-      </div>
-    </div>
-  );
-}
+          <ArrowLeft size={18} />
+          Back to Transactions
+        </button>
 
-function TransactionStatus({
-  status,
-  children,
-}: {
-  status: string;
-  children: React.ReactNode;
-}) {
-  const config =
+        <section className="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-red-500 dark:bg-red-950/30 dark:text-red-400">
+            <XCircle size={24} />
+          </div>
+
+          <h1 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">
+            Transaction not found
+          </h1>
+
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            {error || "This transaction could not be found."}
+          </p>
+
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="mt-6 rounded-2xl bg-[#0F766E] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
+          >
+            Go back
+          </button>
+        </section>
+      </main>
+    );
+  }
+
+  const incoming = transaction.direction === "in";
+  const status = transaction.status.toLowerCase();
+
+  const statusConfig =
     status === "success"
       ? {
-          icon: <CheckCircle2 size={13} />,
-          className: "bg-teal-50 text-teal-600",
+          icon: <CheckCircle2 size={15} />,
+          className:
+            "bg-teal-50 text-teal-700 dark:bg-teal-950/40 dark:text-teal-400",
         }
-      : status === "pending"
+      : status === "pending" || status === "processing"
         ? {
-            icon: <Clock3 size={13} />,
-            className: "bg-amber-50 text-amber-600",
+            icon: <Clock3 size={15} />,
+            className:
+              "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400",
           }
         : {
-            icon: <XCircle size={13} />,
-            className: "bg-red-50 text-red-500",
+            icon: <XCircle size={15} />,
+            className:
+              "bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400",
           };
 
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium ${config.className}`}
-    >
-      {config.icon}
-      {children}
-    </span>
+    <main className="mx-auto max-w-3xl text-slate-900 transition-colors dark:text-white">
+      <button
+        type="button"
+        onClick={() => router.back()}
+        className="mb-6 flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-[#0F766E] dark:text-slate-400 dark:hover:text-teal-400"
+      >
+        <ArrowLeft size={18} />
+        Back to Transactions
+      </button>
+
+      <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
+        {/* AMOUNT HEADER */}
+        <div className="border-b border-slate-100 bg-slate-50/60 px-5 py-10 text-center transition-colors dark:border-slate-800 dark:bg-slate-800/40 sm:px-8">
+          <div
+            className={`mx-auto flex h-16 w-16 items-center justify-center rounded-2xl ${
+              incoming
+                ? "bg-teal-50 text-teal-700 dark:bg-teal-950/50 dark:text-teal-400"
+                : "bg-red-50 text-red-500 dark:bg-red-950/40 dark:text-red-400"
+            }`}
+          >
+            {incoming ? (
+              <ArrowDownLeft size={30} />
+            ) : (
+              <ArrowUpRight size={30} />
+            )}
+          </div>
+
+          <p className="mt-5 text-sm font-medium text-slate-500 dark:text-slate-400">
+            {incoming ? "Money received" : "Money sent"}
+          </p>
+
+          <h1
+            className={`mt-2 text-3xl font-bold sm:text-4xl ${
+              incoming
+                ? "text-teal-700 dark:text-teal-400"
+                : "text-red-500 dark:text-red-400"
+            }`}
+          >
+            {incoming ? "+" : "-"}₦
+            {formatMoney(Number(transaction.amount ?? 0))}
+          </h1>
+
+          <div className="mt-4 flex justify-center">
+            <span
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold ${statusConfig.className}`}
+            >
+              {statusConfig.icon}
+              {transaction.status}
+            </span>
+          </div>
+        </div>
+
+        {/* DETAILS */}
+        <div className="p-5 sm:p-8">
+          <div className="mb-6">
+            <h2 className="text-base font-bold text-slate-900 dark:text-white">
+              Transaction details
+            </h2>
+
+            <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
+              Information about this transaction
+            </p>
+          </div>
+
+          <div className="divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-100 dark:divide-slate-800 dark:border-slate-800">
+            <DetailRow
+              label="Description"
+              value={transaction.title}
+            />
+
+            <DetailRow
+              label="Transaction type"
+              value={transaction.category || transaction.type}
+              capitalize
+            />
+
+            <DetailRow
+              label="Category"
+              value={transaction.category}
+              capitalize
+            />
+
+            <DetailRow
+              label="Channel"
+              value={transaction.channel}
+              capitalize
+            />
+
+            <DetailRow
+              label="Currency"
+              value={transaction.currency}
+            />
+
+            <DetailRow
+              label="Fees"
+              value={`₦${formatMoney(Number(transaction.fees ?? 0))}`}
+            />
+
+            <DetailRow
+              label="Date"
+              value={formatDate(transaction.date)}
+            />
+
+            <div className="flex flex-col gap-1 px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+              <p className="shrink-0 text-xs font-medium text-slate-400 dark:text-slate-500">
+                Reference
+              </p>
+
+              <p className="break-all text-left text-sm font-medium text-slate-700 dark:text-slate-300 sm:text-right">
+                {transaction.reference}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function DetailRow({
+  label,
+  value,
+  capitalize = false,
+}: {
+  label: string;
+  value: string | number;
+  capitalize?: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-1 px-4 py-4 transition-colors sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+      <p className="text-xs font-medium text-slate-400 dark:text-slate-500">
+        {label}
+      </p>
+
+      <p
+        className={`text-sm font-medium text-slate-800 dark:text-slate-200 sm:text-right ${
+          capitalize ? "capitalize" : ""
+        }`}
+      >
+        {value || "—"}
+      </p>
+    </div>
   );
 }

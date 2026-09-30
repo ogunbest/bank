@@ -38,7 +38,7 @@ const CustomInput = ({
       name={name}
       render={({ field }) => (
         <div className="w-full space-y-2">
-          <FormLabel className="text-sm font-medium text-slate-700">
+          <FormLabel className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {label}
           </FormLabel>
 
@@ -63,11 +63,11 @@ const CustomInput = ({
                     ? "current-password"
                     : undefined
               }
-              className="h-12 rounded-xl border-slate-200 bg-white px-4 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10"
+              className="h-12 rounded-xl border-slate-200 bg-white px-4 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-teal-500 dark:focus:ring-teal-500/10"
             />
           </FormControl>
 
-          <FormMessage className="text-xs font-medium text-red-500" />
+          <FormMessage className="text-xs font-medium text-red-500 dark:text-red-400" />
         </div>
       )}
     />

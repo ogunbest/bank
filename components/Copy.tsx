@@ -29,7 +29,7 @@ const Copy = ({ title }: { title: string }) => {
       variant="outline"
       onClick={copyToClipboard}
       disabled={!title}
-      className="mt-3 h-10 max-w-full gap-2 rounded-xl border-slate-200 bg-white px-3 text-slate-600 shadow-sm hover:bg-slate-50"
+      className="mt-3 h-10 max-w-full gap-2 rounded-xl border-slate-200 bg-white px-3 text-slate-600 shadow-sm transition-colors hover:border-teal-200 hover:bg-teal-50 hover:text-[#0F766E] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-teal-800 dark:hover:bg-teal-950/40 dark:hover:text-teal-400"
     >
       <span className="max-w-[260px] truncate text-xs font-medium">
         {title || "No account ID"}
@@ -39,16 +39,17 @@ const Copy = ({ title }: { title: string }) => {
         <>
           <Check
             size={16}
-            className="shrink-0 text-[#0F766E]"
+            className="shrink-0 text-[#0F766E] dark:text-teal-400"
           />
-          <span className="hidden text-xs font-semibold text-[#0F766E] sm:inline">
+
+          <span className="hidden text-xs font-semibold text-[#0F766E] dark:text-teal-400 sm:inline">
             Copied
           </span>
         </>
       ) : (
         <CopyIcon
           size={16}
-          className="shrink-0 text-slate-400"
+          className="shrink-0 text-slate-400 dark:text-slate-500"
         />
       )}
     </Button>

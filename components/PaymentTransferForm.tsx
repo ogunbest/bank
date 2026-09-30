@@ -123,18 +123,18 @@ const PaymentTransferForm = () => {
           className="mx-auto w-full max-w-2xl space-y-6"
         >
           {/* Header */}
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-colors duration-200 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none sm:p-7">
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal-50 text-[#0F766E]">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal-50 text-[#0F766E] dark:bg-teal-950/50 dark:text-teal-400">
                 <Send size={22} />
               </div>
 
               <div>
-                <h2 className="text-lg font-bold text-slate-900">
+                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
                   Send money
                 </h2>
 
-                <p className="mt-1 text-sm leading-6 text-slate-500">
+                <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
                   Transfer money securely to a Nigerian bank account.
                 </p>
               </div>
@@ -142,18 +142,18 @@ const PaymentTransferForm = () => {
           </div>
 
           {/* Recipient */}
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-colors duration-200 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none sm:p-7">
             <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-50 text-sm font-bold text-[#0F766E]">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-50 text-sm font-bold text-[#0F766E] dark:bg-teal-950/50 dark:text-teal-400">
                 1
               </div>
 
               <div>
-                <h3 className="font-bold text-slate-900">
+                <h3 className="font-bold text-slate-900 dark:text-white">
                   Recipient
                 </h3>
 
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Enter the recipient account details.
                 </p>
               </div>
@@ -164,11 +164,11 @@ const PaymentTransferForm = () => {
               name="accountNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-semibold text-slate-700">
+                  <FormLabel className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                     Account number
                   </FormLabel>
 
-                  <FormDescription className="text-xs text-slate-500">
+                  <FormDescription className="text-xs text-slate-500 dark:text-slate-400">
                     Enter the recipient&apos;s 10-digit Nigerian
                     account number.
                   </FormDescription>
@@ -179,7 +179,7 @@ const PaymentTransferForm = () => {
                       inputMode="numeric"
                       maxLength={10}
                       placeholder="0123456789"
-                      className="mt-2 h-12 rounded-xl border-slate-200 bg-slate-50 text-slate-900 shadow-none transition focus:border-[#0F766E] focus:bg-white focus:ring-2 focus:ring-[#0F766E]/10"
+                      className="mt-2 h-12 rounded-xl border-slate-200 bg-slate-50 text-slate-900 shadow-none transition placeholder:text-slate-400 focus:border-[#0F766E] focus:bg-white focus:ring-2 focus:ring-[#0F766E]/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-teal-500 dark:focus:bg-slate-800 dark:focus:ring-teal-500/10"
                       onChange={(event) => {
                         field.onChange(
                           event.target.value.replace(/\D/g, ""),
@@ -193,7 +193,7 @@ const PaymentTransferForm = () => {
               )}
             />
 
-            <div className="mt-4 flex items-center gap-2 rounded-xl bg-teal-50 px-3 py-2.5 text-xs text-[#0F766E]">
+            <div className="mt-4 flex items-center gap-2 rounded-xl bg-teal-50 px-3 py-2.5 text-xs text-[#0F766E] dark:bg-teal-950/40 dark:text-teal-400">
               <CheckCircle2 size={15} />
               <span>
                 Bank and account name verification is handled before
@@ -203,18 +203,18 @@ const PaymentTransferForm = () => {
           </div>
 
           {/* Amount */}
-          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-colors duration-200 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none sm:p-7">
             <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-50 text-sm font-bold text-[#0F766E]">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-50 text-sm font-bold text-[#0F766E] dark:bg-teal-950/50 dark:text-teal-400">
                 2
               </div>
 
               <div>
-                <h3 className="font-bold text-slate-900">
+                <h3 className="font-bold text-slate-900 dark:text-white">
                   Transfer details
                 </h3>
 
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Choose how much you want to send.
                 </p>
               </div>
@@ -226,13 +226,13 @@ const PaymentTransferForm = () => {
                 name="amount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-semibold text-slate-700">
+                    <FormLabel className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                       Amount
                     </FormLabel>
 
                     <FormControl>
                       <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-400">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-400 dark:text-slate-500">
                           ₦
                         </span>
 
@@ -242,7 +242,7 @@ const PaymentTransferForm = () => {
                           min="1"
                           step="1"
                           placeholder="0.00"
-                          className="h-14 rounded-xl border-slate-200 bg-slate-50 pl-10 text-lg font-semibold text-slate-900 shadow-none focus:border-[#0F766E] focus:bg-white focus:ring-2 focus:ring-[#0F766E]/10"
+                          className="h-14 rounded-xl border-slate-200 bg-slate-50 pl-10 text-lg font-semibold text-slate-900 shadow-none placeholder:text-slate-400 focus:border-[#0F766E] focus:bg-white focus:ring-2 focus:ring-[#0F766E]/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-teal-500 dark:focus:bg-slate-800 dark:focus:ring-teal-500/10"
                         />
                       </div>
                     </FormControl>
@@ -257,7 +257,7 @@ const PaymentTransferForm = () => {
                 name="note"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-sm font-semibold text-slate-700">
+                    <FormLabel className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                       Transfer note
                       <span className="ml-1 font-normal text-slate-400">
                         (optional)
@@ -268,7 +268,7 @@ const PaymentTransferForm = () => {
                       <Textarea
                         {...field}
                         placeholder="e.g. Payment for order"
-                        className="min-h-[100px] resize-none rounded-xl border-slate-200 bg-slate-50 text-slate-900 shadow-none placeholder:text-slate-400 focus:border-[#0F766E] focus:bg-white focus:ring-2 focus:ring-[#0F766E]/10"
+                        className="min-h-[100px] resize-none rounded-xl border-slate-200 bg-slate-50 text-slate-900 shadow-none placeholder:text-slate-400 focus:border-[#0F766E] focus:bg-white focus:ring-2 focus:ring-[#0F766E]/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-teal-500 dark:focus:bg-slate-800 dark:focus:ring-teal-500/10"
                       />
                     </FormControl>
 
@@ -280,18 +280,21 @@ const PaymentTransferForm = () => {
           </div>
 
           {/* Submit */}
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition-colors duration-200 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none sm:p-6">
             <div className="mb-4 flex items-center gap-3">
-              <ShieldCheck size={19} className="text-[#0F766E]" />
+              <ShieldCheck
+                size={19}
+                className="text-[#0F766E] dark:text-teal-400"
+              />
 
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Your transaction will require your 4-digit PIN.
               </p>
             </div>
 
             <Button
               type="submit"
-              className="h-12 w-full rounded-xl bg-[#0F766E] text-sm font-semibold text-white shadow-sm transition hover:bg-[#115E59]"
+              className="h-12 w-full rounded-xl bg-[#0F766E] text-sm font-semibold text-white shadow-sm transition hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
             >
               Review transfer
               <ArrowRight size={18} className="ml-2" />
@@ -302,39 +305,39 @@ const PaymentTransferForm = () => {
 
       {/* PIN MODAL */}
       {showPinModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 px-4 backdrop-blur-sm">
-          <div className="relative w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl sm:p-7">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 px-4 backdrop-blur-sm dark:bg-black/70">
+          <div className="relative w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-800 dark:bg-slate-900 sm:p-7">
             <button
               type="button"
               onClick={closePinModal}
               disabled={isLoading}
-              className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
+              className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50 dark:hover:bg-slate-800 dark:hover:text-slate-200"
               aria-label="Close"
             >
               <X size={19} />
             </button>
 
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-50 text-[#0F766E]">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-50 text-[#0F766E] dark:bg-teal-950/50 dark:text-teal-400">
               <LockKeyhole size={26} />
             </div>
 
             <div className="mt-5 text-center">
-              <h2 className="text-xl font-bold text-slate-900">
+              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                 Confirm transfer
               </h2>
 
-              <p className="mt-2 text-sm leading-6 text-slate-500">
+              <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
                 Enter your 4-digit transaction PIN to authorize this
                 transfer.
               </p>
             </div>
 
-            <div className="mt-6 rounded-2xl bg-slate-50 p-5 text-center">
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+            <div className="mt-6 rounded-2xl bg-slate-50 p-5 text-center dark:bg-slate-800">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
                 Transfer amount
               </p>
 
-              <p className="mt-2 text-2xl font-bold text-slate-900">
+              <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
                 ₦
                 {Number(form.getValues("amount") || 0).toLocaleString(
                   "en-NG",
@@ -345,9 +348,9 @@ const PaymentTransferForm = () => {
                 )}
               </p>
 
-              <p className="mt-2 text-xs text-slate-500">
+              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
                 Account ending in{" "}
-                <span className="font-semibold text-slate-700">
+                <span className="font-semibold text-slate-700 dark:text-slate-200">
                   {form.getValues("accountNumber").slice(-4)}
                 </span>
               </p>
@@ -356,7 +359,7 @@ const PaymentTransferForm = () => {
             <div className="mt-6">
               <label
                 htmlFor="transactionPin"
-                className="mb-2 block text-sm font-semibold text-slate-700"
+                className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-300"
               >
                 Transaction PIN
               </label>
@@ -369,12 +372,10 @@ const PaymentTransferForm = () => {
                 autoFocus
                 value={pin}
                 onChange={(event) =>
-                  setPin(
-                    event.target.value.replace(/\D/g, ""),
-                  )
+                  setPin(event.target.value.replace(/\D/g, ""))
                 }
                 placeholder="••••"
-                className="h-14 rounded-xl border-slate-200 bg-slate-50 text-center text-2xl tracking-[0.7em] text-slate-900 focus:border-[#0F766E] focus:bg-white focus:ring-2 focus:ring-[#0F766E]/10"
+                className="h-14 rounded-xl border-slate-200 bg-slate-50 text-center text-2xl tracking-[0.7em] text-slate-900 placeholder:text-slate-400 focus:border-[#0F766E] focus:bg-white focus:ring-2 focus:ring-[#0F766E]/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-teal-500 dark:focus:bg-slate-800 dark:focus:ring-teal-500/10"
               />
             </div>
 
@@ -384,7 +385,7 @@ const PaymentTransferForm = () => {
                 variant="outline"
                 onClick={closePinModal}
                 disabled={isLoading}
-                className="h-12 flex-1 rounded-xl border-slate-200 text-slate-600"
+                className="h-12 flex-1 rounded-xl border-slate-200 text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
               >
                 Cancel
               </Button>
@@ -393,7 +394,7 @@ const PaymentTransferForm = () => {
                 type="button"
                 onClick={confirmTransfer}
                 disabled={isLoading || pin.length !== 4}
-                className="h-12 flex-1 rounded-xl bg-[#0F766E] font-semibold text-white hover:bg-[#115E59] disabled:opacity-50"
+                className="h-12 flex-1 rounded-xl bg-[#0F766E] font-semibold text-white hover:bg-teal-800 disabled:opacity-50 dark:bg-teal-600 dark:hover:bg-teal-500"
               >
                 {isLoading ? (
                   <>

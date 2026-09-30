@@ -46,7 +46,9 @@ export default function ElectricityPage() {
 
   const handleVerify = async () => {
     if (!disco || !meterNumber) {
-      alert("Select your electricity provider and enter your meter number.");
+      alert(
+        "Select your electricity provider and enter your meter number."
+      );
       return;
     }
 
@@ -60,13 +62,12 @@ export default function ElectricityPage() {
         meterNumber,
       });
 
-      const name =
-        String(
-          result.name ||
-            result.customer_name ||
-            result.customerName ||
-            ""
-        );
+      const name = String(
+        result.name ||
+          result.customer_name ||
+          result.customerName ||
+          ""
+      );
 
       setCustomerName(name || "Meter verified");
       setVerified(true);
@@ -83,11 +84,13 @@ export default function ElectricityPage() {
 
   const canContinue =
     verified &&
+    Boolean(disco) &&
+    meterNumber.length > 0 &&
     Number(amount) >= 100 &&
-    meterNumber.length > 0;
+    Number.isFinite(Number(amount));
 
   const handlePayment = async () => {
-    if (!canContinue || pin.length !== 4) return;
+    if (!canContinue || pin.length !== 4 || processing) return;
 
     try {
       setProcessing(true);
@@ -101,6 +104,12 @@ export default function ElectricityPage() {
         amount: Number(amount),
         phone,
       });
+
+      if (!result?.success) {
+        throw new Error(
+          "Electricity payment could not be completed."
+        );
+      }
 
       if (result.status === "processing") {
         alert(
@@ -129,19 +138,19 @@ export default function ElectricityPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] px-4 py-6 text-slate-900">
+    <main className="min-h-screen bg-[#F8FAFC] px-4 py-6 text-slate-900 transition-colors dark:bg-slate-950 dark:text-white">
       <div className="mx-auto max-w-xl">
         <Link
           href="/dashboard"
-          className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-600"
+          className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-[#0F766E] dark:text-slate-400 dark:hover:text-teal-400"
         >
           <ArrowLeft size={18} />
           Back to Dashboard
         </Link>
 
-        <div className="rounded-3xl bg-white p-5 shadow-sm sm:p-7">
+        <div className="rounded-3xl border border-transparent bg-white p-5 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900 sm:p-7">
           <div className="mb-7">
-            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-50 text-[#0F766E] dark:bg-teal-950/50 dark:text-teal-400">
               <Zap size={24} />
             </div>
 
@@ -149,7 +158,7 @@ export default function ElectricityPage() {
               Electricity
             </h1>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               Pay your electricity bill securely.
             </p>
           </div>
@@ -166,7 +175,7 @@ export default function ElectricityPage() {
                 setVerified(false);
                 setCustomerName("");
               }}
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 outline-none"
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-slate-900 outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
             >
               <option value="">
                 Select provider
@@ -201,7 +210,7 @@ export default function ElectricityPage() {
                   setCustomerName("");
                 }}
                 placeholder="Enter meter number"
-                className="min-w-0 flex-1 rounded-2xl border border-slate-200 px-4 py-4 outline-none"
+                className="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
               />
 
               <button
@@ -212,7 +221,7 @@ export default function ElectricityPage() {
                   !disco ||
                   !meterNumber
                 }
-                className="rounded-2xl bg-slate-900 px-5 font-semibold text-white disabled:opacity-40"
+                className="rounded-2xl bg-slate-900 px-5 font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-slate-700 dark:hover:bg-slate-600"
               >
                 {verifying ? (
                   <Loader2
@@ -227,18 +236,18 @@ export default function ElectricityPage() {
           </div>
 
           {verified && (
-            <div className="mb-5 flex items-center gap-3 rounded-2xl bg-emerald-50 p-4">
+            <div className="mb-5 flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50 p-4 dark:border-emerald-900/60 dark:bg-emerald-950/40">
               <CheckCircle2
                 size={20}
-                className="text-emerald-600"
+                className="text-emerald-600 dark:text-emerald-400"
               />
 
               <div>
-                <p className="text-xs text-emerald-700">
+                <p className="text-xs text-emerald-700 dark:text-emerald-400">
                   Meter verified
                 </p>
 
-                <p className="font-semibold text-emerald-900">
+                <p className="font-semibold text-emerald-900 dark:text-emerald-300">
                   {customerName}
                 </p>
               </div>
@@ -256,10 +265,10 @@ export default function ElectricityPage() {
                   key={type}
                   type="button"
                   onClick={() => setMeterType(type)}
-                  className={`rounded-2xl border py-4 font-semibold ${
+                  className={`rounded-2xl border py-4 font-semibold transition ${
                     meterType === type
-                      ? "border-[#0F766E] bg-teal-50 text-[#0F766E]"
-                      : "border-slate-200"
+                      ? "border-[#0F766E] bg-teal-50 text-[#0F766E] ring-2 ring-[#0F766E]/20 dark:border-teal-500 dark:bg-teal-950/40 dark:text-teal-400 dark:ring-teal-500/20"
+                      : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                   }`}
                 >
                   {type}
@@ -281,14 +290,14 @@ export default function ElectricityPage() {
                 setAmount(e.target.value)
               }
               placeholder="Enter amount"
-              className="w-full rounded-2xl border border-slate-200 px-4 py-4 outline-none"
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
             />
           </div>
 
           <div className="mb-6">
             <label className="mb-2 block text-sm font-semibold">
               Phone number
-              <span className="ml-1 font-normal text-slate-400">
+              <span className="ml-1 font-normal text-slate-400 dark:text-slate-500">
                 (optional)
               </span>
             </label>
@@ -304,7 +313,7 @@ export default function ElectricityPage() {
                 )
               }
               placeholder="08012345678"
-              className="w-full rounded-2xl border border-slate-200 px-4 py-4 outline-none"
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
             />
           </div>
 
@@ -312,7 +321,7 @@ export default function ElectricityPage() {
             type="button"
             disabled={!canContinue || processing}
             onClick={() => setShowPin(true)}
-            className="w-full rounded-2xl bg-[#0F766E] py-4 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
+            className="w-full rounded-2xl bg-[#0F766E] py-4 font-semibold text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-teal-600 dark:hover:bg-teal-500"
           >
             Continue
           </button>
@@ -320,34 +329,42 @@ export default function ElectricityPage() {
       </div>
 
       {showPin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-3xl border border-transparent bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900">
             <h2 className="text-xl font-bold">
               Confirm Electricity Payment
             </h2>
 
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Enter your 4-digit transaction PIN.
             </p>
 
-            <div className="mt-5 rounded-2xl bg-slate-50 p-4 text-sm">
+            <div className="mt-5 rounded-2xl bg-slate-50 p-4 text-sm dark:bg-slate-800">
               <div className="flex justify-between">
-                <span>Provider</span>
+                <span className="text-slate-500 dark:text-slate-400">
+                  Provider
+                </span>
                 <strong>{disco}</strong>
               </div>
 
               <div className="mt-2 flex justify-between">
-                <span>Meter</span>
+                <span className="text-slate-500 dark:text-slate-400">
+                  Meter
+                </span>
                 <strong>{meterNumber}</strong>
               </div>
 
               <div className="mt-2 flex justify-between">
-                <span>Type</span>
+                <span className="text-slate-500 dark:text-slate-400">
+                  Type
+                </span>
                 <strong>{meterType}</strong>
               </div>
 
               <div className="mt-2 flex justify-between">
-                <span>Amount</span>
+                <span className="text-slate-500 dark:text-slate-400">
+                  Amount
+                </span>
                 <strong>
                   ₦{Number(amount).toLocaleString()}
                 </strong>
@@ -365,7 +382,7 @@ export default function ElectricityPage() {
                 )
               }
               placeholder="••••"
-              className="mt-5 w-full rounded-2xl border border-slate-200 px-4 py-4 text-center text-2xl tracking-[0.5em] outline-none"
+              className="mt-5 w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-center text-2xl tracking-[0.5em] text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/10 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
             />
 
             <div className="mt-5 flex gap-3">
@@ -373,7 +390,7 @@ export default function ElectricityPage() {
                 type="button"
                 disabled={processing}
                 onClick={() => setShowPin(false)}
-                className="flex-1 rounded-2xl bg-slate-100 py-3 font-semibold"
+                className="flex-1 rounded-2xl bg-slate-100 py-3 font-semibold text-slate-700 transition hover:bg-slate-200 disabled:opacity-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
               >
                 Cancel
               </button>
@@ -384,7 +401,7 @@ export default function ElectricityPage() {
                   processing || pin.length !== 4
                 }
                 onClick={handlePayment}
-                className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-[#0F766E] py-3 font-semibold text-white disabled:opacity-40"
+                className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-[#0F766E] py-3 font-semibold text-white transition hover:bg-teal-800 disabled:opacity-40 dark:bg-teal-600 dark:hover:bg-teal-500"
               >
                 {processing ? (
                   <>

@@ -124,7 +124,7 @@ export default function Sidebar() {
   return (
     <>
       {/* MOBILE HEADER */}
-      <header className="fixed left-0 right-0 top-0 z-40 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 lg:hidden">
+      <header className="fixed left-0 right-0 top-0 z-40 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 transition-colors dark:border-slate-800 dark:bg-slate-950 lg:hidden">
         <Link
           href="/dashboard"
           className="flex items-center gap-2"
@@ -133,7 +133,7 @@ export default function Sidebar() {
             <Wallet size={19} />
           </div>
 
-          <span className="text-lg font-bold tracking-tight text-slate-900">
+          <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
             Covenant
           </span>
         </Link>
@@ -141,7 +141,7 @@ export default function Sidebar() {
         <button
           type="button"
           onClick={() => setMobileOpen(true)}
-          className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-600 transition hover:bg-slate-100"
+          className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
           aria-label="Open navigation"
         >
           <Menu size={22} />
@@ -159,7 +159,7 @@ export default function Sidebar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={closeMobile}
-              className="fixed inset-0 z-40 bg-slate-950/30 lg:hidden"
+              className="fixed inset-0 z-40 bg-slate-950/30 dark:bg-black/60 lg:hidden"
             />
 
             <motion.aside
@@ -167,7 +167,7 @@ export default function Sidebar() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ duration: 0.25 }}
-              className="fixed left-0 top-0 z-50 h-screen w-[280px] bg-white shadow-2xl lg:hidden"
+              className="fixed left-0 top-0 z-50 h-screen w-[280px] bg-white shadow-2xl transition-colors dark:bg-slate-950 lg:hidden"
             >
               <SidebarContent
                 pathname={pathname}
@@ -234,7 +234,7 @@ function SidebarContent({
   };
 
   return (
-    <div className="flex h-full flex-col border-r border-slate-200 bg-white px-4 py-5">
+    <div className="flex h-full flex-col border-r border-slate-200 bg-white px-4 py-5 transition-colors dark:border-slate-800 dark:bg-slate-950">
       {/* BRAND */}
       <div className="mb-8 flex items-center justify-between">
         {isSidebarOpen ? (
@@ -248,11 +248,11 @@ function SidebarContent({
             </div>
 
             <div>
-              <p className="text-lg font-bold tracking-tight text-slate-900">
+              <p className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
                 Covenant
               </p>
 
-              <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
+              <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">
                 Digital Banking
               </p>
             </div>
@@ -268,24 +268,18 @@ function SidebarContent({
 
         <button
           type="button"
-          onClick={() =>
-            setIsSidebarOpen(!isSidebarOpen)
-          }
-          className="hidden h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 lg:flex"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="hidden h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200 lg:flex"
           aria-label="Toggle sidebar"
         >
-          {isSidebarOpen ? (
-            <X size={19} />
-          ) : (
-            <Menu size={19} />
-          )}
+          {isSidebarOpen ? <X size={19} /> : <Menu size={19} />}
         </button>
 
         {onClose && (
           <button
             type="button"
             onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 lg:hidden"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200 lg:hidden"
             aria-label="Close navigation"
           >
             <X size={20} />
@@ -296,7 +290,7 @@ function SidebarContent({
       {/* NAVIGATION */}
       <nav className="flex-1 overflow-y-auto">
         {isSidebarOpen && (
-          <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">
+          <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 dark:text-slate-500">
             Main menu
           </p>
         )}
@@ -314,8 +308,8 @@ function SidebarContent({
                 title={!isSidebarOpen ? item.name : undefined}
                 className={`flex h-11 items-center rounded-xl px-3 text-sm font-medium transition ${
                   active
-                    ? "bg-[#F0FDFA] text-[#0F766E]"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    ? "bg-teal-50 text-[#0F766E] dark:bg-teal-950/50 dark:text-teal-400"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
                 } ${
                   !isSidebarOpen ? "justify-center" : ""
                 }`}
@@ -324,8 +318,8 @@ function SidebarContent({
                   size={19}
                   className={
                     active
-                      ? "text-[#0F766E]"
-                      : "text-slate-400"
+                      ? "text-[#0F766E] dark:text-teal-400"
+                      : "text-slate-400 dark:text-slate-500"
                   }
                 />
 
@@ -342,7 +336,7 @@ function SidebarContent({
         {/* MORE */}
         <div className="mt-7">
           {isSidebarOpen && (
-            <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400">
+            <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 dark:text-slate-500">
               More
             </p>
           )}
@@ -351,13 +345,13 @@ function SidebarContent({
             type="button"
             onClick={() => setMoreOpen(!moreOpen)}
             title={!isSidebarOpen ? "More" : undefined}
-            className={`flex h-11 w-full items-center rounded-xl px-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 ${
+            className={`flex h-11 w-full items-center rounded-xl px-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white ${
               !isSidebarOpen ? "justify-center" : ""
             }`}
           >
             <MoreHorizontal
               size={19}
-              className="text-slate-400"
+              className="text-slate-400 dark:text-slate-500"
             />
 
             {isSidebarOpen && (
@@ -404,11 +398,18 @@ function SidebarContent({
                       onClick={onClose}
                       className={`flex h-10 items-center rounded-lg px-3 pl-11 text-sm transition ${
                         active
-                          ? "bg-[#F0FDFA] font-medium text-[#0F766E]"
-                          : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                          ? "bg-teal-50 font-medium text-[#0F766E] dark:bg-teal-950/50 dark:text-teal-400"
+                          : "text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
                       }`}
                     >
-                      <Icon size={17} />
+                      <Icon
+                        size={17}
+                        className={
+                          active
+                            ? "text-[#0F766E] dark:text-teal-400"
+                            : "text-slate-400 dark:text-slate-500"
+                        }
+                      />
 
                       <span className="ml-3">
                         {item.name}
@@ -427,7 +428,7 @@ function SidebarContent({
         type="button"
         onClick={handleLogout}
         disabled={isLoggingOut}
-        className={`mt-4 flex h-11 items-center rounded-xl px-3 text-sm font-medium text-slate-500 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`mt-4 flex h-11 items-center rounded-xl px-3 text-sm font-medium text-slate-500 transition hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-950/30 dark:hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-50 ${
           !isSidebarOpen ? "justify-center" : ""
         }`}
       >

@@ -242,7 +242,7 @@ const newUser = await database.createDocument(
 
 
 
-export const createBankAccount = async ({
+const createBankAccount = async ({
   userId,
   bankCode,
   bankName,
@@ -371,23 +371,7 @@ export const getBank = async ({ documentId }: getBankProps) => {
   }
 }
 
-export const getBankByAccountId = async ({ accountId }: getBankByAccountIdProps) => {
-  try {
-    const { database } = await createAdminClient();
 
-    const bank = await database.listDocuments(
-      DATABASE_ID!,
-      BANK_COLLECTION_ID!,
-      [Query.equal('accountId', [accountId])]
-    )
-
-    if(bank.total !== 1) return null;
-
-    return parseStringify(bank.documents[0]);
-  } catch (error) {
-    console.log(error)
-  }
-}
 export const getLoggedInUser = async () => {
   try {
     const sessionClient = await createSessionClient();
@@ -735,10 +719,10 @@ export const setTransactionPin = async (pin: string) => {
   const users = await database.listDocuments(
     DATABASE_ID,
     USER_COLLECTION_ID,
-    [Query.equal("userId", currentUser.$id)],
+    [Query.equal("userId", [currentUser.$id])]
   );
 
-  if (users.documents.length === 0) {
+  if (users.total !== 1) {
     throw new Error("Your profile was not found.");
   }
 
@@ -750,18 +734,36 @@ export const setTransactionPin = async (pin: string) => {
     .scryptSync(pin, salt, 64)
     .toString("hex");
 
-  await database.updateDocument(
+  const transactionPinHash = `${salt}:${hash}`;
+
+  const updatedUser = await database.updateDocument(
     DATABASE_ID,
     USER_COLLECTION_ID,
     user.$id,
     {
-      transactionPinHash: `${salt}:${hash}`,
+      transactionPinHash,
       transactionPinSet: true,
-    },
+    }
   );
+
+  console.log("=== TRANSACTION PIN SAVED ===");
+  console.log("USER:", currentUser.$id);
+  console.log("PIN SET:", updatedUser.transactionPinSet);
+  console.log(
+    "PIN HASH EXISTS:",
+    !!updatedUser.transactionPinHash
+  );
+
+  if (
+    updatedUser.transactionPinSet !== true ||
+    !updatedUser.transactionPinHash
+  ) {
+    throw new Error("Transaction PIN could not be activated.");
+  }
 
   return {
     success: true,
+    transactionPinSet: true,
   };
 };
 
@@ -825,12 +827,13 @@ if (!user.transactionPinSet || !user.transactionPinHash) {
       Buffer.from(hash, "hex"),
     );
 
-  if (!isValid) {
-    throw new Error("Incorrect transaction PIN.");
-  }
+ if (!isValid) {
+  throw new Error("Incorrect transaction PIN.");
+}
 
-  return {
-    success: true,
-  };
+return {
+  success: true,
+  transactionPinSet: true,
+};
 };
 

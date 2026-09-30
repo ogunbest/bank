@@ -34,20 +34,20 @@ const RecentTransactions = ({
   );
 
   return (
-    <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+    <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-colors duration-200 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
       {/* Header */}
-      <header className="flex flex-col gap-3 border-b border-slate-100 px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+      <header className="flex flex-col gap-3 border-b border-slate-100 px-5 py-5 transition-colors dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-[#0F766E]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 text-[#0F766E] dark:bg-teal-950/50 dark:text-teal-400">
             <ReceiptText size={19} />
           </div>
 
           <div>
-            <h2 className="text-base font-bold text-slate-900 sm:text-lg">
+            <h2 className="text-base font-bold text-slate-900 dark:text-white sm:text-lg">
               Recent transactions
             </h2>
 
-            <p className="mt-0.5 text-xs text-slate-500 sm:text-sm">
+            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400 sm:text-sm">
               Review activity across your accounts.
             </p>
           </div>
@@ -55,7 +55,7 @@ const RecentTransactions = ({
 
         <Link
           href={`/dashboard/transactions?id=${appwriteItemId}`}
-          className="inline-flex w-fit items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-[#0F766E] transition hover:bg-teal-50"
+          className="inline-flex w-fit items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-[#0F766E] transition hover:bg-teal-50 dark:text-teal-400 dark:hover:bg-teal-950/40"
         >
           View all
           <ArrowRight size={16} />
@@ -65,12 +65,12 @@ const RecentTransactions = ({
       <div className="p-4 sm:p-6">
         <Tabs defaultValue={appwriteItemId} className="w-full">
           {/* Account tabs */}
-          <TabsList className="mb-5 flex h-auto w-full gap-2 overflow-x-auto rounded-2xl bg-slate-50 p-1.5">
+          <TabsList className="mb-5 flex h-auto w-full gap-2 overflow-x-auto rounded-2xl bg-slate-50 p-1.5 dark:bg-slate-800">
             {accounts.map((account: Account) => (
               <TabsTrigger
                 key={account.id}
                 value={account.appwriteItemId}
-                className="shrink-0 rounded-xl px-3 py-2 data-[state=active]:bg-white data-[state=active]:text-[#0F766E] data-[state=active]:shadow-sm"
+                className="shrink-0 rounded-xl px-3 py-2 text-slate-600 transition-colors dark:text-slate-300 data-[state=active]:bg-white data-[state=active]:text-[#0F766E] data-[state=active]:shadow-sm dark:data-[state=active]:bg-slate-900 dark:data-[state=active]:text-teal-400"
               >
                 <BankTabItem
                   account={account}
@@ -99,16 +99,16 @@ const RecentTransactions = ({
                   transactions={currentTransactions}
                 />
               ) : (
-                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-12 text-center">
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-white text-slate-400 shadow-sm">
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-6 py-12 text-center dark:border-slate-700 dark:bg-slate-800/50">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-white text-slate-400 shadow-sm dark:bg-slate-800 dark:text-slate-500">
                     <ReceiptText size={21} />
                   </div>
 
-                  <h3 className="mt-4 text-sm font-semibold text-slate-700">
+                  <h3 className="mt-4 text-sm font-semibold text-slate-700 dark:text-slate-200">
                     No transactions yet
                   </h3>
 
-                  <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 sm:text-sm">
                     Transactions for this account will appear here.
                   </p>
                 </div>

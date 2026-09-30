@@ -97,11 +97,22 @@ export async function transferMoney({
 
   const recipient = recipientResult.documents[0];
 
-  if (recipient.userId === currentUser.$id) {
-    throw new Error(
-      "You cannot transfer money to yourself."
-    );
-  }
+console.log("=== TRANSFER DEBUG ===");
+console.log("CURRENT USER:", currentUser.$id);
+console.log("RECIPIENT BANK USER:", recipientBank.userId);
+console.log("RECIPIENT PROFILE USER:", recipient.userId);
+console.log("RECIPIENT ACCOUNT:", cleanAccountNumber);
+console.log(
+  "RECIPIENT NAME:",
+  recipient.firstName,
+  recipient.lastName
+);
+
+if (recipient.userId === currentUser.$id) {
+  throw new Error(
+    "You cannot transfer money to yourself."
+  );
+}
 
   const senderBalance = Number(
     sender.balance ?? 0

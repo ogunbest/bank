@@ -80,18 +80,18 @@ const AuthForm = ({ type }: { type: string }) => {
           <span className="text-xl font-bold text-white">C</span>
         </div>
 
-        <span className="text-2xl font-bold tracking-tight text-[#0F172A]">
+        <span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
           Covenant
         </span>
       </Link>
 
       {/* Heading */}
       <div className="mb-8">
-        <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-teal-50 text-[#0F766E]">
+        <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-teal-50 text-[#0F766E] dark:bg-teal-950/50 dark:text-teal-400">
           <ShieldCheck size={22} />
         </div>
 
-        <h1 className="text-3xl font-bold tracking-tight text-[#0F172A]">
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
           {user
             ? "Account created"
             : isSignIn
@@ -99,7 +99,7 @@ const AuthForm = ({ type }: { type: string }) => {
               : "Create your account"}
         </h1>
 
-        <p className="mt-2 text-sm leading-6 text-slate-500">
+        <p className="mt-2 text-sm leading-6 text-slate-500 dark:text-slate-400">
           {user
             ? "Your account has been created successfully."
             : isSignIn
@@ -109,12 +109,12 @@ const AuthForm = ({ type }: { type: string }) => {
       </div>
 
       {user ? (
-        <div className="rounded-2xl border border-teal-100 bg-teal-50 p-5">
-          <p className="font-semibold text-[#0F766E]">
+        <div className="rounded-2xl border border-teal-100 bg-teal-50 p-5 dark:border-teal-900/60 dark:bg-teal-950/40">
+          <p className="font-semibold text-[#0F766E] dark:text-teal-400">
             Account created successfully.
           </p>
 
-          <p className="mt-1 text-sm text-slate-600">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
             You can now continue to your banking account.
           </p>
         </div>
@@ -196,7 +196,7 @@ const AuthForm = ({ type }: { type: string }) => {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="h-12 w-full rounded-xl bg-[#0F766E] text-sm font-semibold text-white shadow-sm transition hover:bg-[#115E59]"
+                className="h-12 w-full rounded-xl bg-[#0F766E] text-sm font-semibold text-white shadow-sm transition hover:bg-teal-800 dark:bg-teal-600 dark:hover:bg-teal-500"
               >
                 {isLoading ? (
                   <>
@@ -217,7 +217,7 @@ const AuthForm = ({ type }: { type: string }) => {
 
           {/* Switch auth */}
           <div className="mt-7 flex justify-center gap-1 text-sm">
-            <p className="text-slate-500">
+            <p className="text-slate-500 dark:text-slate-400">
               {isSignIn
                 ? "Don't have an account?"
                 : "Already have an account?"}
@@ -225,14 +225,14 @@ const AuthForm = ({ type }: { type: string }) => {
 
             <Link
               href={isSignIn ? "/sign-up" : "/sign-in"}
-              className="font-semibold text-[#0F766E] hover:text-[#115E59]"
+              className="font-semibold text-[#0F766E] transition hover:text-teal-800 dark:text-teal-400 dark:hover:text-teal-300"
             >
               {isSignIn ? "Sign up" : "Sign in"}
             </Link>
           </div>
 
           {/* Security note */}
-          <div className="mt-8 flex items-center justify-center gap-2 text-xs text-slate-400">
+          <div className="mt-8 flex items-center justify-center gap-2 text-xs text-slate-400 dark:text-slate-500">
             <ShieldCheck size={15} />
             <span>Your information is securely protected.</span>
           </div>

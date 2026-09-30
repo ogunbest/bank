@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Clock3, XCircle } from "lucide-react";
 import { redirect } from "next/navigation";
@@ -33,24 +34,24 @@ export default async function TransactionDetailsPage({
 
   if (!transaction) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+      <div className="min-h-screen bg-[#F8FAFC] px-4 py-6 text-slate-900 transition-colors dark:bg-slate-950 dark:text-white sm:px-6 lg:px-8 lg:py-8">
         <div className="mx-auto max-w-4xl">
-          <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-red-500">
+          <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-red-500 dark:bg-red-950/40 dark:text-red-400">
               <XCircle size={28} />
             </div>
 
-            <h1 className="mt-5 text-2xl font-bold text-slate-900">
+            <h1 className="mt-5 text-2xl font-bold text-slate-900 dark:text-white">
               Transaction not found
             </h1>
 
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               This transaction could not be found.
             </p>
 
             <Link
               href="/admin/transactions"
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#0F766E] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#115E59]"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#0F766E] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#115E59] dark:bg-teal-600 dark:hover:bg-teal-500"
             >
               <ArrowLeft size={16} />
               Back to Transactions
@@ -78,34 +79,35 @@ export default async function TransactionDetailsPage({
 
   const statusClass =
     status === "success" || status === "successful"
-      ? "border-emerald-100 bg-emerald-50 text-emerald-600"
+      ? "border-emerald-100 bg-emerald-50 text-emerald-600 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-400"
       : status === "pending"
-        ? "border-amber-100 bg-amber-50 text-amber-600"
-        : "border-red-100 bg-red-50 text-red-500";
+        ? "border-amber-100 bg-amber-50 text-amber-600 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-400"
+        : "border-red-100 bg-red-50 text-red-500 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-400";
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 transition-colors dark:bg-slate-950 dark:text-white">
       <div className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-        {/* Header */}
+
+        {/* HEADER */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <Link
               href="/admin/transactions"
-              className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-[#0F766E] transition hover:text-[#115E59]"
+              className="mb-4 inline-flex items-center gap-2 text-sm font-semibold text-[#0F766E] transition hover:text-[#115E59] dark:text-teal-400 dark:hover:text-teal-300"
             >
               <ArrowLeft size={16} />
               Back to Transactions
             </Link>
 
-            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[#0F766E]">
+            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[#0F766E] dark:text-teal-400">
               Administration
             </p>
 
-            <h1 className="mt-2 text-2xl font-bold text-slate-900 sm:text-3xl">
+            <h1 className="mt-2 text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
               Transaction Details
             </h1>
 
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Complete information about this transaction.
             </p>
           </div>
@@ -114,13 +116,14 @@ export default async function TransactionDetailsPage({
             className={`inline-flex w-fit items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold ${statusClass}`}
           >
             <StatusIcon size={15} />
+
             <span className="capitalize">
               {transaction.status || "Unknown"}
             </span>
           </div>
         </div>
 
-        {/* Summary */}
+        {/* SUMMARY */}
         <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <SummaryCard
             label="Amount"
@@ -146,7 +149,7 @@ export default async function TransactionDetailsPage({
           />
         </div>
 
-        {/* Sender */}
+        {/* SENDER */}
         <DetailSection title="Sender">
           <DetailItem
             label="Name"
@@ -172,7 +175,7 @@ export default async function TransactionDetailsPage({
           />
         </DetailSection>
 
-        {/* Receiver */}
+        {/* RECEIVER */}
         <DetailSection title="Receiver">
           <DetailItem
             label="Name"
@@ -209,7 +212,7 @@ export default async function TransactionDetailsPage({
           />
         </DetailSection>
 
-        {/* Payment Details */}
+        {/* PAYMENT DETAILS */}
         <DetailSection title="Payment Details">
           <DetailItem
             label="Transaction ID"
@@ -268,14 +271,16 @@ function SummaryCard({
   capitalize?: boolean;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
+      <p className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
         {label}
       </p>
 
       <p
         className={`mt-2 text-xl font-bold ${
-          highlight ? "text-[#0F766E]" : "text-slate-900"
+          highlight
+            ? "text-[#0F766E] dark:text-teal-400"
+            : "text-slate-900 dark:text-white"
         } ${capitalize ? "capitalize" : ""}`}
       >
         {value}
@@ -292,9 +297,9 @@ function DetailSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-      <div className="border-b border-slate-100 px-5 py-4 sm:px-6">
-        <h2 className="text-base font-bold text-slate-900 sm:text-lg">
+    <section className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
+      <div className="border-b border-slate-100 px-5 py-4 dark:border-slate-800 sm:px-6">
+        <h2 className="text-base font-bold text-slate-900 dark:text-white sm:text-lg">
           {title}
         </h2>
       </div>
@@ -319,12 +324,12 @@ function DetailItem({
 }) {
   return (
     <div>
-      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+      <p className="text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
         {label}
       </p>
 
       <p
-        className={`mt-1.5 text-sm font-medium text-slate-800 ${
+        className={`mt-1.5 text-sm font-medium text-slate-800 dark:text-slate-200 ${
           breakAll ? "break-all" : ""
         } ${capitalize ? "capitalize" : ""}`}
       >
@@ -333,3 +338,4 @@ function DetailItem({
     </div>
   );
 }
+

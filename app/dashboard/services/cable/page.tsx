@@ -92,41 +92,50 @@ export default function CablePage() {
     loadPlans();
   }, [provider]);
 
-  const handleVerify = async () => {
-    if (!provider || !smartCard) {
-      alert("Select a provider and enter your smart card number.");
-      return;
+ const handleVerify = async () => {
+  if (!provider || !smartCard) {
+    alert("Select a provider and enter your smart card number.");
+    return;
+  }
+
+  try {
+    setVerifying(true);
+    setVerified(false);
+    setCustomerName("");
+
+    const selectedProvider = providers.find(
+      (item) => item.name === provider
+    );
+
+    if (!selectedProvider) {
+      throw new Error("Invalid cable provider.");
     }
 
-    try {
-      setVerifying(true);
-      setVerified(false);
-      setCustomerName("");
+    const result = await verifyCable({
+      cableName: selectedProvider.code,
+      smartCardNumber: smartCard,
+    });
 
-      const result = await verifyCable({
-        cableName: provider,
-        smartCardNumber: smartCard,
-      });
+    const name = String(
+      result.name ||
+        result.Customer_Name ||
+        result.customer_name ||
+        result.customerName ||
+        ""
+    );
 
-      const name = String(
-        result.name ||
-          result.Customer_Name ||
-          result.customer_name ||
-          ""
-      );
-
-      setCustomerName(name || "Customer verified");
-      setVerified(true);
-    } catch (error) {
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Unable to verify account."
-      );
-    } finally {
-      setVerifying(false);
-    }
-  };
+    setCustomerName(name || "Customer verified");
+    setVerified(true);
+  } catch (error) {
+    alert(
+      error instanceof Error
+        ? error.message
+        : "Unable to verify account."
+    );
+  } finally {
+    setVerifying(false);
+  }
+};
 
   const canContinue =
     verified &&
@@ -134,54 +143,63 @@ export default function CablePage() {
     Number(amount) > 0;
 
   const handlePurchase = async () => {
-    if (!canContinue || pin.length !== 4) return;
+  if (!canContinue || pin.length !== 4 || processing) return;
 
-    try {
-      setProcessing(true);
+  try {
+    setProcessing(true);
 
-      await verifyTransactionPin(pin);
+    await verifyTransactionPin(pin);
 
-      const selectedProvider = providers.find(
-        (item) => item.name === provider
-      );
+    const selectedProvider = providers.find(
+      (item) => item.name === provider
+    );
 
-      if (!selectedProvider) {
-        throw new Error("Please select a cable provider.");
-      }
-
-      const result = await buyCable({
-        cableName: selectedProvider.code,
-        smartCardNumber: smartCard,
-        cablePlan: plan,
-        amount: Number(amount),
-      });
-
-      if (result.status === "processing") {
-        alert(
-          "Your cable subscription is being processed. Check Transactions for the status."
-        );
-      } else {
-        alert("Cable subscription successful.");
-      }
-
-      setSmartCard("");
-      setCustomerName("");
-      setVerified(false);
-      setPlan("");
-      setAmount("");
-      setPin("");
-      setShowPin(false);
-    } catch (error) {
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Cable subscription failed."
-      );
-    } finally {
-      setProcessing(false);
+    if (!selectedProvider) {
+      throw new Error("Please select a cable provider.");
     }
-  };
 
+    const result = await buyCable({
+      cableName: selectedProvider.code,
+      smartCardNumber: smartCard,
+      cablePlan: plan,
+      amount: Number(amount),
+    });
+
+    if (!result?.success) {
+      throw new Error(
+        String(
+          result?.response?.api_response ||
+            result?.response?.message ||
+            "Cable subscription failed."
+        )
+      );
+    }
+
+    if (result.status === "processing") {
+      alert(
+        "Your cable subscription is being processed. Check Transactions for the status."
+      );
+    } else {
+      alert("Cable subscription successful.");
+    }
+
+    setSmartCard("");
+    setCustomerName("");
+    setVerified(false);
+    setPlan("");
+    setAmount("");
+    setPin("");
+    setShowPin(false);
+  } catch (error) {
+    alert(
+      error instanceof Error
+        ? error.message
+        : "Cable subscription failed."
+    );
+  } finally {
+    setProcessing(false);
+  }
+};
   const isShowmax = provider === "SHOWMAX";
 
   return (
@@ -221,11 +239,14 @@ export default function CablePage() {
                   key={item.code}
                   type="button"
                   onClick={() => {
-                    setProvider(item.name);
-                    setVerified(false);
-                    setCustomerName("");
-                    setSmartCard("");
-                  }}
+  setProvider(item.name);
+  setVerified(false);
+  setCustomerName("");
+  setSmartCard("");
+  setPlans([]);
+  setPlan("");
+  setAmount("");
+}}
                   className={`rounded-2xl border p-4 font-semibold transition ${
                     provider === item.name
                       ? "border-[#0F766E] bg-teal-50 text-[#0F766E] ring-2 ring-[#0F766E]/20"

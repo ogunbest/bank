@@ -65,14 +65,14 @@ export default function DataPinPage() {
           : [];
 
         const selectedNetwork = networks.find(
-          (item) => item.name === network
+          (item) => item.name === network,
         );
 
         const filtered = allPlans.filter(
           (item) =>
             item.status?.toLowerCase() === "on" &&
             item.the_network_name?.toUpperCase() ===
-              selectedNetwork?.name.toUpperCase()
+              selectedNetwork?.name.toUpperCase(),
         );
 
         setPlans(filtered);
@@ -87,15 +87,20 @@ export default function DataPinPage() {
     loadPlans();
   }, [network]);
 
+  const totalAmount =
+    Number(amount) * Number(quantity);
+
   const canContinue =
     Boolean(network) &&
     Boolean(plan) &&
-    Number(quantity) > 0 &&
+    Number(quantity) >= 1 &&
+    Number(quantity) <= 100 &&
     Boolean(businessName.trim()) &&
-    Number(amount) > 0;
+    Number(amount) > 0 &&
+    Number.isFinite(totalAmount);
 
   const handlePurchase = async () => {
-    if (!canContinue || pin.length !== 4) return;
+    if (!canContinue || pin.length !== 4 || processing) return;
 
     try {
       setProcessing(true);
@@ -103,7 +108,7 @@ export default function DataPinPage() {
       await verifyTransactionPin(pin);
 
       const selectedNetwork = networks.find(
-        (item) => item.name === network
+        (item) => item.name === network,
       );
 
       if (!selectedNetwork) {
@@ -115,12 +120,22 @@ export default function DataPinPage() {
         quantity: Number(quantity),
         dataPlan: plan,
         businessName: businessName.trim(),
-        amount: Number(amount),
+        amount: totalAmount,
       });
+
+      if (!result?.success) {
+        throw new Error(
+          String(
+            result?.response?.api_response ||
+              result?.response?.message ||
+              "Data PIN purchase failed.",
+          ),
+        );
+      }
 
       if (result.status === "processing") {
         alert(
-          "Your Data PIN purchase is being processed. Check Transactions for the status."
+          "Your Data PIN purchase is being processed. Check Transactions for the status.",
         );
       } else {
         alert("Data PIN purchased successfully.");
@@ -138,7 +153,7 @@ export default function DataPinPage() {
       alert(
         error instanceof Error
           ? error.message
-          : "Data PIN purchase failed."
+          : "Data PIN purchase failed.",
       );
     } finally {
       setProcessing(false);
@@ -146,33 +161,37 @@ export default function DataPinPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] px-4 py-6 text-slate-900">
+    <main className="min-h-screen bg-[#F8FAFC] px-4 py-6 text-slate-900 transition-colors dark:bg-slate-950 dark:text-white">
       <div className="mx-auto max-w-xl">
+        {/* BACK */}
         <Link
           href="/dashboard"
-          className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-600"
+          className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-[#0F766E] dark:text-slate-400 dark:hover:text-teal-400"
         >
           <ArrowLeft size={18} />
           Back to Dashboard
         </Link>
 
-        <div className="rounded-3xl bg-white p-5 shadow-sm sm:p-7">
+        {/* MAIN CARD */}
+        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-7">
+          {/* HEADER */}
           <div className="mb-7">
-            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-50 text-teal-600">
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-50 text-[#0F766E] dark:bg-teal-950/50 dark:text-teal-400">
               <Wifi size={24} />
             </div>
 
-            <h1 className="text-2xl font-bold">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
               Data PIN
             </h1>
 
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               Purchase data PINs for your business.
             </p>
           </div>
 
+          {/* NETWORK */}
           <div className="mb-5">
-            <label className="mb-2 block text-sm font-semibold">
+            <label className="mb-3 block text-sm font-semibold text-slate-900 dark:text-white">
               Network
             </label>
 
@@ -181,11 +200,15 @@ export default function DataPinPage() {
                 <button
                   key={item.code}
                   type="button"
-                  onClick={() => setNetwork(item.name)}
-                  className={`rounded-2xl border p-4 font-semibold ${
+                  onClick={() => {
+                    setNetwork(item.name);
+                    setPlan("");
+                    setAmount("");
+                  }}
+                  className={`rounded-2xl border p-4 font-semibold transition ${
                     network === item.name
-                      ? "border-[#0F766E] bg-teal-50 text-[#0F766E]"
-                      : "border-slate-200"
+                      ? "border-[#0F766E] bg-teal-50 text-[#0F766E] ring-2 ring-[#0F766E]/20 dark:border-teal-500 dark:bg-teal-950/40 dark:text-teal-400 dark:ring-teal-500/20"
+                      : "border-slate-200 bg-white text-slate-700 hover:border-teal-200 hover:bg-teal-50/40 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-teal-800 dark:hover:bg-teal-950/30"
                   }`}
                 >
                   {item.name}
@@ -194,8 +217,9 @@ export default function DataPinPage() {
             </div>
           </div>
 
+          {/* DATA PLAN */}
           <div className="mb-5">
-            <label className="mb-2 block text-sm font-semibold">
+            <label className="mb-2 block text-sm font-semibold text-slate-900 dark:text-white">
               Data plan
             </label>
 
@@ -206,26 +230,26 @@ export default function DataPinPage() {
                 const selected = plans.find(
                   (item) =>
                     String(item.data_plan_id) ===
-                    e.target.value
+                    e.target.value,
                 );
 
                 setPlan(e.target.value);
                 setAmount(
                   selected
                     ? selected.price_for_basicuser
-                    : ""
+                    : "",
                 );
               }}
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 outline-none disabled:bg-slate-50"
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-slate-900 outline-none transition focus:border-teal-500 disabled:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:disabled:bg-slate-800/60"
             >
               <option value="">
                 {!network
                   ? "Select network first"
                   : loadingPlans
-                  ? "Loading plans..."
-                  : plans.length === 0
-                  ? "No plans available"
-                  : "Select data plan"}
+                    ? "Loading plans..."
+                    : plans.length === 0
+                      ? "No plans available"
+                      : "Select data plan"}
               </option>
 
               {plans.map((item) => (
@@ -235,15 +259,16 @@ export default function DataPinPage() {
                 >
                   {item.size} — ₦
                   {Number(
-                    item.price_for_basicuser
+                    item.price_for_basicuser,
                   ).toLocaleString()}
                 </option>
               ))}
             </select>
           </div>
 
+          {/* QUANTITY */}
           <div className="mb-5">
-            <label className="mb-2 block text-sm font-semibold">
+            <label className="mb-2 block text-sm font-semibold text-slate-900 dark:text-white">
               Quantity
             </label>
 
@@ -255,12 +280,17 @@ export default function DataPinPage() {
               onChange={(e) =>
                 setQuantity(e.target.value)
               }
-              className="w-full rounded-2xl border border-slate-200 px-4 py-4 outline-none"
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
             />
+
+            <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
+              You can purchase up to 100 PINs per transaction.
+            </p>
           </div>
 
+          {/* BUSINESS NAME */}
           <div className="mb-5">
-            <label className="mb-2 block text-sm font-semibold">
+            <label className="mb-2 block text-sm font-semibold text-slate-900 dark:text-white">
               Business name
             </label>
 
@@ -271,21 +301,22 @@ export default function DataPinPage() {
                 setBusinessName(e.target.value)
               }
               placeholder="Enter business name"
-              className="w-full rounded-2xl border border-slate-200 px-4 py-4 outline-none"
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-teal-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500"
             />
           </div>
 
+          {/* PRICE */}
           {amount && (
-            <div className="mb-6 rounded-2xl bg-teal-50 p-4">
-              <p className="text-xs text-teal-700">
+            <div className="mb-6 rounded-2xl border border-teal-100 bg-teal-50 p-4 dark:border-teal-900/60 dark:bg-teal-950/40">
+              <p className="text-xs text-teal-700 dark:text-teal-400">
                 Price per PIN
               </p>
 
-              <p className="mt-1 text-2xl font-bold text-teal-800">
+              <p className="mt-1 text-2xl font-bold text-teal-800 dark:text-teal-300">
                 ₦{Number(amount).toLocaleString()}
               </p>
 
-              <p className="mt-1 text-xs text-teal-700">
+              <p className="mt-1 text-xs text-teal-700 dark:text-teal-400">
                 Total: ₦
                 {(
                   Number(amount) *
@@ -295,42 +326,58 @@ export default function DataPinPage() {
             </div>
           )}
 
+          {/* CONTINUE */}
           <button
             type="button"
             disabled={!canContinue}
             onClick={() => setShowPin(true)}
-            className="w-full rounded-2xl bg-[#0F766E] py-4 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
+            className="w-full rounded-2xl bg-[#0F766E] py-4 font-semibold text-white transition hover:bg-[#115E59] disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-teal-600"
           >
             Continue
           </button>
         </div>
       </div>
 
+      {/* PIN MODAL */}
       {showPin && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-6">
-            <h2 className="text-xl font-bold">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-3xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white">
               Confirm Data PIN
             </h2>
 
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
               Enter your 4-digit transaction PIN.
             </p>
 
-            <div className="mt-5 rounded-2xl bg-slate-50 p-4 text-sm">
+            {/* SUMMARY */}
+            <div className="mt-5 rounded-2xl bg-slate-50 p-4 text-sm dark:bg-slate-800">
               <div className="flex justify-between">
-                <span>Network</span>
-                <strong>{network}</strong>
+                <span className="text-slate-500 dark:text-slate-400">
+                  Network
+                </span>
+
+                <strong className="text-slate-900 dark:text-white">
+                  {network}
+                </strong>
               </div>
 
               <div className="mt-2 flex justify-between">
-                <span>Quantity</span>
-                <strong>{quantity}</strong>
+                <span className="text-slate-500 dark:text-slate-400">
+                  Quantity
+                </span>
+
+                <strong className="text-slate-900 dark:text-white">
+                  {quantity}
+                </strong>
               </div>
 
               <div className="mt-2 flex justify-between">
-                <span>Total</span>
-                <strong>
+                <span className="text-slate-500 dark:text-slate-400">
+                  Total
+                </span>
+
+                <strong className="text-slate-900 dark:text-white">
                   ₦
                   {(
                     Number(amount) *
@@ -340,6 +387,7 @@ export default function DataPinPage() {
               </div>
             </div>
 
+            {/* PIN */}
             <input
               type="password"
               inputMode="numeric"
@@ -347,19 +395,20 @@ export default function DataPinPage() {
               value={pin}
               onChange={(e) =>
                 setPin(
-                  e.target.value.replace(/\D/g, "")
+                  e.target.value.replace(/\D/g, ""),
                 )
               }
               placeholder="••••"
-              className="mt-5 w-full rounded-2xl border border-slate-200 px-4 py-4 text-center text-2xl tracking-[0.5em] outline-none"
+              className="mt-5 w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-center text-2xl tracking-[0.5em] text-slate-900 outline-none transition placeholder:text-slate-300 focus:border-teal-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-600"
             />
 
+            {/* ACTIONS */}
             <div className="mt-5 flex gap-3">
               <button
                 type="button"
                 disabled={processing}
                 onClick={() => setShowPin(false)}
-                className="flex-1 rounded-2xl bg-slate-100 py-3 font-semibold"
+                className="flex-1 rounded-2xl bg-slate-100 py-3 font-semibold text-slate-700 transition hover:bg-slate-200 disabled:opacity-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
               >
                 Cancel
               </button>
@@ -370,7 +419,7 @@ export default function DataPinPage() {
                   processing || pin.length !== 4
                 }
                 onClick={handlePurchase}
-                className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-[#0F766E] py-3 font-semibold text-white disabled:opacity-40"
+                className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-[#0F766E] py-3 font-semibold text-white transition hover:bg-[#115E59] disabled:opacity-40 dark:hover:bg-teal-600"
               >
                 {processing ? (
                   <>

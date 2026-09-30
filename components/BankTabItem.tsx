@@ -32,13 +32,14 @@ export const BankTabItem = ({
       className={cn(
         "relative min-w-[130px] px-1 pb-3 text-left transition",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0F766E]",
-        "focus-visible:ring-offset-2",
+        "focus-visible:ring-offset-2 focus-visible:ring-offset-white",
+        "dark:focus-visible:ring-teal-500 dark:focus-visible:ring-offset-slate-950",
       )}
     >
       <p
         className={cn(
-          "truncate text-sm font-medium text-slate-500 transition",
-          isActive && "font-semibold text-[#0F766E]",
+          "truncate text-sm font-medium text-slate-500 transition dark:text-slate-400",
+          isActive && "font-semibold text-[#0F766E] dark:text-teal-400",
         )}
       >
         {account.name}
@@ -48,7 +49,7 @@ export const BankTabItem = ({
       <span
         className={cn(
           "absolute bottom-0 left-0 h-0.5 w-full rounded-full bg-transparent transition",
-          isActive && "bg-[#0F766E]",
+          isActive && "bg-[#0F766E] dark:bg-teal-500",
         )}
       />
     </button>

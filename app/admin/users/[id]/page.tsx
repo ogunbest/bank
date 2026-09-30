@@ -89,13 +89,13 @@ export default async function AdminUserDetailsPage({
       .join(" ") || "Unknown User";
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 transition-colors dark:bg-slate-950 dark:text-white">
       <div className="mx-auto w-full max-w-[1500px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
         {/* Header */}
         <div className="mb-7">
           <Link
             href="/admin/users"
-            className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-[#0F766E] transition hover:text-[#115E59]"
+            className="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-[#0F766E] transition hover:text-[#115E59] dark:text-teal-400 dark:hover:text-teal-300"
           >
             <ArrowLeft size={16} />
             Back to Users
@@ -103,26 +103,26 @@ export default async function AdminUserDetailsPage({
 
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-teal-50 text-[#0F766E]">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-teal-50 text-[#0F766E] dark:bg-teal-950/50 dark:text-teal-400">
                 <UserRound size={26} />
               </div>
 
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[#0F766E]">
+                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[#0F766E] dark:text-teal-400">
                   Customer Profile
                 </p>
 
-                <h1 className="mt-1 text-2xl font-bold text-slate-900 sm:text-3xl">
+                <h1 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
                   {fullName}
                 </h1>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                   {user.email || "No email available"}
                 </p>
               </div>
             </div>
 
-            <div className="rounded-full border border-teal-100 bg-teal-50 px-3 py-2 text-xs font-semibold text-[#0F766E]">
+            <div className="rounded-full border border-teal-100 bg-teal-50 px-3 py-2 text-xs font-semibold text-[#0F766E] dark:border-teal-900/60 dark:bg-teal-950/50 dark:text-teal-400">
               {user.role?.trim() || "Customer"}
             </div>
           </div>
@@ -155,7 +155,7 @@ export default async function AdminUserDetailsPage({
         </div>
 
         {/* Account Information */}
-        <section className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <section className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
           <SectionHeader
             title="Account Information"
             description="Personal and account details for this customer."
@@ -213,7 +213,7 @@ export default async function AdminUserDetailsPage({
         </section>
 
         {/* Account Status */}
-        <section className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <section className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900 sm:p-6">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
@@ -224,17 +224,17 @@ export default async function AdminUserDetailsPage({
                 <span
                   className={`h-2.5 w-2.5 rounded-full ${
                     user.status?.trim().toLowerCase() === "disabled"
-                      ? "bg-red-500"
-                      : "bg-emerald-500"
+                      ? "bg-red-500 dark:bg-red-400"
+                      : "bg-emerald-500 dark:bg-emerald-400"
                   }`}
                 />
 
-                <p className="text-lg font-bold capitalize text-slate-900">
+                <p className="text-lg font-bold capitalize text-slate-900 dark:text-white">
                   {user.status?.trim() || "active"}
                 </p>
               </div>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                 Control whether this customer can access their account.
               </p>
             </div>
@@ -247,7 +247,7 @@ export default async function AdminUserDetailsPage({
         </section>
 
         {/* Linked Bank Accounts */}
-        <section className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <section className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
           <SectionHeader
             title="Linked Bank Accounts"
             description="Bank accounts connected to this customer."
@@ -264,30 +264,30 @@ export default async function AdminUserDetailsPage({
               {userBankAccounts.map((bank) => (
                 <div
                   key={bank.$id}
-                  className="rounded-2xl border border-slate-200 bg-slate-50 p-5 transition hover:border-teal-100 hover:bg-teal-50/30"
+                  className="rounded-2xl border border-slate-200 bg-slate-50 p-5 transition hover:border-teal-100 hover:bg-teal-50/30 dark:border-slate-800 dark:bg-slate-950/60 dark:hover:border-teal-900/60 dark:hover:bg-teal-950/20"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-sm font-bold text-slate-900">
+                      <p className="text-sm font-bold text-slate-900 dark:text-white">
                         {bank.bankName || "Bank Account"}
                       </p>
 
-                      <p className="mt-1 text-sm text-slate-500">
+                      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                         {bank.accountName || "—"}
                       </p>
                     </div>
 
-                    <span className="rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-600">
+                    <span className="rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-600 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-400">
                       Linked
                     </span>
                   </div>
 
-                  <div className="mt-5 border-t border-slate-200 pt-4">
+                  <div className="mt-5 border-t border-slate-200 pt-4 dark:border-slate-800">
                     <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
                       Account Number
                     </p>
 
-                    <p className="mt-1 font-mono text-sm font-medium text-slate-700">
+                    <p className="mt-1 font-mono text-sm font-medium text-slate-700 dark:text-slate-300">
                       ••••{" "}
                       {String(bank.accountNumber || "").slice(-4)}
                     </p>
@@ -298,7 +298,7 @@ export default async function AdminUserDetailsPage({
                       Bank Code
                     </p>
 
-                    <p className="mt-1 font-mono text-sm text-slate-600">
+                    <p className="mt-1 font-mono text-sm text-slate-600 dark:text-slate-400">
                       {bank.bankCode || "—"}
                     </p>
                   </div>
@@ -309,7 +309,7 @@ export default async function AdminUserDetailsPage({
         </section>
 
         {/* Customer Activity */}
-        <section className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <section className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
           <SectionHeader
             title="Customer Activity"
             description={`${userTransactions.length} transaction${
@@ -325,31 +325,31 @@ export default async function AdminUserDetailsPage({
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-[800px] w-full text-left">
-                <thead className="bg-slate-50">
-                  <tr className="border-b border-slate-100">
-                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-6">
+                <thead className="bg-slate-50 dark:bg-slate-800/60">
+                  <tr className="border-b border-slate-100 dark:border-slate-800">
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 sm:px-6">
                       Type
                     </th>
 
-                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-6">
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 sm:px-6">
                       Amount
                     </th>
 
-                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-6">
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 sm:px-6">
                       Status
                     </th>
 
-                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-6">
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 sm:px-6">
                       Reference
                     </th>
 
-                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 sm:px-6">
+                    <th className="px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 sm:px-6">
                       Details
                     </th>
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {userTransactions.map((transaction) => {
                     const status =
                       transaction.status?.toLowerCase();
@@ -357,23 +357,23 @@ export default async function AdminUserDetailsPage({
                     const statusClass =
                       status === "success" ||
                       status === "successful"
-                        ? "border-emerald-100 bg-emerald-50 text-emerald-600"
+                        ? "border-emerald-100 bg-emerald-50 text-emerald-600 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-400"
                         : status === "pending"
-                          ? "border-amber-100 bg-amber-50 text-amber-600"
-                          : "border-red-100 bg-red-50 text-red-500";
+                          ? "border-amber-100 bg-amber-50 text-amber-600 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-400"
+                          : "border-red-100 bg-red-50 text-red-500 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-400";
 
                     return (
                       <tr
                         key={transaction.$id}
-                        className="transition-colors hover:bg-teal-50/40"
+                        className="transition-colors hover:bg-teal-50/40 dark:hover:bg-teal-950/20"
                       >
                         <td className="px-5 py-4 sm:px-6">
-                          <span className="text-sm font-semibold capitalize text-slate-800">
+                          <span className="text-sm font-semibold capitalize text-slate-800 dark:text-slate-200">
                             {transaction.type || "—"}
                           </span>
                         </td>
 
-                        <td className="whitespace-nowrap px-5 py-4 text-sm font-semibold text-slate-900 sm:px-6">
+                        <td className="whitespace-nowrap px-5 py-4 text-sm font-semibold text-slate-900 dark:text-white sm:px-6">
                           ₦
                           {Number(
                             transaction.amount || 0,
@@ -388,7 +388,7 @@ export default async function AdminUserDetailsPage({
                           </span>
                         </td>
 
-                        <td className="max-w-[220px] truncate px-5 py-4 font-mono text-xs text-slate-500 sm:px-6">
+                        <td className="max-w-[220px] truncate px-5 py-4 font-mono text-xs text-slate-500 dark:text-slate-400 sm:px-6">
                           {transaction.reference ||
                             transaction.$id}
                         </td>
@@ -396,7 +396,7 @@ export default async function AdminUserDetailsPage({
                         <td className="px-5 py-4 sm:px-6">
                           <Link
                             href={`/admin/transactions/${transaction.$id}`}
-                            className="text-sm font-semibold text-[#0F766E] transition hover:text-[#115E59] hover:underline"
+                            className="text-sm font-semibold text-[#0F766E] transition hover:text-[#115E59] hover:underline dark:text-teal-400 dark:hover:text-teal-300"
                           >
                             View
                           </Link>
@@ -428,7 +428,7 @@ function SummaryCard({
   negative?: boolean;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-900">
       <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
         {label}
       </p>
@@ -436,12 +436,12 @@ function SummaryCard({
       <p
         className={`mt-2 text-xl font-bold sm:text-2xl ${
           highlight
-            ? "text-[#0F766E]"
+            ? "text-[#0F766E] dark:text-teal-400"
             : positive
-              ? "text-emerald-600"
+              ? "text-emerald-600 dark:text-emerald-400"
               : negative
-                ? "text-red-500"
-                : "text-slate-900"
+                ? "text-red-500 dark:text-red-400"
+                : "text-slate-900 dark:text-white"
         }`}
       >
         {value}
@@ -458,12 +458,12 @@ function SectionHeader({
   description: string;
 }) {
   return (
-    <div className="border-b border-slate-100 px-5 py-4 sm:px-6">
-      <h2 className="text-base font-bold text-slate-900 sm:text-lg">
+    <div className="border-b border-slate-100 px-5 py-4 dark:border-slate-800 sm:px-6">
+      <h2 className="text-base font-bold text-slate-900 dark:text-white sm:text-lg">
         {title}
       </h2>
 
-      <p className="mt-1 text-sm text-slate-500">
+      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
         {description}
       </p>
     </div>
@@ -488,7 +488,7 @@ function DetailItem({
       </p>
 
       <p
-        className={`mt-1.5 text-sm font-medium text-slate-800 ${
+        className={`mt-1.5 text-sm font-medium text-slate-800 dark:text-slate-200 ${
           breakAll ? "break-all" : ""
         } ${capitalize ? "capitalize" : ""}`}
       >
@@ -510,16 +510,20 @@ function EmptyState({
   return (
     <div className="flex min-h-[180px] flex-col items-center justify-center px-6 text-center">
       {icon && (
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-50 text-[#0F766E]">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-50 text-[#0F766E] dark:bg-teal-950/50 dark:text-teal-400">
           {icon}
         </div>
       )}
 
-      <h3 className={`${icon ? "mt-4" : ""} text-sm font-semibold text-slate-900`}>
+      <h3
+        className={`${
+          icon ? "mt-4" : ""
+        } text-sm font-semibold text-slate-900 dark:text-white`}
+      >
         {title}
       </h3>
 
-      <p className="mt-1 max-w-md text-sm text-slate-500">
+      <p className="mt-1 max-w-md text-sm text-slate-500 dark:text-slate-400">
         {description}
       </p>
     </div>
